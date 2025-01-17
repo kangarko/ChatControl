@@ -1,0 +1,39 @@
+name: Question
+description: Ask a question about the plugin.
+title: "Version: Title"
+labels: []
+body:
+
+
+- type: markdown
+  attributes:
+    value: |
+      #### Please replace "Version" with your server version (i.e. Paper 1.21), and Title with question summary in your title. 
+
+- type: dropdown
+  attributes:
+    label: Are you using MySQL?
+    options:
+      - 'No'
+      - 'Yes'
+  validations:
+    required: true
+
+
+- type: dropdown
+  attributes:
+    label: Are you using a proxy?
+    options:
+      - 'No'
+      - 'Yes - Velocity'
+      - 'Yes - BungeeCord'
+  validations:
+    required: true
+
+
+- type: textarea
+  attributes:
+    label: Question
+    description: Please be as a clear and concise as possible.
+  validations:
+    required: true

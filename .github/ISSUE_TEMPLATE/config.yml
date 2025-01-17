@@ -1,0 +1,12 @@
+
+blank_issues_enabled: false
+contact_links:
+  - name: Billing & payment
+    url: https://mineacademy.org/contact
+    about: Send us an email in case of a billing or a payment related issue.
+  - name: View common issues
+    url: https://github.com/kangarko/ChatControl/wiki/Common-Issues
+    about: Check the list of known common issues to see if it solves your problem.
+  - name: Ask volunteers on Discord
+    url: https://mineacademy.org/discord
+    about: Please note that kangarko answers tickets only at GitHub.

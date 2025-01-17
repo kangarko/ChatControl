@@ -1,0 +1,117 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mineacademy</groupId>
+		<artifactId>chatcontrol-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>chatcontrol-bungeecord</artifactId>
+	<name>BungeeControl</name>
+	<version>4.1.3</version>
+
+	<properties>
+		<main.class>org.mineacademy.chatcontrol.bungee.BungeeControl</main.class>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.md-5</groupId>
+			<artifactId>bungeecord-api</artifactId>
+			<version>1.21-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mineacademy</groupId>
+			<artifactId>chatcontrol-proxy-core</artifactId>
+			<version>LATEST</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mineacademy</groupId>
+			<artifactId>foundation-bungee</artifactId>
+			<version>LATEST</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Premium dependencies, stored locally -->
+		<dependency>
+			<groupId>org.mineacademy.plugin</groupId>
+			<artifactId>RedisBungee-BungeeCord</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/library/RedisBungee-Proxy-Bungee-0.12.5-all.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.mineacademy.plugin</groupId>
+			<artifactId>BungeecordPartyAndFriends</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/library/BungeecordPartyAndFriends-1.0.94.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.mineacademy.plugin</groupId>
+			<artifactId>Parties</artifactId>
+			<version>1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/library/Parties-3.2.16.jar</systemPath>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.name}-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.4.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<artifactSet>
+						<includes>
+							<include>org.mineacademy:foundation-bungee*</include>
+							<include>org.mineacademy:chatcontrol-core*</include>
+							<include>org.mineacademy:chatcontrol-proxy-core*</include>
+						</includes>
+					</artifactSet>
+					<relocations>
+						<relocation>
+							<pattern>org.mineacademy.fo</pattern>
+							<shadedPattern>
+								org.mineacademy.chatcontrol.bungee.lib.fo</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+</project>

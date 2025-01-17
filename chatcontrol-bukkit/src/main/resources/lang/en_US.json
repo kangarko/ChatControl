@@ -1,0 +1,980 @@
+{
+  "case-receiver": "receiver, receivers",
+  "case-recipient": "recipient, recipients",
+  "channel-available": " <white>Available: <gray>",
+  "channel-disabled": "<red>Channels are disabled. Set Channels.Enabled to true in settings.yml to enable.",
+  "channel-disabled-world": "<red>Channels are not enabled on '{world}' world.",
+  "channel-header": "Channels",
+  "channel-join-already-joined": "Player is already joined in this channel in {mode} mode.",
+  "channel-join-already-joined-self": "You are already joined in this channel in {mode} mode.",
+  "channel-join-description": "Join a chat channel.",
+  "channel-join-leave-reading-other": " {target} left reading <italic>{channels}<reset><gray> channel(s) over limit.",
+  "channel-join-leave-reading-you": " You left reading <italic>{channels}<reset><gray> channel(s) over limit.",
+  "channel-join-read-disabled": "Joining channels for reading has been disabled.",
+  "channel-join-success": "Joined <italic>{channel} <reset><gray>channel in {mode} mode.",
+  "channel-join-switch-success": "Switched mode for channel <italic>{channel} <reset><gray>from {old_mode} to {new_mode}.",
+  "channel-join-usage": "<channel> [mode] [player]",
+  "channel-join-usages-2": [
+    "",
+    "<red>Note: Joining player will leave old channel(s) if over limit.",
+    "",
+    "<red>Warning: Give players chatcontrol.channel.join.{channel}.{mode}",
+    "<red>permission for the relevant channel and mode (read or write)",
+    "<red>otherwise we will kick him out of channel when he joins."
+  ],
+  "channel-join-usages-others": [
+    "/{label} {sublabel} <channel> <mode> [player] <gray>- Join player to channel for mode."
+  ],
+  "channel-join-usages-self": [
+    "/{label} {sublabel} <channel> <gray>- Join channel for writing.",
+    "/{label} {sublabel} <channel> <mode> <gray>- Join channel for mode."
+  ],
+  "channel-leave-description": "Leave a chat channel.",
+  "channel-leave-no-channel": "You have no channels to leave.",
+  "channel-leave-no-channel-other": "Player has no channels to leave.",
+  "channel-leave-not-joined": "You are not joined in this channel. There are no channels you can leave.",
+  "channel-leave-not-joined-other": "{name} is not joined in this channel. There are no channels player can leave.",
+  "channel-leave-not-joined-suggest-alt": "You are not joined in this channel. You can leave channels: {channels}.",
+  "channel-leave-not-joined-suggest-alt-other": "{name} is not joined in this channel. Player can leave channels: {channels}",
+  "channel-leave-success": "You left the <italic>{channel} <reset><gray>channel.",
+  "channel-leave-success-other": "{target} left the <italic>{channel} <reset><gray>channel.",
+  "channel-leave-switch-to-reading": "You switched the <italic>{channel} <reset><gray>channel to reading. Type the command again to leave.",
+  "channel-leave-switch-to-reading-other": "{target} switched the <italic>{channel} <reset><gray>channel to reading. Type the command again to leave.",
+  "channel-leave-usage": "<channel> [player]",
+  "channel-leave-usages-others": [
+    "/{label} {sublabel} <channel> <player> <gray>- Force player to leave channel."
+  ],
+  "channel-leave-usages-self": [
+    "/{label} {sublabel} <channel> <gray>- Leave chat channel."
+  ],
+  "channel-list-description": "List players in chat channels.",
+  "channel-list-header": "Online Channel Players",
+  "channel-list-header-network": "Network Channel Players",
+  "channel-list-join": " <dark_gray>[<gray>Join<dark_gray>]",
+  "channel-list-join-tooltip": [
+    "<gold>Click to join this channel."
+  ],
+  "channel-list-leave": " <dark_gray>[<green>Leave<dark_gray>]",
+  "channel-list-leave-tooltip": [
+    "<gold>Click to leave this channel."
+  ],
+  "channel-list-line": "<dark_gray>[{mode_colorized}<dark_gray>] <white>{player}",
+  "channel-list-mute": " <dark_gray>[<gray>Mute<dark_gray>]",
+  "channel-list-mute-tooltip": [
+    "<gold>Click to mute this channel for 15 minutes."
+  ],
+  "channel-list-no-players": " <gray>- <italic>No players.",
+  "channel-list-remove": "<dark_gray>[<dark_red>X<dark_gray>] ",
+  "channel-list-remove-tooltip": [
+    "<gold>Click to remove {player} from channel."
+  ],
+  "channel-list-unmute": " <dark_gray>[<red>Unmute<dark_gray>]",
+  "channel-list-unmute-tooltip": [
+    "<gold>Click to unmute this channel."
+  ],
+  "channel-list-usage": "[channel]",
+  "channel-list-usages": [
+    "/{label} {sublabel} <gray>- List all channels with players.",
+    "/{label} {sublabel} <channel> <gray>- List players in the given channel."
+  ],
+  "channel-no-channel": "No such channel: '{channel}'. Available: {available}",
+  "channel-no-channels": "<red>There are no channels. Add some in Channels.List in settings.yml.",
+  "channel-send-as-description": "Send message to a channel as player.",
+  "channel-send-as-error": "Sending as '{player}' failed: {error}",
+  "channel-send-as-usage": "<player> <channel> <message>",
+  "channel-send-description": "Send message to a channel.",
+  "channel-send-usage": "<channel> <message>",
+  "channel-set-description": "Bulk set channel & modes, bypassing limits.",
+  "channel-set-success": "Set {channel} channel for {player} to {mode} mode.",
+  "channel-set-success-remove": "Remove {channel} channel from {player}.",
+  "channel-set-usage": "<player> <channel> <mode/none>|<anotherChannel> <anotherMode>|etc.",
+  "channel-set-usages": [
+    "/{label} {sublabel} kangarko admin write <gray>- Set channel for player.",
+    "/{label} {sublabel} kangarko admin none <gray>- Remove a channel from player."
+  ],
+  "channel-tooltip-join": [
+    "<green>Click to join"
+  ],
+  "channel-tooltip-join-read": [
+    "<dark_green>Click to join this channel for reading."
+  ],
+  "channel-tooltip-join-write": [
+    "<dark_green>Click to join this channel for writing."
+  ],
+  "channel-tooltip-joined": [
+    "<white>You are joined in this channel."
+  ],
+  "channel-tooltip-leave": [
+    "<red>Click to leave"
+  ],
+  "channel-tooltip-switch-to-read": [
+    "<gray>Switch to reading"
+  ],
+  "channel-tooltip-switch-to-write": [
+    "<gray>Start writing to channel"
+  ],
+  "checker-caps": "Please avoid excessive capitalization in your {type}.",
+  "checker-delay-after-join-chat": "Please wait {seconds} before typing messages.",
+  "checker-delay-after-join-command": "Please wait {seconds} before typing commands.",
+  "checker-delay-chat": "Please wait {seconds} before your next message.",
+  "checker-delay-command": "Please wait {seconds} before your next command.",
+  "checker-move-chat": "Please move before typing into chat.",
+  "checker-move-command": "Please move before executing commands.",
+  "checker-no-text": "You cannot send chat messages without text!",
+  "checker-no-text-after-change": "Your message has been edited and cannot be sent because it is now empty.",
+  "checker-parrot": "You cannot repeat '{message}' since it's {similarity}% similar to what was said in the last {delay}.",
+  "checker-period": "You can only send {type_amount} {type} in {period_amount} {period}.",
+  "checker-sign-duplication": "Do not place multiple signs with the same text.",
+  "checker-similarity-chat": "Please do not type messages that are {similarity}% similar.",
+  "checker-similarity-command": "Please do not run commands that are {similarity}% similar.",
+  "checker-sound-notify": "<red>You cannot use sound notify for another {seconds}.",
+  "command-announce-chat-body": [
+    "<dark_gray>{chat_line}",
+    "<center><red><bold>! <gold><bold>{type} <red><bold>!",
+    "<dark_gray>{chat_line}",
+    "<white>{lines}",
+    "{remaining_space}",
+    "<dark_gray>{chat_line}"
+  ],
+  "command-announce-chat-body-line-color": "YELLOW",
+  "command-announce-description": "Announce various messages.",
+  "command-announce-empty": "Your message cannot be empty!",
+  "command-announce-image-error": "Failed to broadcast image from '{file}': {error}. Please see console for more information.",
+  "command-announce-image-lines": "Please enter a valid number representing how many chat lines the image will strech over.",
+  "command-announce-invalid-file": "No such file: {file}",
+  "command-announce-invalid-image": "Unable to find image '{file}'",
+  "command-announce-invalid-image-height": "Image height must be between {min} and {max}.",
+  "command-announce-invalid-key": "Invalid key '{key}' value: {value}. Available: {available}",
+  "command-announce-invalid-raw-type": "Invalid type! Only 'raw' is supported at the moment.",
+  "command-announce-invalid-time-seconds": "Please enter a valid integer representing time in seconds.",
+  "command-announce-invalid-time-ticks": "Please enter a valid integer representing a time in ticks.",
+  "command-announce-no-type": "Please specify a message to broadcast.",
+  "command-announce-success": "Your announcement has been sent.",
+  "command-announce-success-network": "Your announcement was sent to server '{server}'.",
+  "command-announce-type": "ANNOUNCEMENT",
+  "command-announce-type-network": "NETWORK ANNOUNCEMENT",
+  "command-announce-usage": "<type> <message>",
+  "command-announce-usage-actionbar": "/{label} {sublabel} actionbar <message> server:creative <gray>- Broadcast an action bar to 'creative' server.",
+  "command-announce-usage-bossbar": "/{label} {sublabel} bossbar <message> time:<seconds> color:<color> style:<style> <gray>- Broadcast boss bar.",
+  "command-announce-usage-chat": "/{label} {sublabel} chat <message> [server:<server>] [type:raw] <gray>- Broadcast chat.",
+  "command-announce-usage-footer": [
+    "",
+    "<red><bold>TIP: <reset><gray>When sending chat, prepend it with [JSON] <gray>to send it as raw JSON."
+  ],
+  "command-announce-usage-image": "/{label} {sublabel} image <path> <linesHeight> [message|anotherMessage]",
+  "command-announce-usage-no-perms": "You don't have any subpermissions to announce any type, such as chatcontrol.command.announce.chat.",
+  "command-announce-usage-title": "/{label} {sublabel} title <title|subtitle> fadein:<ticks> stay:<ticks> fadeout:<ticks> <gray>- Broadcast a title. Use | to separate title/subtitle..",
+  "command-announce-usage-toast": "/{label} {sublabel} toast <message> icon:<material> <gray>- Broadcast a toast.",
+  "command-book-delete": "Book '{name}' has successfully been deleted.",
+  "command-book-delete-fail": "Could not delete '{name}'.",
+  "command-book-description": "Manipulate in-game books.",
+  "command-book-give": "Player {player} has received the book as item.",
+  "command-book-invalid": "No such book: '{name}'. Available: {available}",
+  "command-book-list": " <gray>'<white>{title}<gray>' <gray>by {author} from {date}",
+  "command-book-list-delete": "<dark_gray>[<red>X<dark_gray>]",
+  "command-book-list-delete-tooltip": [
+    "<gold>Click to delete."
+  ],
+  "command-book-list-header": "Books",
+  "command-book-list-none": "There are no books in books/ folder.",
+  "command-book-list-open": "<dark_gray>[<gold>O<dark_gray>]",
+  "command-book-list-open-tooltip": [
+    "<gold>Open this book."
+  ],
+  "command-book-list-tooltip": [
+    "<gray>File name: <white>{name}"
+  ],
+  "command-book-loaded": "Loaded book '{name}' as mail. Send using '/{label} send'.",
+  "command-book-mail-disabled": "Cannot create books when mails are disabled. Set Mail.Enabled to true in settings.yml to enable.",
+  "command-book-new": "Use the mail function to create a book. When you are ready, type '/{label} {sublabel} save' to save it. ",
+  "command-book-no-book": "Specify a book name first. Available: {available}.",
+  "command-book-open": "The book has been opened for {player}.",
+  "command-book-page": "<gold>Page {page}:",
+  "command-book-page-header": "Book '{title}' by {author}",
+  "command-book-save": "Saved book to books/{name}.yml.",
+  "command-book-save-error": "Failed to save {name}: {error}",
+  "command-book-save-no-book": "Create a book first with '/{label} {sublabel} new'.",
+  "command-book-save-no-name": "Specify the book name. It will be placed into books/ in your plugin's directory.",
+  "command-book-save-not-signed": "Sign your book first before saving it.",
+  "command-book-unnamed": "Unnamed",
+  "command-book-unsigned": "Unsigned",
+  "command-book-usage": "<new/save/delete/open/give/list> [name] [player]",
+  "command-book-usages": [
+    "/{label} {sublabel} new <gray>- Create new book via '/mail new' command.",
+    "/{label} {sublabel} save <name> <gray>- Save a signed book.",
+    "/{label} {sublabel} delete <name> <gray>- Delete a stored book.",
+    "/{label} {sublabel} open <name> [player] <gray>- Open book for player.",
+    "/{label} {sublabel} give <name> [player] <gray>- Give a book to player.",
+    "/{label} {sublabel} list <gray>- List all created books."
+  ],
+  "command-clear-description": "Clear the game chat.",
+  "command-clear-no-arguments-while-console": "You cannot use other arguments when clearing console.",
+  "command-clear-success": "Game chat has been cleared by {player}. Reason: {reason}",
+  "command-clear-success-anonymous": "Game chat has been cleared. Reason: {reason}",
+  "command-clear-success-anonymous-no-reason": "Game chat has been cleared.",
+  "command-clear-success-console": "Console has been cleared by {player}. Reason: {reason}",
+  "command-clear-success-console-no-reason": "Console has been cleared by {player}.",
+  "command-clear-success-network": "Network chat has been cleared by {player}. Reason: {reason}",
+  "command-clear-success-network-anonymous": "Network chat has been cleared. Reason: {reason}",
+  "command-clear-success-network-anonymous-no-reason": "Network chat has been cleared.",
+  "command-clear-success-network-no-reason": "Network chat has been cleared by {player}.",
+  "command-clear-success-no-reason": "Game chat has been cleared by {player}.",
+  "command-clear-success-staff": "Chat has been successfully cleared by {player}.",
+  "command-clear-usage": "[-a/-c/-s/-f] [reason]",
+  "command-clear-usages": [
+    "/{label} {sublabel} [reason] <gray>- Clear the game chat.",
+    "/{label} {sublabel} -a(nonymous) <gray>- Do not broadcast who cleared it.",
+    "/{label} {sublabel} -c(console) <gray>- Clear the server console.",
+    "/{label} {sublabel} -s(ilent) <gray>- Do not broadcast any message.",
+    "/{label} {sublabel} -f(orce) <gray>- Clear chat for players with bypass perm."
+  ],
+  "command-color-chat-color": "<gray>chat color",
+  "command-color-color-not-allowed": "Please only enter decorations not colors.",
+  "command-color-decoration": "decoration",
+  "command-color-decoration-not-allowed": "Please only enter colors not decorations.",
+  "command-color-description": "Set chat color and decoration.",
+  "command-color-invalid-color-hex": "Invalid chat color. Valid syntax: & color, name or #<hex>. Available: {available}",
+  "command-color-invalid-color-legacy": "Invalid chat color. Valid syntax: & color, name. Available: {available}",
+  "command-color-invalid-decoration": "Invalid chat decoration. Use & or name syntax. Available: {available}",
+  "command-color-no-change": "<gray>No change of color/decoration for {player}.",
+  "command-color-not-saved": "{player} doesn't have any color nor decoration.",
+  "command-color-reset-color": "<gray>Reset chat color for {player}.",
+  "command-color-reset-color-reset-decoration": "<gray>Reset both chat color and decoration for {player}.",
+  "command-color-reset-color-set-decoration": "<gray>Reset chat color and set decoration to {color}<reset><gray> for {player}.",
+  "command-color-reset-decoration": "<gray>Reset chat decoration for {player}.",
+  "command-color-set-color": "<gray>Set chat color to {color} <gray>for {player}.",
+  "command-color-set-color-reset-decoration": "<gray>Set chat color to {color}<gray> and reset decoration for {player}.",
+  "command-color-set-color-set-decoration": "<gray>Set chat color to {color}<gray> and set decoration to {decoration}<reset><gray> for {player}.",
+  "command-color-set-decoration": "<gray>Set chat decoration to {decoration} <gray>for {player}.",
+  "command-color-usage": "<color/status/menu> [decoration] [player]",
+  "command-color-usages-1": [
+    "/{label} {sublabel} status [player] <gray>- Print your color and decoration.",
+    "/{label} {sublabel} menu <gray>- Open color and decoration menu.",
+    "/{label} {sublabel} yellow <gray>- Set chat color to yellow."
+  ],
+  "command-color-usages-2": [
+    "/{label} {sublabel} default bold [player] <gray>- Only set decoration.",
+    "/{label} {sublabel} red bold [player] <gray>- Set color and decoration.",
+    "/{label} {sublabel} reset <gray>- Reset color.",
+    "/{label} {sublabel} reset reset [player] <gray>- Reset color and decoration."
+  ],
+  "command-color-usages-hex-1": [
+    "/{label} {sublabel} #<hexcode> <gray>- Set chat color to HEX."
+  ],
+  "command-color-usages-hex-2": [
+    "",
+    "<red><bold>TIP:<reset><red> Visit htmlcolorcodes.com to generate HEX colors."
+  ],
+  "command-compiling-data": "Compiling database information..",
+  "command-forward-description": "Forward commands to proxy.",
+  "command-forward-success": "Your command has been sent successfuly.",
+  "command-forward-unknown-server": "Unknown server. Available: proxy, {available}",
+  "command-forward-usage": "<server> <command...>",
+  "command-forward-usages": [
+    "/{label} {sublabel} <server> <command...> <gray>- Run a command on proxy or other servers in your network.",
+    "/{label} {sublabel} proxy send all creative <gray>- Run 'send all creative' command on proxy.",
+    "/{label} {sublabel} creative say Hi there! <gray>- Run the command on 'creative' server.",
+    "",
+    "<red><bold>NOTE: <reset><red>You cannot send commands to empty servers."
+  ],
+  "command-header-no-subcommand": "<red>There are no arguments for this command.",
+  "command-header-no-subcommand-permission": "<red>You don't have permissions to view any subcommands.",
+  "command-ignore-cannot-ignore-admin": "You cannot ignore that player.",
+  "command-ignore-cannot-ignore-self": "You are already ignoring yourself when you don't listen to your body or your mind, fail to set boundaries and don't meet your own needs. Stop it, get some help.",
+  "command-ignore-cannot-pm": "{receiver_name} is ignoring you. No message sent.",
+  "command-ignore-cannot-pm-ignored": "You are ignoring {receiver_name}. No message sent.",
+  "command-ignore-cannot-sound-notify-receiver": "Cannot tag {player} because he ignores you.",
+  "command-ignore-cannot-sound-notify-sender": "Cannot tag {player} because you ignore him.",
+  "command-ignore-description": "Toggle seeing messages/PMs from players.",
+  "command-ignore-disable": "You are <green>no longer <gray>ignoring {target}.",
+  "command-ignore-disable-other": "{player} is <green>no longer <gray>ignoring {target}.",
+  "command-ignore-enable": "You are <red>now <gray>ignoring {target}.",
+  "command-ignore-enable-other": "{player} is <red>now <gray>ignoring {target}.",
+  "command-ignore-list-header": "Ignored Players For {player}",
+  "command-ignore-list-tooltip-stop": [
+    "<gold>Click to stop ignoring {player}."
+  ],
+  "command-ignore-not-ignoring": "You are not ignoring anyone.",
+  "command-ignore-not-ignoring-other": "{player} is not ignoring anyone.",
+  "command-ignore-part-off": "<gray>You are <dark_green>no longer <gray>ignoring {type}.",
+  "command-ignore-part-on": "<gray>You are <red>now <gray>ignoring {type}.",
+  "command-ignore-usage": "<player/list> [player]",
+  "command-ignore-usages": [
+    "/{label} <player> <gray>- Toggle ignoring a player."
+  ],
+  "command-ignore-usages-list": [
+    "/{label} list <gray>- Print players you are ignoring."
+  ],
+  "command-ignore-usages-list-others": [
+    "/{label} list <player> <gray>- Print players another player is ignoring."
+  ],
+  "command-ignore-usages-others": [
+    "/{label} <forWhom> <player> <gray>- Toggle ignoring a player for other player."
+  ],
+  "command-info-cache-player": "<red>Cache information for {player}",
+  "command-info-description": "Display debug information.",
+  "command-info-is-newcomer": "{player} joined {date_joined} ago and <green>is <gray>a newcomer.",
+  "command-info-is-not-newcomer": "{player} joined {date_joined} ago and <red>is not <gray>a newcomer.",
+  "command-info-usage": "<param> <player> [args...]",
+  "command-info-usages": [
+    "/{label} {sublabel} newcomer <player> <gray>- Print if player is newcomer.",
+    "/{label} {sublabel} cache <player> <gray>- Print saved information for player.",
+    "/{label} {sublabel} variables <player> <message> <gray>- Parse msg variables.",
+    "",
+    "<red><bold>Example:<reset>",
+    "<gray>/{label} {sublabel} variables Notch {player} is in channel {channel}",
+    "",
+    "<red><bold>TIP:<reset><gray> You can use this to measure the performance of variables and find which cause lag."
+  ],
+  "command-info-variables": "<gray>Result (took {time}ms): <reset>{result}",
+  "command-info-variables-empty": "<gray>Result (took {time}ms): <italic>Empty output.",
+  "command-info-variables-no-message": "Please enter a message in which we replace variables.",
+  "command-internal-invalid-book": "The book {uuid} was not found in our database.",
+  "command-internal-invalid-meta": "You do not have the key metadata!",
+  "command-invalid-channel": "No such channel: '{channel}'. Available: {available}",
+  "command-invalid-group": "No such group: '{group}'. Available: {available}",
+  "command-invalid-log": "No such log: '{type}'. Available: {available}",
+  "command-invalid-message": "No such message: '{message}'. Available: {available}",
+  "command-invalid-mode": "No such mode: '{mode}'. Available: {available}",
+  "command-invalid-rule": "No such rule: '{rule}'. Available: {available}",
+  "command-invalid-server": "No such server: '{server}' Available: {available}.",
+  "command-invalid-tag": "No such tag: '{tag}'. Available: {available}",
+  "command-invalid-warning-set": "No such warning set: '{warning_set}'. Available: {available}",
+  "command-label-subcommand-description": " <white>/{label} {sublabel} {usage+}{dash+}{description}",
+  "command-list-description": "List online players.",
+  "command-list-header-local": "Listing Online Player(s)",
+  "command-list-header-network": "Listing Network Player(s)",
+  "command-list-usage-1-local": "/{label} <gray>- List online players.",
+  "command-list-usage-1-network": "/{label} <gray>- List online players on all servers.",
+  "command-list-usage-2": "/{label} survival <gray>- List players on 'survival' server.",
+  "command-list-usage-server": "[server]",
+  "command-log-cannot-use-channel": "Can only use 'channel' parameter on chat.",
+  "command-log-cannot-use-label": "Can only use 'label' parameter on commands.",
+  "command-log-cannot-use-to": "Can only use 'to' parameter on private messages.",
+  "command-log-description": "View last player communication.",
+  "command-log-invalid-key": "Invalid key '{key}' value: {value}.",
+  "command-log-invalid-syntax": "Invalid syntax! Usage: <value>:<key>. Got: {value}",
+  "command-log-invalid-value": "Please specify a valid value for '{value}'.",
+  "command-log-listing-header-all": "Listing All Logs",
+  "command-log-listing-header-of-type": "Listing {type} Logs",
+  "command-log-no-logs-matched": "No logs match the given parameters.",
+  "command-log-no-logs-of-type": "No logs for {type} were found.",
+  "command-log-no-logs-plain": "No logs were found.",
+  "command-log-placed-sign": " <gray>placed sign:",
+  "command-log-renamed-item": " <gray>renamed item: <white>",
+  "command-log-sent-mail": " <gray>sent mail <white>'{subject}'",
+  "command-log-tooltip-channel": [
+    "<gray>Channel: <white>{channel}"
+  ],
+  "command-log-tooltip-click-to-read": [
+    "",
+    "<gold>Click to read."
+  ],
+  "command-log-tooltip-group": [
+    "<gray>Group: <white>{group}"
+  ],
+  "command-log-tooltip-recipients": [
+    "<gray>Recipients:"
+  ],
+  "command-log-tooltip-rule-plain": [
+    "<gray>Rule: <white>{rule}"
+  ],
+  "command-log-tooltip-rule-unnamed": [
+    "<gray>Rule: <white><italic>Unnamed."
+  ],
+  "command-log-type-anvil": "anvil",
+  "command-log-type-book": "book",
+  "command-log-type-chat": "chat",
+  "command-log-type-command": "command",
+  "command-log-type-mail": "mail",
+  "command-log-type-private-message": "private message",
+  "command-log-type-sign": "sign",
+  "command-log-usage": "<type> [key:value...]",
+  "command-log-usages-1": [
+    "/{label} {sublabel} <type> player:kangarko <gray>- View logs from player.",
+    "/{label} {sublabel} <type> before:10m <gray>- View logs before timestamp.",
+    "/{label} {sublabel} <type> in:1h <gray>- View recent logs in timestamp."
+  ],
+  "command-log-usages-2": [
+    "/{label} {sublabel} <type> label:me <gray>- View command logs."
+  ],
+  "command-log-usages-3": [
+    "",
+    "<red><bold>TIP: <reset><red>You can use multiple key:value parameters. To list all logs, type 'all' for the type.",
+    "<red><bold>TIP: <reset><red>The 'player' and 'to' parameters don't support nicknames."
+  ],
+  "command-log-usages-channel": [
+    "/{label} {sublabel} <type> channel:admin <gray>- View logs in channel."
+  ],
+  "command-log-usages-rule": [
+    "/{label} {sublabel} <type> rule:ip <gray>- View logs matching rule.",
+    "/{label} {sublabel} <type> group:ads <gray>- View logs matching rule group."
+  ],
+  "command-log-usages-to": [
+    "/{label} {sublabel} <type> to:receiver <gray>- View PMs/mails to receiver."
+  ],
+  "command-log-wrote-book-signed": " <gray>wrote book <white>{title}",
+  "command-log-wrote-book-tooltip": [
+    "<gold>Click to open"
+  ],
+  "command-log-wrote-book-unsigned": " <gray>wrote book <white><italic>Unsigned<reset>",
+  "command-mail-already-drafting": "You already have the mail draft item in your inventory.",
+  "command-mail-archive-header": "Email Sent By You",
+  "command-mail-archive-line": " <reset>{subject} <gray>to {recipients} <gray>at {date}",
+  "command-mail-archive-no-mail": "You have no archive of sent mail.",
+  "command-mail-archive-recipients-tooltip": [
+    "<gray>Recipients:"
+  ],
+  "command-mail-archive-tooltip-read": [
+    "{recipient}<gray>: <dark_green>read"
+  ],
+  "command-mail-archive-tooltip-unread": [
+    "{recipient}<gray>: <gray>unread"
+  ],
+  "command-mail-autoresponder": "Your auto-responder '{title}' expires {date}. Type '/{label} {0} <time>' to renew it.",
+  "command-mail-autoresponder-disabled": "You have no active auto-responder.",
+  "command-mail-autoresponder-invalid-time": "Malformed syntax, expected human readable time like '1 minute' or '3 days', got '{time}' instead.",
+  "command-mail-autoresponder-missing": "You attempted to set a time but you're not creating a draft nor you have an old auto-responder. Create a new mail draft first.",
+  "command-mail-autoresponder-removed": "Your mail auto-responder has been removed.",
+  "command-mail-autoresponder-set": "Set a new auto-responder that expires {date}.",
+  "command-mail-autoresponder-updated": "Updated your old auto-responder to expire {date}.",
+  "command-mail-autoresponder-usage": "Enter 'view' to view your auto-responder, 'off' to disable it or write time such as '3 days' to renew an existing one or use your draft as a new one.",
+  "command-mail-delete-invalid": "No such email, perhaps it was deleted already.",
+  "command-mail-delete-invalid-recipient": "No such recipient by ID: {uuid}",
+  "command-mail-delete-no-recipient": "Recipient unique ID not provided.",
+  "command-mail-delete-recipient": "The selected email has been deleted.",
+  "command-mail-delete-sender": "The selected email has been deleted. Keep in mind recipient will still be able to read it.",
+  "command-mail-delete-tooltip": [
+    "<gold>Click to delete."
+  ],
+  "command-mail-description": "Manage your game mail.",
+  "command-mail-draft-discarded": "Your pending mail has been discarded.",
+  "command-mail-draft-saved": "Saved your mail as a draft. Sign the book with title as the subject line when you want to send it. Use /mail new to re-open.",
+  "command-mail-forward-recipients": "Enter player names separated by | that will receive the email to the chat, or type 'exit' to abort.",
+  "command-mail-forward-recipients-invalid": "Invalid syntax! Specify recipient names such as kangarko|anotherPlayer|thirdPlayer. Got: {input}",
+  "command-mail-forward-success": "{prefix_success} Your mail has successfully been forwarded.",
+  "command-mail-forward-tooltip": [
+    "<gold>Click to forward."
+  ],
+  "command-mail-hand-full": "Clear your main hand before writing an email.",
+  "command-mail-inbox-header": "Email Sent To You",
+  "command-mail-inbox-line": " <reset>{subject} <gray>by {sender} <gray>at {date}",
+  "command-mail-item-title": "Right click draft your mail",
+  "command-mail-item-tooltip": [
+    "<reset><gray>click with mouse to discard."
+  ],
+  "command-mail-join-notification": "You have new mail ({amount}). Use '/mail inbox' to read.",
+  "command-mail-new-notification": "{sender} sent you a new mail. Use '/mail inbox' to read.",
+  "command-mail-new-usage-new": "Right click to draft a new mail. Drop the item to discard.",
+  "command-mail-new-usage-pending": "Right click to continue writing mail. Drop the item to discard.",
+  "command-mail-no-incoming-mail": "You have no incoming mail.",
+  "command-mail-no-pending": "Draft an email first with '/{label} new'.",
+  "command-mail-no-recipients": "Please specify the recipients separated by '|', or 'online' to send to all online players, or 'all' to send to all players stored in our database.",
+  "command-mail-no-subject": "Your mail does not have a subject. Sign your draft item first.",
+  "command-mail-open-tooltip": [
+    "<gold>Click to open."
+  ],
+  "command-mail-open-tooltip-script-read": [
+    "<gray>You have read this mail {date}."
+  ],
+  "command-mail-open-tooltip-script-unread": [
+    "<gold>You have not read this mail."
+  ],
+  "command-mail-ready": "Your mail ready to send. Use '/mail send' to send it.",
+  "command-mail-reply-tooltip": [
+    "<gold>Click to reply."
+  ],
+  "command-mail-reply-usage": "Right click to prepare a reply to {player}. Click on 'Done' to send it. Drop the item to discard.",
+  "command-mail-send-fail": "None of the recipients could receive your mail.",
+  "command-mail-send-fail-ignore": "Cannot send mail to {player} because the player is ignoring you.",
+  "command-mail-send-fail-toggle": "Cannot send mail to {player} because the player has toggled mails off.",
+  "command-mail-send-success": "Email successfully sent!",
+  "command-mail-usage": "<new/send/inbox/sent>",
+  "command-mail-usages": [
+    "/{label} new <gray>- Draft a new mail.",
+    "/{label} send <player/anotherPlayer> <gray>- Send a mail.",
+    "/{label} autor <time/view/off> <gray>- Set auto-responder for mails.",
+    "/{label} inbox <gray>- Read incoming mails.",
+    "/{label} archive <gray>- Read mails you've sent out.",
+    "",
+    "<red><bold>TIP: <reset><red>Time is in human readable format such as '1 hour' etc."
+  ],
+  "command-me-description": "Send a formatted message.",
+  "command-me-usage": "<message>",
+  "command-me-usages": [
+    "/{label} Hello everyone! <gray>- Send a formatted message."
+  ],
+  "command-message-description": "Manage player messages.",
+  "command-message-group": " <dark_gray>- <gray>Group: <white>{group}",
+  "command-message-info": [
+    "<dark_gray>{chat_line}",
+    "<center><gold><bold>{type} message '{group}'"
+  ],
+  "command-message-info-footer": [
+    "<dark_gray>{chat_line}"
+  ],
+  "command-message-list-header": "Showing {amount} {type} Message(s)",
+  "command-message-no-group": "Please specify the message group.",
+  "command-message-no-messages": "No {type} messages are created yet.",
+  "command-message-no-type": "Please specify message type. Available: {available}",
+  "command-message-reloaded": "Reloaded all messages from the messages/ folder.",
+  "command-message-toggle-off": "{type} message {group} has been <red>disabled<gray>.",
+  "command-message-toggle-on": "{type} message {group} has been <green>enabled<gray>.",
+  "command-message-usage": "<list/toggle/info/reload> <type> [group]",
+  "command-message-usages": [
+    "/{label} {sublabel} list <type> <gray>- Print all messages.",
+    "/{label} {sublabel} list <type> <group> <gray>- Print messages from a group.",
+    "/{label} {sublabel} toggle <type> <group> <gray>- Switch message on/off.",
+    "/{label} {sublabel} run <type> <group> <gray>- Force broadcast a message.",
+    "/{label} {sublabel} info <type> <group> <gray>- Print message information.",
+    "/{label} {sublabel} reload <gray>- Reload all messages."
+  ],
+  "command-motd-description": "Read the message of the day.",
+  "command-motd-success": "Message of the day has been sent.",
+  "command-motd-usage": "[player]",
+  "command-motd-usages-others": [
+    "/{label} <player> <gray>- Send the motd to other player."
+  ],
+  "command-motd-usages-self": [
+    "/{label} <gray>- Read your message of the day."
+  ],
+  "command-mute-already-muted": "{type} '{name}' is already muted! Use 'off' as an argument to unmute.",
+  "command-mute-already-muted-server": "{type} is already muted! Use 'off' as an argument to unmute.",
+  "command-mute-cannot-chat": "You cannot type to chat while you are muted.",
+  "command-mute-cannot-chat-channel-muted": "Channel {channel} is muted. Remaining: {player_channel_unmute_remaining_short}",
+  "command-mute-cannot-chat-player-muted": "You are muted, can't chat. Remaining: {player_unmute_remaining_short}",
+  "command-mute-cannot-chat-proxy-muted": "The network is muted, can't chat. Remaining: {network_unmute_remaining_short}",
+  "command-mute-cannot-chat-server-muted": "The server is muted, can't chat. Remaining: {server_unmute_remaining_short}",
+  "command-mute-cannot-command": "You cannot perform this command while you are muted.",
+  "command-mute-cannot-create-books": "Cannot create books while the chat or you are muted!",
+  "command-mute-cannot-mute-admin": "You cannot mute that player.",
+  "command-mute-cannot-mute-proxy-not-enabled": "Cannot mute network as Proxy is not enabled in settings.yml.",
+  "command-mute-cannot-mute-yourself": "You cannot mute yourself fool!",
+  "command-mute-cannot-place-signs": "Cannot place signs while the chat or you are muted!",
+  "command-mute-cannot-rename-items": "Cannot rename items while the chat or you are muted!",
+  "command-mute-change-status-tooltip-mute": [
+    "<gold>Click to mute for 3 minutes"
+  ],
+  "command-mute-change-status-tooltip-unmute": [
+    "<gold>Click to unmute"
+  ],
+  "command-mute-channel-status": "Channel Mute Status",
+  "command-mute-description": "Mute/unmute server, channel or players.",
+  "command-mute-external": "unknown (non-ChatControl mute)",
+  "command-mute-invalid-duration": "Invalid duration format: '{input}'! Valid syntax: 6y5mo4w3d2h1m0s such as 30m or 1m30s",
+  "command-mute-mute-success-plain": "The {type} has been muted by {player} for {duration}.",
+  "command-mute-mute-success-reason": "The {type} has been muted by {player} for {duration}. Reason: {reason}.",
+  "command-mute-no-duration": "Specify the duration such as 15m and an optional reason, or type 'off' to unmute.",
+  "command-mute-not-muted": "{type} '{name}' is not muted!",
+  "command-mute-not-muted-server": "{type} is not muted!",
+  "command-mute-player-or-channel-off": " <gray>- <white>{player_or_channel} <gray>is <dark_green>not muted<gray>.",
+  "command-mute-player-or-channel-on": " <gray>- <white>{player_or_channel} <gray>is <red>muted<gray> for {remaining_time}.",
+  "command-mute-player-status": "Checking Mute For Players",
+  "command-mute-proxy-off": " <gray>The network is <dark_green>not muted<gray>.",
+  "command-mute-proxy-on": " <gray>The network is <red>muted<gray> for {remaining_time}.",
+  "command-mute-server-off": " <gray>This server is <dark_green>not muted<gray>.",
+  "command-mute-server-on": " <gray>This server is <red>muted<gray> for {remaining_time}.",
+  "command-mute-status": "Checking Mute For {type}",
+  "command-mute-type-channel": "channel",
+  "command-mute-type-player": "player",
+  "command-mute-type-proxy": "network",
+  "command-mute-type-server": "server",
+  "command-mute-unmute-success": "The {type} has been unmuted by {player}.",
+  "command-mute-usage": "<proxy/server/channel/player> <params...>",
+  "command-mute-usages": [
+    "/{label} <type> <gray>- Print if type is muted.",
+    "/{label} <type> off <gray>- Unmute type if muted.",
+    "/{label} <type> <duration e.g. 1h2m15s> <gray>- Mute the type.",
+    "/{label} <type> <duration> [reason] <gray>- Mute the type with reason.",
+    "<red>Tip: The type can be 'proxy', 'server', 'channel' or 'player'. For channels and players, also specify their name."
+  ],
+  "command-no-console": "<red>You may only use this command as a player.",
+  "command-no-group-name": "Please specify the group name. Available {available}",
+  "command-no-message-name": "Please specify the message group. Available: {available}",
+  "command-no-player-name-given": "Please specify a player name (can be offline, too).",
+  "command-no-proxy": "You need proxy enabled use this feature.",
+  "command-no-reason-while-silent": "Cannot specify reason when using silent option.",
+  "command-no-rule-name": "Please specify the rule name. Available: {available}",
+  "command-no-silent-and-anonymous": "Cannot specify both silent and anonymous options.",
+  "command-points-description": "Manage player warning points.",
+  "command-points-disabled": "Warning points are disabled in settings.yml",
+  "command-points-given": "Set {points} points to player {player} warning set {warning_set}.",
+  "command-points-list-header": "Saved Warning Points",
+  "command-points-list-item-1": " <gold>Set {warning_set}:",
+  "command-points-list-item-2": " <white>{warning_set}<dark_gray>: <gray>{points} points",
+  "command-points-no-amount": "Please specify valid amount of points to set.",
+  "command-points-no-player-points": "There are no such warning points for {player}.",
+  "command-points-no-points": "There are no warn points stored. Come, get some!",
+  "command-points-no-set": "Please specify a set name. Available: {available}",
+  "command-points-no-stored": "{player} does not have warning points in set '{warning_set}'.",
+  "command-points-player-list-header": "Listing {player}'s Warning Points",
+  "command-points-player-list-item": " <white>{player} <gray>= <white>{points} points",
+  "command-points-remove-tooltip": [
+    "<gold>Click to remove."
+  ],
+  "command-points-removed": "Removed points from player {player} warning set {warning_set}.",
+  "command-points-usage": "<get/set/list> <player> [set] [amount]",
+  "command-points-usages": [
+    "/{label} {sublabel} get <player> [set] <gray>- List player warning points.",
+    "/{label} {sublabel} set <player> <set> <amount> <gray>- Set warning points.",
+    "/{label} {sublabel} list [set] <gray>- List all players warning points."
+  ],
+  "command-purge-description": "Remove messages sent by the player, even if he disconnected.",
+  "command-purge-success": "All messages from {player} were removed.",
+  "command-purge-usage": "<player> [anotherPlayer...]",
+  "command-real-name-description": "Look up a player's real name and nick by his real name or nick.",
+  "command-real-name-nick": "Real name of '{nick}' is '{player}'",
+  "command-real-name-no-nick": "Player {player} has no nick.",
+  "command-real-name-usage": "[name/nick]",
+  "command-reload-success": "{plugin_name} {plugin_version} reloaded. Note that some changes require a server restart.",
+  "command-reloading": "reloading",
+  "command-remote-database-required": "You need a MySQL database to use this feature with proxy. Either disable Proxy or enable MySQL in settings.yml to continue.",
+  "command-reply-alone": "You have nobody to reply to :(",
+  "command-reply-dosage": "<message>",
+  "command-reply-prescription": "Reply to last player who messaged you.",
+  "command-rule-conversation-abandoned": "<red>Your conversation has been abandoned. Your entered data have been lost.",
+  "command-rule-conversation-cancelled": "<red>You haven't entered anything in time so that your conversation has been cancelled.",
+  "command-rule-conversation-disabled": "<red>The conversation mode is disabled! Set Private_Messages.Auto_Mode to true in settings.yml to enable.",
+  "command-rule-description": "Manage the rules system.",
+  "command-rule-disable": "Rule {rule} has been <red>disabled<gray>.",
+  "command-rule-enable": "Rule {rule} has been <green>enabled<gray>.",
+  "command-rule-encode": "Should we automatically encode the matching word you enter in the next question to be harder to bypass? Type yes/no.",
+  "command-rule-encode-no": "no",
+  "command-rule-encode-yes": "yes",
+  "command-rule-group-name": "Almost ready! Now, enter what group this rule should belong to, or 'none' if no group. Installed groups: {available}",
+  "command-rule-info-1": [
+    "<dark_gray>{chat_line}",
+    "<center><gold><bold>Rule '{rule}'"
+  ],
+  "command-rule-info-2": [
+    "<dark_gray>{chat_line}"
+  ],
+  "command-rule-invalid-encode": "Wrong answer! Type '{yes}' or '{no}', or 'exit' to cancel.",
+  "command-rule-invalid-group": "Group {group} does not exists!",
+  "command-rule-invalid-type": "Rule type '{type}' is invalid!",
+  "command-rule-list-header": "Showing {amount} {type} Rule(s)",
+  "command-rule-list-no-rules": "No {type} rules are created yet. Create some with '/{label} {sublabel}' create command!",
+  "command-rule-list-no-type": "Please specify what type of rules to show.",
+  "command-rule-reloaded": "All rules have been reloaded from their respective files.",
+  "command-rule-rule-creator": "<dark_gray>[<gold>Rule Creator<dark_gray>] <gray>",
+  "command-rule-rule-creator-already-exists": "Rule {rule} already exists!",
+  "command-rule-rule-creator-match": "Enter the word that should be matched.",
+  "command-rule-rule-creator-match-already-exists": "A rule with this match already exists! Please enter a different word.",
+  "command-rule-rule-creator-success": "{prefix_success} Congratulations, you've successfuly created a new rule! It was loaded and is ready to operate. Here's how it looks like:",
+  "command-rule-rule-creator-type": [
+    "Awesome, preparing rule '{rule}' for you. Please enter the rule's type. This also determines to which file we'll place the rule. ",
+    "Available: {available}"
+  ],
+  "command-rule-rule-creator-welcome": [
+    "Welcome to Rule Creator. Enter your new rule's name into the chat or type 'exit' to abort."
+  ],
+  "command-rule-rule-import": "<dark_gray>[<gold>Rule Import<dark_gray>] <gray>",
+  "command-rule-rule-import-fail": "There was an error importing rules, please see the console!",
+  "command-rule-rule-import-invalid-file": "File {file} does not exist!",
+  "command-rule-rule-import-start": "Rules are now being imported, please wait...",
+  "command-rule-rule-import-success": "{prefix_success} Congratulations, you've successfuly imported {amount} rule(s)! They were loaded and is ready to operate.",
+  "command-rule-rule-import-type": [
+    "Awesome, importing rules from {file} for you. Please enter what type of rules these are.",
+    "Available: {available}"
+  ],
+  "command-rule-rule-import-welcome": [
+    "Welcome to the Rule Import. Enter your file name (in our plugin's folder) to import from, or type 'exit' to abort."
+  ],
+  "command-rule-tooltip-match": [
+    "<gray>Match: <white>"
+  ],
+  "command-rule-tooltip-name": [
+    "<gray>Name: <white>{name} "
+  ],
+  "command-rule-type-anvil": "anvil",
+  "command-rule-type-book": "book",
+  "command-rule-type-chat": "chat",
+  "command-rule-type-command": "command",
+  "command-rule-type-global": "global",
+  "command-rule-type-sign": "sign",
+  "command-rule-type-tag": "tag",
+  "command-rule-usage": "<info/toggle/create/import/list/reload> [rule]",
+  "command-rule-usages": [
+    "/{label} {sublabel} info <rule> <gray>- Print rule information.",
+    "/{label} {sublabel} toggle <rule> <gray>- Switch rule on/off.",
+    "/{label} {sublabel} create <gray>- Create rule by name.",
+    "/{label} {sublabel} import <gray>- Mass rule import.",
+    "/{label} {sublabel} list <type> <gray>- List all loaded rules.",
+    "/{label} {sublabel} reload <gray>- Reload all rules."
+  ],
+  "command-say-description": "Broadcasts a message.",
+  "command-say-usage": "<message>",
+  "command-say-usages": [
+    "/{label} Hello everyone! <gray>- Broadcast a message."
+  ],
+  "command-send-format-description": "Send a message using a given format from formats/ folder.",
+  "command-send-format-usage": "<format> [message]",
+  "command-spy-auto-enable-1": "{prefix_warn} Your spy mode has been activated automatically. Type '/spy off' to disable. ",
+  "command-spy-auto-enable-2": "<dark_gray>[<gold>?<dark_gray>]",
+  "command-spy-auto-enable-tooltip": [
+    "<gold>TIP: <gray>To stop spying automatically on join, ask the",
+    "<gray>admin to take away <italic>{permission}<reset><gray>",
+    "<gray>permission from you explicitly."
+  ],
+  "command-spy-book-untitled": "Untitled",
+  "command-spy-cannot-toggle-anything-no-perms": "Cannot toggle spying anything because you lack any {permission} permission.",
+  "command-spy-deny-silently": "<hover:show_text:'<gray>This message was only sent to its sender.</gray>'><#d0b9b9>[denied silently]</#d0b9b9></hover> ",
+  "command-spy-description": "Toggle spying player commands and messages.",
+  "command-spy-disable": "{player} is <red>no longer <gray>spying {type}.",
+  "command-spy-enable": "{player} is <green>now <gray>spying {type}.",
+  "command-spy-list-header": "All Spying Players",
+  "command-spy-list-tooltip": [
+    "<gold>Disable all spying for {player}."
+  ],
+  "command-spy-no-spying": "{player} is not spying anything.",
+  "command-spy-no-stored": "There are no spying players stored.",
+  "command-spy-status-1": [
+    "<dark_gray>{chat_line_smooth}",
+    "<center><gold>Printing what {player} is currently spying",
+    "<dark_gray>{chat_line_smooth}"
+  ],
+  "command-spy-status-2": [
+    "",
+    "<gray>Type '/{label} off {player}' to turn it off."
+  ],
+  "command-spy-status-channel": "<gold>Spying channels:",
+  "command-spy-status-sectors": "<gold>Spying sectors:",
+  "command-spy-toggle-no-channel": "Specify a chat channel to toggle spy on. Available: {available}",
+  "command-spy-toggle-no-type": "Specify a valid spying type. Available: {available}",
+  "command-spy-toggle-off": "Disabled all spying for {player}.",
+  "command-spy-toggle-on": "Enabled all spying for {player}.",
+  "command-spy-type-announcement": "announcements",
+  "command-spy-type-anvil": "anvil",
+  "command-spy-type-book": "books",
+  "command-spy-type-broadcast": "/me and /say",
+  "command-spy-type-channel": "channel",
+  "command-spy-type-chat": "chat",
+  "command-spy-type-command": "commands",
+  "command-spy-type-mail": "mails",
+  "command-spy-type-private-message": "private messages",
+  "command-spy-type-sign": "signs",
+  "command-spy-type-sound-notify": "sound notifications",
+  "command-spy-usage": "<status/menu/off/toggle/list> [player] [type] [channel]",
+  "command-spy-usages-1": [
+    "/{label} status [player] <gray>- Print if player is spying.",
+    "/{label} menu [player] <gray>- Open main spying selection menu.",
+    "/{label} on/off [player] <gray>- Toggle all spying on/off for player.",
+    "/{label} toggle <type> [player] <gray>- Toggle spying for section on/off."
+  ],
+  "command-spy-usages-2": [
+    "/{label} toggle chat <channel> [player] <gray>- Toggle spying for channel."
+  ],
+  "command-spy-usages-3": [
+    "/{label} list <gray>- List all spying players."
+  ],
+  "command-tag-admin-description": "Control tags for players.",
+  "command-tag-admin-invalid-params": "Please specify a tag type and a player name.",
+  "command-tag-admin-list": "Listing All Tags",
+  "command-tag-admin-status": "{possessive_form} {type}: {tag}.",
+  "command-tag-admin-tooltip-remove": [
+    "<gold>Remove {type} from {player}."
+  ],
+  "command-tag-admin-usage": "<type> <player/list> [nick/off]",
+  "command-tag-admin-usages": [
+    "/{label} {sublabel} <type> <player> <gray>- Print player's tags.",
+    "/{label} {sublabel} <type> <player> <nick> <gray>- Set player a tag.",
+    "/{label} {sublabel} <type> <player> off <gray>- Remove tag from player.",
+    "/{label} {sublabel} list [type] <gray>- List all players with tags."
+  ],
+  "command-tag-already-used": "This nick is already used.",
+  "command-tag-description": "Set your tag.",
+  "command-tag-disabled": "Please fill your Tag.Apply_On key in settings.yml first before using this command.",
+  "command-tag-exceeded-length": "Your tag's length ({length}) is over maximum limit of {max} letters.",
+  "command-tag-no-colors-only": "Your tag cannot consist only of colors.",
+  "command-tag-no-impersonation": "The nick cannot impersonate a real player name.",
+  "command-tag-no-spaces": "Nicks cannot contain spaces.",
+  "command-tag-no-tag-other": "{target} currently does not have a {type}.",
+  "command-tag-no-tag-self": "You currently do not have a {type}.",
+  "command-tag-no-tags": "There are no tags stored.",
+  "command-tag-not-allowed": "Unable to set your tag, try another one!",
+  "command-tag-off-all": "All active tags were disabled.",
+  "command-tag-off-no-tags": "You do not have any active tags.",
+  "command-tag-remove": "Removed {type} for {target}.",
+  "command-tag-remove-self": "Removed {type} for you.",
+  "command-tag-set": "Set {type} to '{tag}<gray>' for {target}.",
+  "command-tag-set-self": "Set {type} to '{tag}<gray>' for you.",
+  "command-tag-status-self": "Your {type} is: {tag}",
+  "command-tag-usage": "<type> [tag/off]",
+  "command-tag-usages": [
+    "/{label} list <gray>- Print all tags.",
+    "/{label} off <gray>- Disable all tags.",
+    "/{label} <type> <gray>- Print your tag.",
+    "/{label} <type> <tag> <gray>- Set yourself a tag.",
+    "/{label} <type> off <gray>- Stop having a tag."
+  ],
+  "command-tag-your-tags": "Your tags:",
+  "command-tell-afk-warning": "{prefix_warn} {player} is currently AFK and may not see your message.",
+  "command-tell-conversation-mode-not-conversing": "You are not conversing with anyone.",
+  "command-tell-conversation-mode-off": "Conversation mode with {receiver_name} has been <red>disabled<gray>.",
+  "command-tell-conversation-mode-on": "<green>Now <gray>conversing with {receiver_name}.",
+  "command-tell-conversation-offline": "The player you were conversing with, {receiver_name}, is no longer online. Conversation mode disabled.",
+  "command-tell-description": "Send private messages to players.",
+  "command-tell-empty-message": "You cannot send an empty message.",
+  "command-tell-receiver-offline": "<red>Player {receiver_name} is not online on this server.",
+  "command-tell-usage": "<player> [message]",
+  "command-tell-usages": [
+    "/{label} <player> <message> <gray>- Send player a message.",
+    "/{label} <player> <gray>- Toggle conversation mode, in which your chat messages are automatically sent as private messages.",
+    "/{label} off <gray>- Disable conversation mode if active."
+  ],
+  "command-toggle-cannot-pm": "{receiver_name} has toggled off private messages.",
+  "command-toggle-description": "Toggle seeing parts of the plugin.",
+  "command-toggle-ignore-all-off": "<gray>You are <dark_green>no longer <gray>ignoring all {type} messages.",
+  "command-toggle-ignore-all-on": "<gray>You are <red>now <gray>ignoring all {type} messages.",
+  "command-toggle-ignore-group-off": "<gray>You are <dark_green>no longer <gray>ignoring {type} message {group}.",
+  "command-toggle-ignore-group-on": "<gray>You are <red>now <gray>ignoring {type} message {group}.",
+  "command-toggle-invalid-type": "Invalid type. Available toggles: {available_toggles} and types: {available_messages}.",
+  "command-toggle-list-line": "<gold>Hidden {type} Messages<gray>:",
+  "command-toggle-list-plugin-part-header": "Toggled Parts Of The Plugin For {player}",
+  "command-toggle-list-plugin-part-ignoring": "<red>ignoring",
+  "command-toggle-list-plugin-part-receiving": "<dark_green>receiving",
+  "command-toggle-list-plugin-part-title": "<gold>Plugin parts<gray>:",
+  "command-toggle-list-plugin-part-toggle": [
+    "<gold>Click to toggle."
+  ],
+  "command-toggle-list-tooltip": [
+    "<gold>Click to stop ignoring."
+  ],
+  "command-toggle-type-death": "death",
+  "command-toggle-type-join": "join",
+  "command-toggle-type-kick": "kick",
+  "command-toggle-type-quit": "quit",
+  "command-toggle-type-switch": "switch",
+  "command-toggle-type-timed": "timed",
+  "command-toggle-usage": "<type> [group]",
+  "command-toggle-usages-1": [
+    "/{label} <type> <gray>- Toggle a plugin part. Parts: {toggle_available}",
+    "/{label} <type> [group] <gray>- Toggle a message type. Types: {messages_available}"
+  ],
+  "command-toggle-usages-2": [
+    "/{label} list <gray>- List all toggled plugin parts."
+  ],
+  "command-toggle-usages-chat": [
+    "/{label} chat <gray>- Toggle seeing chat messages. If you are spying, you'll still see them."
+  ],
+  "command-toggle-usages-join": [
+    "/{label} join default <gray>- Toggle join message group 'default'."
+  ],
+  "command-toggle-usages-private-message": [
+    "/{label} pm <gray>- Toggle all private messages."
+  ],
+  "command-toggle-usages-sound-notify": [
+    "/{label} soundnotify <gray>- Toggle sound notifications."
+  ],
+  "command-toggle-usages-timed": [
+    "/{label} timed special <gray>- Toggle timed messages group 'special'."
+  ],
+  "command-use-while-null": "<red>Cannot use this command while the plugin is {state}.",
+  "data-loading": "Database is currently loading data, please wait...",
+  "menu-color-button-color-lore": [
+    "",
+    "Click to toggle using this",
+    "color while you're chatting.",
+    "",
+    "Sample: {color}Lorem ipsum dolor",
+    "{color}sit amen, color ist kamen."
+  ],
+  "menu-color-button-color-title": " Color",
+  "menu-color-button-decoration-lore": [
+    "",
+    "Click to toggle using this",
+    "decoration in the chat.",
+    "",
+    "Example: {decoration}A random text."
+  ],
+  "menu-color-button-decoration-title": " Decoration",
+  "menu-color-button-empty-lore": [
+    "",
+    "There are no colors that you",
+    "can toggle available right now."
+  ],
+  "menu-color-button-empty-title": "No available colors",
+  "menu-color-button-reset-color-title": "Reset chat color",
+  "menu-color-button-reset-decoration": "Reset chat decoration",
+  "menu-color-color-reset": "<dark_blue>Chat color reset!",
+  "menu-color-color-set": "Set color to {color}",
+  "menu-color-decoration-reset": "<dark_blue>Chat decoration reset!",
+  "menu-color-decoration-set": "Set decoration to {decoration}",
+  "menu-color-header": "Chat Color",
+  "menu-color-help": [
+    "The color menu enables you to select",
+    "a chat or a decoration to be applied",
+    "automatically when you chat.",
+    "",
+    "Simply click the icons to select what",
+    "color or decoration you want to use.",
+    "",
+    "Current color: {color}",
+    "Current decoration: {decoration}"
+  ],
+  "menu-color-title": "Select Chat Color",
+  "menu-spy-button-lore-1": [
+    "",
+    "Click to select which chat",
+    "channels you want to spy on."
+  ],
+  "menu-spy-button-lore-channel": [
+    "",
+    "Spying channels:"
+  ],
+  "menu-spy-button-title": "Channels",
+  "menu-spy-button-toggle-lore": [
+    "",
+    "Click to toggle spying on",
+    "{label}.",
+    "",
+    "Status: {status}"
+  ],
+  "menu-spy-channel-toggle-lore": [
+    "",
+    "Click to toggle spying",
+    "for this channel.",
+    "",
+    "Status: {status}"
+  ],
+  "menu-spy-channel-toggle-off": "<dark_red>No longer spying channel!",
+  "menu-spy-channel-toggle-on": "<dark_green>Now spying channel!",
+  "menu-spy-help": [
+    "Select what aspects of your server",
+    "you want to spy on. You can also use",
+    "the '/{label} log' command to view",
+    "historical data from when you were gone."
+  ],
+  "menu-spy-status-off": "<red>disabled",
+  "menu-spy-status-on": "<aqua>spying",
+  "menu-spy-status-toggle-off": "<dark_red>Spying {type} disabled!",
+  "menu-spy-status-toggle-on": "<dark_green>Spying {type} enabled!",
+  "menu-spy-title-disable": "<dark_red>Disable All",
+  "menu-spy-title-enable": "<dark_green>Enable All",
+  "menu-spy-toggle-lore": [
+    "",
+    "Click to toggle spying on",
+    "everything in this menu."
+  ],
+  "menu-spy-type-anvil": "items when they are renamed",
+  "menu-spy-type-book": "books when they are signed",
+  "menu-spy-type-chat": "all chat messages",
+  "menu-spy-type-command": "commands configured in settings.yml",
+  "menu-spy-type-mail": "mails when they are sent",
+  "menu-spy-type-private-messages": "all private messages",
+  "menu-spy-type-sign": "signs when they are placed",
+  "part-blank": "blank",
+  "part-has": "has",
+  "part-unknown": "unknown",
+  "player-kick-disallowed-nickname": "<red>Your player name contains disallowed characters!",
+  "player-newcomer-cannot-command": "You are a newcomer and cannot run this command yet!",
+  "player-newcomer-cannot-write": "You are a newcomer and cannot yet write to chat.",
+  "player-no-channel": "You have no channel to write into. Use '/{label_channel} join' to join one.",
+  "player-no-possible-channel": "You lack permissions to join any channels.",
+  "player-no-write-chat-permission": "You lack {permission} permission to write chat messages.",
+  "player-nobody-in-channel": "{prefix_warn} There is no one in channel you can chat to.",
+  "player-nobody-in-range": "{prefix_warn} There is no one in range you can chat to.",
+  "player-not-connected-proxy": "<red>Player '{player}<red>' is not connected through proxy.",
+  "player-not-stored": "Player '{player}<red>' is not stored in our database.",
+  "player-possessive-form": "{player}'s"
+}

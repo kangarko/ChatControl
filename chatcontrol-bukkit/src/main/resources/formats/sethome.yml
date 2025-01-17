@@ -1,0 +1,21 @@
+# -----------------------------------------------------------------------------------------
+# An example format used in chat bots (see rules/chat.rs) to help players set a home.
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  front: 
+    Message: "<dark_gray>[<red>Bot<dark_gray>] <gray>{player}, click "
+  clickable:
+    Message: "<dark_red>[here]"
+    Hover: "Click me to set your home!"
+    Run_Command: "/sethome"
+  end:
+    Message: " <gray>to set a home at your location!"

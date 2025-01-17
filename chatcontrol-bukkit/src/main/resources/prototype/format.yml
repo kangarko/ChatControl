@@ -1,0 +1,9 @@
+# -----------------------------------------------------------------------------------------
+# Represents a chat format file that can be used to stylize messages.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format. See chat.yml for documentation.
+Parts: {}

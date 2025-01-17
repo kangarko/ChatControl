@@ -1,0 +1,15 @@
+# -----------------------------------------------------------------------------------------
+# The default chat format used in the admin channel.
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  everything: 
+    Message: "<dark_gray>[<dark_red>{channel}<dark_gray>] <white>{player_name}<gray>: <white>{message}"

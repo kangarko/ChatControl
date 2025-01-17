@@ -1,0 +1,21 @@
+# -----------------------------------------------------------------------------------------
+# The default chat format shown to spying players when a book is edited.
+# In addition to player variables you can use these:
+# {title} {author} and {content}
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  front:
+    Message: "<gray>[{location}] {player} wrote a book '{title}': "
+  content: 
+    Message: "[click to read]"
+    Hover: "<gold>Click to open the book."
+    Run_Command: "/{label_main} internal book {book_uuid}"

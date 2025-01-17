@@ -1,0 +1,5 @@
+Type: FORMAT
+Key: "receiver_or_you"
+Value: "'{receiver_name}' == '{sender_name}' ? 'you' : '{receiver_name}'"
+Sender_Condition: ''
+Sender_Permission: ''

@@ -1,0 +1,20 @@
+Type: FORMAT
+Key: "player_has_nick"
+Value: |-
+    hasNick();
+    
+    function hasNick() {
+    
+        // Get both the player name and nickname.
+        var playerName = "{player_name}"
+        var playerNick = "{player_nick}";
+    
+        // Because the nick variable returns the player's name if they have no nick,
+        // we compare the nick to the default name. If both the nick and the "{player}"
+        // variables return the same text, it means the player has no nick.
+        
+        if (playerName == playerNick)
+            return false;
+        else
+            return true;
+    }

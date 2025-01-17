@@ -1,0 +1,17 @@
+Type: FORMAT
+Key: "difficulty_color"
+Value: |-
+  var world = player.getWorld();
+
+  // This line returns the value.
+  getColor() + world.getName();
+
+  // You can create methods inside the script, too.
+  function getColor() {
+      var diff = world.getDifficulty().getValue();
+
+      var diffs = ["<green>", "<dark_green>", "<gold>"];
+      return diffs[diff] !== undefined ? diffs[diff] : "<red>";
+  }  
+Sender_Condition: ''
+Sender_Permission: ''

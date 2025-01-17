@@ -1,0 +1,33 @@
+# -----------------------------------------------------------------------------------------
+#                         Welcome to an internal book configuration 
+# -----------------------------------------------------------------------------------------
+#
+#  This file denotes a simple book that can be opened with "/chc book" command.
+#  To create a new book, use that command. Editing this file is at your own risk and
+#  comes without support, because many parts are machine generated and sensitive to fail.
+#
+# -----------------------------------------------------------------------------------------
+Data: 
+
+  # The title of this book
+  Title: HELP ME
+  
+  # The author of this book
+  Author: kangarko
+  
+  # A list of pages and text of the book. Variables are supported for the opening player.
+  # You can use & and MiniMessage tags. See https://docs.advntr.dev/minimessage/format.html
+  Pages:
+  - |-
+    <gold>Hello {player}!
+
+    <red>This is an example of a help
+  
+  # Machine generated, do not change
+  Signed: true
+  
+  # Machine generated, do not change
+  Last_Modified: 1604653214343
+  
+  # Machine generated, unique for each book, do not change
+  Unique_Id: 17ddf31c-5a7d-43ec-802c-d7f4ba64e197

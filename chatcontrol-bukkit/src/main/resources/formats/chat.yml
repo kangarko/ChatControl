@@ -1,0 +1,153 @@
+# !-------------------------------------------------------------------------------------------------!
+#                                  Welcome to formats configuration
+# !-------------------------------------------------------------------------------------------------!
+#
+#   A format renders and customizes a message send to player(s). It can be used across our plugin 
+#   in many places, such as in channels, rules, commands etc.
+#
+#   Remember, you can remove or edit all parts below, and create your own ones! A lot options
+#   are optional, that means you do not have to specify them at all.
+#
+#   Each format consists of parts such as "delete-chat" below. Each part can show different hover
+#   events etc. or be hidden if sender/recipient has a certain permission, and more.
+#
+#   All format options except "Message" are optional. If you don't need those, you can remove it.
+#
+#   Options for each format part:
+#   - Message: A simple string what will be shown in the chat. 
+#   - Sender_Permission: What permission must the message sender have for this part to show.
+#   - Receiver_Permission: Only show this part to the receivers having this permission.
+#   - Sender_Condition: JavaScript condition that must return true for sender (use "player" to get
+#                       the Player instance from Spigot) for this part to show.
+#   - Receiver_Condition: Similar to Sender_Condition but the script will evaluate against each 
+#                         receiver and only show this part to those for which condition is true.
+#   - Hover: One line or a list of tooltip to show when hovering over this part with your mouse.
+#   - Hover_Item: JavaScript with "player" instance as variable that must return a valid ItemStack
+#                 to show when hovering over this part (e.g. "player.getItemInHand()")
+#   - Open_Url: A one-line message representing a website to open which clicking on this part. 
+#   - Suggest_Command: A one-line message that be suggested as command when clicked on this part.
+#   - Run_Command: One command (Minecraft only supports one) that will run upon clicking on part.
+#   - Insertion: The text to insert into the chat when this component
+#                (and child components) are clicked while pressing the shift key.
+#   - (1.16+) Copy_To_Clipboard: The text to copy to your clipboard when this component is clicked.
+#   - Inherit: (Limited) A name of another format from another file to import and use.
+#   - Inherit_Part: (Limited) A name of another part from this file to import and use.
+#   - (1.16+) Gradient: <from> - <to> (such as RED - GOLD or #123456 - #123456) Gradients for.
+#   - Image_File: Display the image to the left of this part. - Syntax: Image_File: creeper-image.png
+#   - Image_Head: Display the head of the specified player - Syntax: Image_Head: "Herobrine" | Image_Head: "{player}"
+#                (Can be a specific player, or you can use the {player} placeholder.
+#   - Image_Url: Display an image from the specified url - Syntax: Image_Url: "https://mywebsite.com/images/creeper.png"
+#   - Image_Height: Specify the image height when using an image
+#                (Default: 8)
+#   - Image_Type: Which characters should be used to render the image?
+#                (Default: BLOCK || Available: BLOCK, DARK_SHADE, MEDIUM_SHADE, LIGHT_SHADE)
+#
+#   For help and documentation, visit:
+#   https://github.com/kangarko/ChatControl/wiki/formats
+#
+# !-------------------------------------------------------------------------------------------------!
+
+# -----------------------------------------------------------------------------------------
+# The default chat format used by chat formatting or in the "standard" channel.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts:
+
+  # Shows the head of the specified player before their messages
+  #player-head:
+  #  Message: ""
+  #  Hover: "{player}"
+  #  Image_Head: "{player}"
+  #  Image_Height: 10
+  #  Image_Type: "LIGHT_SHADE"
+
+  # Show the [X] button only visible to people having permission on 'Receiver_Permission'
+  # that enables you to remove chat messages by clicking on them!
+  # PS: They are still saved to log and can be viewed with "/chc log".
+  # TIP: Give yourself chatcontrol.bypass.spamkick to prevent being kicked when removing mass messages.
+  delete-chat: 
+    Message: "<dark_gray>[<dark_red>X<dark_gray>] <white>"
+    Hover: "<red>Remove this message from chat for all players."
+    Run_Command: "/{label_main} internal remove {message_uuid}"
+    Receiver_Permission: chatcontrol.removemessages
+
+  # Show the [VIP] prefix if sender, not receiver like above, has the 
+  # permissions. All players will thus see the message.
+  vip-prefix: 
+    Message: "<dark_gray>[<gold>VIP<dark_gray>] "
+    Sender_Permission: chatcontrol.group.vip
+  
+  # Show the [Read] prefix if the receiver is only reading this channel.
+  read-prefix:
+    Message: '<dark_gray>[<aqua>Read<dark_gray>] '
+    Receiver_Variable: "{player_channel_mode_{channel}} read"
+  
+  # Show the [Discord] prefix if the sender is from Discord (we use our own
+  # special variable for this) and add some interactive elements.
+  discord-prefix: 
+    Message: "<dark_gray>[<blue>Discord<dark_gray>] <white>"
+    Sender_Variable: "{sender_is_discord}"
+    Hover: "<aqua>Join our Discord at mineacademy.org/discord"
+    Open_Url: "https://mineacademy.org/discord"
+  
+  # Show the [Outsider] prefix if the sender is not joined in this channel,
+  # and is not coming from discord. This happens for example on "/channel send".
+  #outsider-prefix: 
+  #  Message: "<dark_gray>[<red>Outsider<dark_gray>] <white>"
+  #  Sender_Condition: "!{player_in_channel_{channel}} && !{sender_is_discord}"
+  
+  # Show the [Spy] prefix only to players who receive this message AND are
+  # spying in the given channel, enabling them to stop spying by clicking on prefix.
+  spies-prefix: 
+    Message: "<dark_gray>[<dark_purple>Spy<dark_gray>] <white>"
+    Receiver_Variable: "{player_is_spying_{channel}}"
+    Hover: "<light_purple>Click to stop spying {channel} channel."
+    Run_Command: "/{label_spy} toggle chat {channel}"
+
+  # Finally, pull the regular player prefix from your permissions plugin using Vault.
+  # If you encounter issues, you can try to use placeholders from another plugin, such as {luckperms_prefix}.
+  # The + at the end of the variable automatically inserts a space if player has prefix.
+  # E.g. "admin" turns into "admin ". If there's no prefix, you won't end with a trailing space.
+  prefix: 
+    Message: "{player_prefix+}"
+    Hover: 
+      - '<gray>{player_prefix+}{player_name} {player_suffix}'
+      # The ping variable accesses NMS on older Minecraft versions and poses a significat performance penalty.
+      #- '<gray>Ping<dark_gray>: <white>{player_ping}ms'
+      - '<gray>Rank<dark_gray>: <white>{player_group}'
+      # You can also use PlaceholderAPI variables here
+      #- '<gray>First join: <yellow>{player_first_join_date}'
+      - '<gray>Posted: <white>{date}'
+      - ''
+      - '<gray>Click to learn more about ranks.'
+    Open_Url: "https://mineacademy.org/project-orion"
+
+  # Another way to send a prefix based on the output of a placeholder.
+  # This is useful if you don't want to define rank prefixes using your permission plugin.
+  # The part below will only be send if the output of the {luckperms_primary_group_name} placeholder is "owner".
+  # (Case sensitive - You can check for booleans or for a String value)
+  #alternative-prefix:
+  #  Message: '<red>[<white>Owner<red>] '
+  #  # WRONG USE: While the line below will work, it will be significantly slower than if you configure the prefix
+  #  # in LuckPerms via /lp group owner meta setprefix "&c[&fOwner&c] " and place {player_prefix+} in the part below.
+  #  Sender_Variable: "{luckperms_primary_group_name} owner"
+
+  # Display a typical player name to players with the given permission. change {player_name} 
+  # to {player_nick} to show nick instead. We'll revert to show normal name if player has no nick.
+  # To display a name in rainbow colors, uncomment "Gradient". This requires MC 1.16+
+  player-name: 
+    Message: "{player_nick}<reset>"
+    #Message: "{player_name}"
+    #Gradient: RED - YELLOW
+    Hover: "<gray>Click to message."
+    Suggest_Command: "/tell {player_name} "
+
+  # And finally, show the message the player has typed out, prepending it with player's
+  # suffix from your permission plugin. We replace {player_chat_color} and {player_chat_decoration} with the 
+  # color and decoration set in '/chc color'.
+  message: 
+    Message: "<gray>: {player_suffix}{player_chat_color}{player_chat_decoration}{message}"

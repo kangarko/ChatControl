@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<project name="BungeeControl" default="Build">
+	<target name="Build">
+		<jar jarfile="/Users/kangarko/Test Servers/BungeeCord/plugins/${ant.project.name}.jar" basedir="./target/classes/" includes="**/*">
+			<fileset dir="../chatcontrol-core/target/classes" />
+			<fileset dir="../chatcontrol-proxy-core/target/classes" />
+			<fileset dir="../../Foundation/foundation-bungee/target/classes" />
+			<fileset dir="../../Foundation/foundation-core/target/classes" />
+		</jar>
+	</target>
+</project>

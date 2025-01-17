@@ -1,0 +1,73 @@
+Type: MESSAGE
+Key: "item"
+Value: |-
+  // A valid JavaScript code follows below. You can use the "player" variable to get
+  // Bukkit's player instance. 
+
+  function displayName() {
+    
+    // Player can be null for console or discord
+    if (!audience.isPlayer())
+      return "None";
+  
+    var item = player.getItemInHand();
+    var air = Java.type("org.bukkit.Material").AIR;
+    var amount = item.getAmount();
+
+    // Sets the types of brackets to be used
+    // Set to '' to remove brackets
+
+    var bracket1 = '[';
+    var bracket2 = ']';
+
+    // Edit the value of 'bracketColor' to change the colour of the brackets.
+    // Edit the value of 'itemNameColor' to change the colour of the item name.
+    // Edit the value of 'amountColor' to change the colour of the item amount.
+    // You can also use hex colour codes such as <#b07d79> (requires 1.16+)
+    // Set to '' to remove the colour
+    var bracketColor = '<gray>';
+    var itemNameColor = '<white>';
+    var amountColor = '<yellow>';
+
+    // Adds the colour to the brackets as set above
+    var bracketSetup1 = bracketColor + bracket1;
+    var bracketSetup2 = bracketColor + bracket2;
+
+    // This adds the colour to the amount text as set above
+    // To remove the "amount" part inside [item], set the "amountSetup" variable below, like this...
+    // var amountSetup = '';
+    var amountSetup = amountColor + amount + 'x ';
+
+    // Special support for throwing exceptions, you can begin the exception
+    // with "event handled: ". We will cancel the event for you, in this case, the chat message,
+    // and then send the message to the player that appears after that.
+    if (item == null || item.getType() == air) 
+      throw "event handled: {prefix_error} <red>You must be holding an item to use <white>[item]";
+        
+    var metadata = item.getItemMeta();
+    var metadataItem = metadata.getDisplayName();
+    
+    // If the item has meta data and a custom name, show that name instead
+    // unless the item contains fake colour codes (added via an anvil etc)
+    if (metadata != null && metadata.hasDisplayName() && !metadataItem.match(/(&#[a-fA-F0-9]{6}|&[a-fA-F0-9rRk-oK-O])/))
+      return bracketSetup1 + (amount == 1 ? '' : amountSetup) + itemNameColor + metadataItem + bracketSetup2;
+        
+    // Example of using Java classes to show custom names for custom types
+    // JavaScript has to wrap all Java classes using Java.type, see 
+    // https://winterbe.com/posts/2014/04/05/java8-nashorn-tutorial/#invoking-java-methods-from-javascript
+    //var stone = Java.type("org.bukkit.Material").STONE;
+    
+    // You can, for example, print custom names for certain materials
+    //if (item.getType() == stone)
+    //  return "My Shiny Little Stone";
+        
+    // We use a class that is packed in Spigot server's JAR to capitalize our item
+    var wordUtils = Java.type("org.apache.commons.lang.WordUtils");
+    var name = item.getType().name().toLowerCase().replace('_', ' ').replace('_', ' ');      
+    
+    // Return the item name deducted from the items type, capitalized
+    return bracketSetup1 + (amount == 1 ? '' : amountSetup) + itemNameColor + wordUtils.capitalize(name) + bracketSetup2;
+  }
+  
+  displayName();
+Hover_Item: "player.getItemInHand()"

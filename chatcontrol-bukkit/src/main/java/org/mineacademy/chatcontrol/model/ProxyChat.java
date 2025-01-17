@@ -131,6 +131,7 @@ public final class ProxyChat {
 						final WrappedSender wrapped = WrappedSender.fromPlayerCaches(online, PlayerCache.fromCached(online), senderCache);
 
 						loadAllSyncedData(wrapped);
+						onlinePlayerUniqueIds.add(wrapped.getUniqueId());
 					}
 				}
 

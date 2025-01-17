@@ -390,15 +390,15 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 	default void updateProxyData(@NonNull final PlayerCache cache, @NonNull SimpleComponent message) throws CommandException {
 		final Player messageTarget = cache.toPlayer();
 
-		if (messageTarget != null && !message.isEmpty()) {
-			Messenger.info(messageTarget, message);
+		if (Settings.Proxy.ENABLED) {
+			if (messageTarget != null && !message.isEmpty()) {
+				Messenger.info(messageTarget, message);
 
-			message = SimpleComponent.empty();
-		}
+				message = SimpleComponent.empty();
+			}
 
-		if (Settings.Proxy.ENABLED)
 			ProxyUtil.sendPluginMessage(ChatControlProxyMessage.DATABASE_UPDATE, Platform.getCustomServerName(), cache.getUniqueId(), cache.toDataSectionOfMap(), message);
-
+		}
 	}
 
 	/**

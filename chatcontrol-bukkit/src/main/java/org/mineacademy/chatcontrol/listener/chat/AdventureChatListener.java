@@ -14,7 +14,6 @@ import org.bukkit.plugin.IllegalPluginAccessException;
 import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.BukkitPlugin;
 
@@ -90,11 +89,13 @@ public final class AdventureChatListener implements EventExecutor, Listener {
 
 		@Override
 		public void sendMessage(final Identity source, final Component message, final MessageType type) {
-			final String consoleFormat = this.state.getConsoleFormat();
+			final String console = this.state.getConsoleFormat();
 
-			if (consoleFormat != null) {
-				if (!SimpleComponent.fromMiniSection(consoleFormat).toPlain().trim().isEmpty() && !"none".equals(consoleFormat))
-					Bukkit.getConsoleSender().sendMessage(CompChatColor.convertMiniToLegacy(consoleFormat));
+			if (console != null) {
+				final SimpleComponent consoleComponent = SimpleComponent.fromMiniAmpersand(console);
+
+				if (!consoleComponent.toPlain().trim().isEmpty() && !"none".equals(console))
+					Bukkit.getConsoleSender().sendMessage(consoleComponent.toLegacySection());
 
 			} else
 				Bukkit.getConsoleSender().sendMessage("<" + this.state.getPlayer().getName() + "> " + PlainTextComponentSerializer.plainText().serialize(message));

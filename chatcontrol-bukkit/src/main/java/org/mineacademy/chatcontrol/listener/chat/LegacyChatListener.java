@@ -9,7 +9,6 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.BukkitPlugin;
 
@@ -46,9 +45,10 @@ public final class LegacyChatListener implements EventExecutor, Listener {
 		final String console = state.getConsoleFormat();
 
 		if (console != null) {
-			chatEvent.setFormat(CompChatColor.convertMiniToLegacy(console).replace("%", "%%"));
+			final SimpleComponent consoleComponent = SimpleComponent.fromMiniAmpersand(console);
+			chatEvent.setFormat(consoleComponent.toLegacySection().replace("%", "%%"));
 
-			if (SimpleComponent.fromMiniSection(console).toPlain().trim().isEmpty() || "none".equals(console))
+			if (consoleComponent.toPlain().trim().isEmpty() || "none".equals(console))
 				chatEvent.setCancelled(true);
 		}
 

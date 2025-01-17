@@ -699,7 +699,7 @@ public final class SyncedCache {
 		final String name = cache != null ? cache.getPlayerName() : fallbackName;
 		final String nick = cache != null ? cache.getNameOrNickColoredPrefixed() : fallbackName;
 
-		return CommonCore.newHashMap(
+		final Map<String, Object> variables = CommonCore.newHashMap(
 				prefix + "_name", name,
 				prefix + "_nick", nick,
 				prefix + "_group", cache != null ? cache.getGroup() : "",
@@ -707,8 +707,16 @@ public final class SyncedCache {
 				prefix + "_suffix", cache != null ? cache.getSuffix() : "",
 				prefix + "_server", cache != null ? cache.getServerName() : "",
 				prefix + "_channels", cache == null || cache.getChannels().isEmpty() ? Lang.plain("part-none") : CommonCore.join(cache.getChannels().keySet()),
-				prefix + "_afk", cache != null && cache.isAfk() ? "true" : "false",
-				prefix + "_ignoring_pms", cache != null && cache.hasToggledPartOff(ToggleType.PRIVATE_MESSAGE) ? "true" : "false",
-				prefix + "_vanished", cache != null && cache.isVanished() ? "true" : "false");
+				prefix + "_is_afk", cache != null && cache.isAfk() ? "true" : "false",
+				prefix + "_is_vanished", cache != null && cache.isVanished() ? "true" : "false");
+
+		for (final ToggleType part : ToggleType.values()) {
+			final String value = cache != null && cache.hasToggledPartOff(part) ? "true" : "false";
+
+			variables.put(prefix + "_is_ignoring_" + part.name().toLowerCase(), value);
+			variables.put(prefix + "_is_ignoring_" + part.name().toLowerCase() + "s", value);
+		}
+
+		return variables;
 	}
 }

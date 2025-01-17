@@ -330,6 +330,11 @@ public final class Placeholders extends SimpleExpansion {
 				return playerCache == null ? "false" : String.valueOf(playerCache.hasToggledPartOff(toggleType));
 		}
 
+		// TODO merge with SyncedCache variables and remove duplicated code
+
+		if (identifier.startsWith("player_is_ignoring_"))
+			return "Unknown '" + identifier + "' part. Available: " + Common.join(ToggleType.values());
+
 		return null;
 	}
 

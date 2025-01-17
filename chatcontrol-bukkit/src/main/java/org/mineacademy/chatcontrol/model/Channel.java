@@ -686,7 +686,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 
 		// Log manually if not handled in player chat event
 		if (!sender.isPlayer() && !"none".equals(consoleFormat))
-			Platform.log(consoleFormat);
+			Platform.log(SimpleComponent.fromMiniAmpersand(consoleFormat).toLegacySection());
 
 		return state;
 	}

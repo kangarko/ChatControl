@@ -1,0 +1,24 @@
+# -----------------------------------------------------------------------------------------
+# The default chat format shown to the receiver of a private message.
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  # You can use {prefix_receiver} to show the receiver's prefix. Does not work on proxy.
+  everything: 
+    Message: "<dark_gray>[<dark_red>pm<dark_gray>] [<white>{sender} <gray>-> <white>{receiver_or_you}<dark_gray>] <white>{message}"
+    Hover:
+      - "<white>Private Message"
+      - "<dark_aqua>Received: <white>{date}"
+      - "<dark_aqua>Sender: <white>{sender}"
+      - "<dark_aqua>Body: <white>{message}"
+      - ""
+      - "<gray>Click to reply."
+    Suggest_Command: "/r "

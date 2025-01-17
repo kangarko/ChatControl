@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.mineacademy</groupId>
+	<artifactId>chatcontrol-parent</artifactId>
+	<version>1.0.0</version>
+
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>chatcontrol-core</module>
+		<module>chatcontrol-proxy-core</module>
+		<module>chatcontrol-bukkit</module>
+		<module>chatcontrol-velocity</module>
+		<module>chatcontrol-bungeecord</module>
+	</modules>
+
+	<repositories>
+		<repository>
+            <id>mineacademy-repo</id>
+            <url>https://bitbucket.org/kangarko/libraries/raw/master</url>
+        </repository>
+        <repository>
+		    <id>papermc</id>
+		    <url>https://repo.papermc.io/repository/maven-public/</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<author>kangarko</author>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+</project>

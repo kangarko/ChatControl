@@ -1,0 +1,26 @@
+# -----------------------------------------------------------------------------------------------------
+# This file holds database-related information. 
+#
+# **IMPORTANT** The utf8mb4_unicode_520_ci collation (database encoding) is required, because we need
+# need to store messages in 4 bytes (mb4) due to unicode/emojis/non-English letter support.
+#
+# Using MySQL 8.0 is recommended. ChatControl wil attempt to recreate tables with the right
+# encoding if you reset them, in case you're having issues-
+#
+# This file does NOT support reloading.
+# -----------------------------------------------------------------------------------------------------
+
+# How we should save player-related data, emails, logs, regions and other server settings.
+# Available: local (just works, no configuration needed, uses SQLite)
+#            remote (requires Host, Database, User, Password set below, supports MySQL/MariaDB)
+Type: 'local'
+
+# The remote database connection settings. Only configure if using remote database.
+Host: 'localhost:3306'
+Database: ''
+User: ''
+Password: ''
+
+# Expert. Customize the connection here. Requires remote database. Custom drivers are
+# supported but you need to write a plugin that loads before ChatControl and loads the driver.
+Line: "jdbc:{driver}://{host}/{database}?autoReconnect=true&characterEncoding=UTF-8&tcpKeepAlive=true&useSSL=false"

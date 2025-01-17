@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------------------
+# The default chat format shown to spying players when a sign is placed.
+# You can use all player variables and these four extra variables:
+# {line_1} {line_2} {line_3} and {line_4}
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  front:
+    Message: "<gray>[{location}] {player} placed a sign: "
+  content: 
+    Message: "[hover me]"
+    Hover: "{sign_lines}"

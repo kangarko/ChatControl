@@ -1,0 +1,55 @@
+# -------------------------------------------------------------------------------------------------
+# ChatControl supports dynamic, high performance variables you create! They can be used across
+# the plugin, for example in formatting your chat or death messages. Currently, the folder
+# variables/ stores all custom variables in each separate yml file.
+#
+# Variables can not only be used to display information, but because you can write your own full
+# code in JavaScript to display them, they can also do whatever you would wish for your
+# players/server, such as sneaking in code to send sounds or spawn monsters.
+#
+# Coding this variable requires a little bit of JavaScript knowledge, see the link below.
+#
+# For documentation and help, please see this link:
+# https://github.com/kangarko/ChatControl/wiki/JavaScript-Variables
+# -------------------------------------------------------------------------------------------------
+#
+# Where should this variable be used?
+#
+# FORMAT = used in your formats with {syntax}, players cannot use it
+# MESSAGE = players can use it with [syntax] in their chat messages
+Type: MESSAGE
+
+# The key you can use in chat. Do not use brackets. 
+# Put the variable name here such as 'item' and you'll be able to call it with '[item]'.
+Key: ""
+
+# The value the key will be replaced to. This uses JavaScript, you can use 
+# "player" to get the player, if available.
+# TIP: Enable Performance.Support_Variables_In_Variables in settings.yml to support variables here.
+Value: ""
+
+# What JavaScript condition must return true for this variable to show?
+# You can put variables in here to get replaced.
+Sender_Condition: ""
+
+# What permission must the message sender have in order for this variable to display to him?
+Sender_Permission: ""
+
+# What texts should be displayed when we hover the mouse
+# over this variable in the chat
+Hover: []
+
+# What ItemStack should be displayed when we hover the mouse over this variable in the chat
+Hover_Item: ""
+
+# What website URL should be opened when we click with the mouse
+# on this variable in the chat
+Open_Url: ""
+
+# What command should appear in the player command box on his screen
+# if he clicks on this variable in the chat
+Suggest_Command: ""
+
+# What command should run as the sender when he clicks the mouse on this variable?
+# Minecraft only supports 1 command!
+Run_Command: ""

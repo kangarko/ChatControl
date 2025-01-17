@@ -1,0 +1,37 @@
+# -------------------------------------------------------------------------------------------------
+# ChatControl supports dynamic, high performance variables you create! They can be used across
+# the plugin, for example in formatting your chat or death messages. Currently, the folder
+# variables/ stores all custom variables in each separate yml file.
+#
+# Variables can not only be used to display information, but because you can write your own full
+# code in JavaScript to display them, they can also do whatever you would wish for your
+# players/server, such as sneaking in code to send sounds or spawn monsters.
+#
+# Coding this variable requires a little bit of JavaScript knowledge, see the link below.
+#
+# For documentation and help, please see this link:
+# https://github.com/kangarko/ChatControl/wiki/JavaScript-Variables
+# -------------------------------------------------------------------------------------------------
+#
+# Where should this variable be used?
+#
+# FORMAT = used in your formats with {syntax}, players cannot use it
+# MESSAGE = players can use it with [syntax] in their chat messages
+Type: FORMAT
+
+# The key you can later use in formats. Do not use brackets. 
+# Put the variable name here such as my_variable and you'll be able to call it with {my_variable}.
+Key: ""
+
+# The value the key will be replaced to. This uses JavaScript, you can use 
+# "player" to get the player, if available.
+#
+# TIP: Enable Performance.Support_Variables_In_Variables in settings.yml to support variables here.
+Value: ""
+
+# What JavaScript condition must return true for this variable to show?
+# You can put variables in here to get replaced.
+Sender_Condition: ""
+
+# What permission must the message sender have in order for this variable to display to him?
+Sender_Permission: ""

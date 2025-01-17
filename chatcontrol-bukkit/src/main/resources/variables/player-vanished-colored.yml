@@ -1,0 +1,5 @@
+Type: FORMAT
+Key: "player_vanished_colored"
+Value: "'{player_vanished}' == 'true' ? '<green>yes' : '<red>no'"
+Sender_Condition: ''
+Sender_Permission: ''

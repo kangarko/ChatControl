@@ -1,0 +1,37 @@
+# -----------------------------------------------------------------------------------------
+# The default spy format shown to players spying channels.
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # See the chat.yml format file for a tutorial on how this works.
+  delete-chat: 
+    Message: "<dark_gray>[<dark_red>X<dark_gray>] <white>"
+    Hover: "<red>Remove this message from chat for all players."
+    Run_Command: "/{label_main} internal remove {message_uuid}"
+    Receiver_Permission: chatcontrol.removemessages
+
+  spies-prefix: 
+    Message: "<dark_gray>[<dark_purple>Spy<dark_gray>] <white>"
+    Hover: "<light_purple>Click to stop spying {channel} channel."
+    Run_Command: "/{label_spy} toggle chat {channel}"
+
+  channel: 
+    Message: "<dark_gray>[<blue>{channel}<dark_gray>] <white>"
+    Hover: "<light_purple>Click to stop spying {channel} channel."
+    Run_Command: "/{label_spy} toggle chat {channel}"
+
+  player-name: 
+    #Message: "{player_nick}"
+    Message: "{player_name}"
+    Hover: "<gray>Click to message."
+    Suggest_Command: "/tell {player_name} "
+
+  message: 
+    Message: "<gray>: {message}"

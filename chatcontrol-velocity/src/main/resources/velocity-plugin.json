@@ -1,0 +1,8 @@
+{
+  "id": "velocitycontrol",
+  "name": "VelocityControl",
+  "version": "${project.version}",
+  "authors": ["${author}"],
+  "dependencies": [],
+  "main": "${main.class}"
+}

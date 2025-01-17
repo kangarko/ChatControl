@@ -1,0 +1,36 @@
+Type: FORMAT
+Key: "player_item_in_hand"
+Value: |-
+  // A valid JavaScript code follows below. You can use the "player" variable to get
+  // Bukkit's player instance, and "audience" to get our FoundationPlayer.
+
+  function displayName() {
+  
+    // Player can be null for console or discord
+    if (!audience.isPlayer())
+      return "None";
+  
+    // Player can be null for console or discord
+    var item = player.getItemInHand();
+
+    if (item == null || item.getType() == Java.type("org.bukkit.Material").AIR) 
+      return "Air";
+    
+    var metadata = item.getItemMeta();
+    var displayName = metadata.getDisplayName();
+    
+    // If the item has meta data and a custom name, show that name instead
+    // unless the item contains fake colour codes (added via an anvil etc)
+    if (metadata != null && metadata.hasDisplayName() && !displayName.match(/(&#[a-fA-F0-9]{6}|&[a-fA-F0-9rRk-oK-O])/))
+      return displayName;
+    
+    // We use a class that is packed in Spigot server's JAR to capitalize our item
+    var wordUtils = Java.type("org.apache.commons.lang.WordUtils");
+    var name = item.getType().name().toLowerCase().replace('_', ' ').replace('_', ' ');      
+    
+    // Return the item name deducted from the items type, capitalized
+    return wordUtils.capitalize(name);
+  }
+  
+  displayName();
+Hover_Item: "player.getItemInHand()"

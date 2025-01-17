@@ -1,0 +1,26 @@
+# -----------------------------------------------------------------------------------------
+# The default chat format used as a message of the day.
+#
+# See chat.yml for documentation on all available options in the "Parts" section.
+# -----------------------------------------------------------------------------------------
+
+# If true, each section in Parts will begin on a new line automatically.
+New_Line_Per_Part: false
+
+# The parts of this format.
+Parts: 
+  
+  # If you want to use player head here, add the "Image_Head: {player_name}" key. See chat.yml for 
+  # full documentation and all options available.
+  everything: 
+    Message:
+    - "<dark_gray>*--------------------------------------------------*"
+    - "<white>Hello {player}, we kindly welcome you to <yellow>{server_name}<white> and wish you great experience :)"
+    - ""
+    - "<gold>Version: <white>{server_version}"
+    - "<gold>Changelog:"
+    - "<gray>- <white>Added ChatControl plugin. Life changed."
+    - ""
+    - "<gold>Help <gray>- <white>/help <gold>Settings <gray>- <white>/menu <gold>Web <gray>- <white>/web"
+    #- "<gray>The chat is NOT monitored and we respect your privacy rights. Just kidding."
+    - "<dark_gray>*--------------------------------------------------*"

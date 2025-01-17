@@ -1,0 +1,5 @@
+name: BungeeControl
+main: ${main.class}
+version: ${project.version}
+author: kangarko
+softDepends: [RedisBungee, PartyAndFriends]

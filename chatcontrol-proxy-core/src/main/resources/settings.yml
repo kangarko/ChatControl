@@ -1,0 +1,191 @@
+# !-----------------------------------------------------------------------------------------------!
+#                       Welcome to the main configuration of ${project.name}
+# !-----------------------------------------------------------------------------------------------!
+#
+# -------------------------------------------------------------------------------------------------
+# The Server name aliases used when broadcasting messages below.
+# The key is your server name set in Velocity/Bungee, and the value is its alias or formatted name.
+# -------------------------------------------------------------------------------------------------
+Server_Aliases: 
+  lobby: "hub"
+  anotherServer: "another_server"
+
+# -------------------------------------------------------------------------------------------------
+# Join, quit and server switch messages.
+# Messages are configurable in messages/<type>.rs files.
+# -------------------------------------------------------------------------------------------------
+Messages:  
+ 
+  # Which player messages should be enabled? 
+  # Available types: join, quit, switch
+  #
+  # TIP: To hide certain messages, put it in Apply_On and empty the messages/<type>.rs file.
+  Apply_On: []
+  
+  # List of server names (not aliases) that won't broadcast messages.
+  Ignored_Servers:
+    - "silent_server"
+  
+  # true = we only send the first eligible message to the player (we evaluate this for each player) 
+  # false = keep sending all messages from your .rs file that are eligible
+  # Keep in mind that files in messages/ folder are read from top to bottom.
+  Stop_On_First_Match: true
+  
+  # The prefix to append to messages of the given type.
+  # The message types that you do not specify below, will have no prefix unless specified with
+  # "prefix" operator. You can also disable prefix for some messages by using "prefix none".
+  #
+  # Example:
+  # Prefix:
+  #   join: "&8[&2+&8] &7"
+  #   quit: "&8[&4-&8] &7"
+  #   switch: "&8[&d->&8] &7"
+  Prefix: {}
+   
+  # If you want to display join message after other plugins, you can send it
+  # a bit later such as 1 tick later than the other messages. 
+  # **YOU CANNOT OVERRIDE THIS WITH THE "DELAY" OPERATOR**
+  Defer_Join_Message_By: 1 tick
+
+# -------------------------------------------------------------------------------------------------
+# Filtering tab completion for proxy commands. 
+# TIP: To filter Bukkit commands, configure ChatControl on your Bukkit servers.
+# -------------------------------------------------------------------------------------------------
+Tab_Complete: 
+  
+  # A map of command labels and their arguments to remove. Put arguments to ["*"] to remove all.
+  #
+  # Example: 
+  # Filter_Arguments:
+  #   server: [survival, creative] # remove "/server survival" and "/server creative" suggestions
+  Filter_Arguments: {}
+
+# -------------------------------------------------------------------------------------------------
+# Chat relay is used for servers that do not have ChatControl installed to forward chat.
+# WARNING: This only forwards chat, no filtering is applied for these servers.
+# -------------------------------------------------------------------------------------------------
+Chat_Forwarding: 
+  
+  # Enable chat forwarding?
+  Enabled: false
+  
+  # List of what servers do not have ChatControl and need chat forwarded to them?
+  To_Servers: 
+    - "minigame1"
+
+  # List of what servers do not have ChatControl and need chat forwarded from them?
+  From_Servers: 
+    - "minigame1"
+
+# -------------------------------------------------------------------------------------------------
+# Enable clusters to group your servers into clusters, which limits data transmitted only within
+# the same cluster group. Example: You can limit tab-completion to only players on lobbies, etc.
+# -------------------------------------------------------------------------------------------------
+Clusters: 
+  
+  # Enable this feature?
+  Enabled: false
+  
+  # The map of clusters with a list of servers they belong to. 
+  # Servers not in the list will be placed into a "global" cluster automatically and share data.
+  #
+  # Example:
+  # List:
+  #   gameplay: 
+  #   - factions
+  #   - pvp
+  #   lobbies: 
+  #   - hub1
+  #   - hub2
+  List: {}
+
+# -------------------------------------------------------------------------------------------------
+# Third party plugin integration
+# -------------------------------------------------------------------------------------------------
+Integration: 
+
+  # BUNGEECORD ONLY: Supports for:
+  # 1. Party and friends (https://www.spigotmc.org/resources/9531/)
+  # 2. Parties (https://www.spigotmc.org/resources/3709/)
+  Parties:
+  
+    # Ask party and friends to get the player's displayname (so you can use it in Messages)?
+    Enabled: true
+
+    # The string used to get player's name, you can place all supported variables here from:
+    # https://github.com/kangarko/ChatControl/wiki/Variables#proxy--variables
+    Player_Name: "{player_nick}"
+
+# -------------------------------------------------------------------------------------------------
+# A command to broadcast messages to players on all servers. Redis supported.
+# Variables parsed against the RECEIVING player but are not parsed in the {message} itself
+# for security reasons. Legacy and MiniMessage color tags are supported.
+#
+# Warning: If enabled, make sure you disable the same command in ChatControl or adjust command
+# aliases to avoid conflicts. Proxy command will override Bukkit command if both are the same.
+# -------------------------------------------------------------------------------------------------
+Say:
+
+  # Enable this command?
+  Enabled: true
+  
+  # The command to use to broadcast a message to all players
+  Command_Aliases: [say, broadcast, bc]
+  
+  # The format of the message that will be broadcasted to all players
+  # Variables are parsed against the receiving player
+  Format: "<hover:show_text:'&7Your name: &f{player}'>&8[&dProxy&8]</hover> &f{message}"
+
+# -------------------------------------------------------------------------------------------------
+# Broadcast messages to players on all servers. Redis supported.
+# Variables parsed against the SENDING player but are not parsed in the {message} itself
+# for security reasons. Legacy and MiniMessage color tags are supported.
+#
+# Warning: If enabled, make sure you disable the same command in ChatControl or adjust command
+# aliases to avoid conflicts. Proxy command will override Bukkit command if both are the same.
+# -------------------------------------------------------------------------------------------------
+Me:
+
+  # Enable this feature?
+  Enabled: true
+  
+  # The command to use to broadcast a message to all players
+  Command_Aliases: [me]
+  
+  # The format of the message that will be broadcasted to all players
+  # Variables are parsed against the sending player
+  Format: "<hover:show_text:'&7Sent by: &f{player}'>&8[&7{player}&8]</hover> &f{message}"
+
+# -------------------------------------------------------------------------------------------------
+# Enable the ability of ChatControl on Bukkit to forward console commands?
+# -------------------------------------------------------------------------------------------------
+Enable_Forward_Command: false
+
+# -------------------------------------------------------------------------------------------------
+# Automatically make domains clickable in chat, channels and private messages.
+#
+# Requires the "chatcontrol.chat.links" permission - NOT given by default on proxy.
+# -------------------------------------------------------------------------------------------------
+Make_Chat_Links_Clickable: false
+
+# -------------------------------------------------------------------------------------------------
+# Redirect messages over Redis if RedisBungee (or its forks) are installed?
+# -------------------------------------------------------------------------------------------------
+Redis_Integration: true
+
+# -------------------------------------------------------------------------------------------------
+# Send anonymous error reports to sentry.io? Helps us fix bugs without you needing to report them
+# and waste time opening tickets on GitHub.
+# -------------------------------------------------------------------------------------------------
+Sentry: true
+
+# -------------------------------------------------------------------------------------------------
+# A list of parts of the plugin that will print log messages. Useful to see what the plugin does
+# and solve issues.
+#
+# Do not fear enabling this otherwise you will miss out and then waste time reading our Wiki and 
+# opening tickets where things could easily be explained simply by reading the console.
+#
+# Available: proxy, operator, redis, player-message
+# -------------------------------------------------------------------------------------------------
+Debug: []

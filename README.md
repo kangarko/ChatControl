@@ -1,5 +1,5 @@
 <p align="center">
-  <small><i>Learn Java, code Minecraft plugins and launch a unique network from the ground up in 20 days (without experience):</i></small>
+  <small><i>After 12 years of Java experience, I recorded an online course on Java & Minecraft plugin development - if you want to learn how to code your own ChatControl click the link below and learn more!</i></small>
   <a href="https://mineacademy.org/project-orion?st=github&sc=chatcontrol&utm_source=github&utm_medium=overview&utm_campaign=chatcontrol">
     <img src="https://i.imgur.com/SVHA9Kf.png" />
   </a>
@@ -24,6 +24,12 @@ ChatControl is the most advanced chat filtering and management plugin. It builds
 ## Purchasing
 
 Visit [MineAcademy.org/ChatControl](https://mineacademy.org/chatcontrol) to purchase the plugin.
+
+## Donation
+
+<a href="https://buy.stripe.com/7sIg1QgQv9RC4ik6op">![Donate To ChatControl](https://i.imgur.com/vn1IUul.png)</a>
+
+Since purchases are one-time but life goes on and my expenses are monthly, please [consider donating to ChatControl to support its continued development here](https://buy.stripe.com/7sIg1QgQv9RC4ik6op).
 
 ## Compiling
 Please note that NO support is provided for the compilation process and for non-buyers. Consider purchasing the plugin to support its development, get a premium rank on our [Discord](https://mineacademy.org/discord) and get support.

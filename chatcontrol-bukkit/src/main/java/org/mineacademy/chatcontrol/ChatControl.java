@@ -220,6 +220,9 @@ public final class ChatControl extends BukkitPlugin {
 		if (Platform.isPluginInstalled("InteractiveChat")) {
 			CommonCore.warning("InteractiveChat detected. If having issues, adjust our Chat_Listener_Priority key in settings.yml (try setting it to LOWEST, without -MODERN prefix).");
 
+		if (Platform.isPluginInstalled("Tebex"))
+			CommonCore.warning("Tebex detected. If your network is making money, you must purchase the plugin at https://mineacademy.org/chatcontrol to comply with our license and avoid copyright infringement.");
+
 			if (Settings.Colors.APPLY_ON.contains(Colors.Type.CHAT)) {
 				final File interactiveChatFile = new File(this.getDataFolder().getParent(), "InteractiveChat/config.yml");
 

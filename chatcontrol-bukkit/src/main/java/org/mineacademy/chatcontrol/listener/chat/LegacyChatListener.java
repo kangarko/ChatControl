@@ -11,6 +11,7 @@ import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.BukkitPlugin;
+import org.mineacademy.fo.platform.Platform;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -46,10 +47,17 @@ public final class LegacyChatListener implements EventExecutor, Listener {
 
 		if (console != null) {
 			final SimpleComponent consoleComponent = SimpleComponent.fromMiniAmpersand(console);
-			chatEvent.setFormat(consoleComponent.toLegacySection().replace("%", "%%"));
+			final String consoleMessage = consoleComponent.toLegacySection().replace("%", "%%");
+
+			chatEvent.setFormat(consoleMessage);
 
 			if (consoleComponent.toPlain().trim().isEmpty() || "none".equals(console))
 				chatEvent.setCancelled(true);
+
+			else {
+				if (chatEvent.isCancelled())
+					Platform.log(consoleMessage);
+			}
 		}
 
 		//LagCatcher.took(nano, "legacy chat event");

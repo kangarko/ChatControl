@@ -60,7 +60,7 @@ public final class CommandTell extends ChatControlCommand {
 				this.checkNotNull(conversingPlayer, Lang.component("command-tell-conversation-mode-not-conversing"));
 				final SyncedCache conversingCache = SyncedCache.fromPlayerName(conversingPlayer);
 
-				this.tellSuccess(Lang.component("command-tell-conversation-mode-off", conversingCache == null ? null : conversingCache.getPlaceholders(PlaceholderPrefix.RECEIVER)));
+				this.tellSuccess(Lang.component("command-tell-conversation-mode-off", conversingCache == null ? new HashMap<>() : conversingCache.getPlaceholders(PlaceholderPrefix.RECEIVER)));
 				senderCache.setConversingPlayerName(null);
 				senderCache.setLastAutoModeChat(0);
 

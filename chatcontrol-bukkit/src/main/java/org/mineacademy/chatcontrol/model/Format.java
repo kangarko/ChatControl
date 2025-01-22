@@ -159,7 +159,13 @@ public final class Format extends YamlConfig {
 		final Variables variables = Variables.builder(sender != null ? sender.getAudience() : null).cache(true).placeholders(placeholders);
 
 		for (final Part part : this.parts) {
-			final SimpleComponent partComponent = part.build(sender, variables);
+			SimpleComponent partComponent = null;
+
+			try {
+				partComponent = part.build(sender, variables);
+			} catch (final FoScriptException ex) {
+				ex.printStackTrace();
+			}
 
 			if (partComponent != null) {
 				component = component.append(partComponent);

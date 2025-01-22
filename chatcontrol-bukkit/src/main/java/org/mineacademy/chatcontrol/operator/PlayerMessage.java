@@ -1264,7 +1264,12 @@ public abstract class PlayerMessage extends Operator {
 						final Long discordChannelId = Settings.Messages.DISCORD.get(this.type);
 
 						if (discordChannelId != null)
-							Discord.getInstance().sendChannelMessageNoPlayer(discordChannelId, CompChatColor.stripColorCodes(plainMessage));
+							try {
+								Discord.getInstance().sendChannelMessageNoPlayer(discordChannelId, CompChatColor.stripColorCodes(plainMessage));
+
+							} catch (final NoClassDefFoundError ex) {
+								// Ignore, prob plugman removed discord
+							}
 					}
 				}
 			}

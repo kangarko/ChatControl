@@ -60,13 +60,19 @@ public final class AdventureChatListener implements EventExecutor, Listener {
 
 		ChatHandler.handle(state);
 
+		final Component chatComponent = SimpleComponent.MINIMESSAGE_PARSER.deserialize(state.getChatMessage());
+
 		if (state.isMessageChanged())
-			chatEvent.message(SimpleComponent.MINIMESSAGE_PARSER.deserialize(state.getChatMessage()));
+			chatEvent.message(chatComponent);
 
 		chatEvent.setCancelled(state.isCancelled());
 		chatEvent.viewers().removeIf(viewer -> viewer instanceof ConsoleCommandSender || (viewer instanceof Player && !bukkitRecipients.contains(viewer)));
-
 		chatEvent.viewers().add(new ChatControlConsoleSender(state));
+
+		// Fix console not broadcasting if event is cancelled
+		if (state.isCancelled())
+			logToConsole(state, chatComponent);
+
 		//LagCatcher.took(nano, "modern chat");
 	}
 
@@ -89,16 +95,20 @@ public final class AdventureChatListener implements EventExecutor, Listener {
 
 		@Override
 		public void sendMessage(final Identity source, final Component message, final MessageType type) {
-			final String console = this.state.getConsoleFormat();
-
-			if (console != null) {
-				final SimpleComponent consoleComponent = SimpleComponent.fromMiniAmpersand(console);
-
-				if (!consoleComponent.toPlain().trim().isEmpty() && !"none".equals(console))
-					Bukkit.getConsoleSender().sendMessage(consoleComponent.toLegacySection());
-
-			} else
-				Bukkit.getConsoleSender().sendMessage("<" + this.state.getPlayer().getName() + "> " + PlainTextComponentSerializer.plainText().serialize(message));
+			logToConsole(this.state, message);
 		}
+	}
+
+	private static void logToConsole(ChatHandler.State state, Component message) {
+		final String console = state.getConsoleFormat();
+
+		if (console != null) {
+			final SimpleComponent consoleComponent = SimpleComponent.fromMiniAmpersand(console);
+
+			if (!consoleComponent.toPlain().trim().isEmpty() && !"none".equals(console))
+				Bukkit.getConsoleSender().sendMessage(consoleComponent.toLegacySection());
+
+		} else
+			Bukkit.getConsoleSender().sendMessage("<" + state.getPlayer().getName() + "> " + PlainTextComponentSerializer.plainText().serialize(message));
 	}
 }

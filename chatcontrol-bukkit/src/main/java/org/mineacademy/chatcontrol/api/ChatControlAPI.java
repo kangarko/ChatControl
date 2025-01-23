@@ -49,7 +49,18 @@ public final class ChatControlAPI {
 	 * @return
 	 */
 	public static Checker checkMessage(final Player sender, final String message) {
-		final Checker checker = Checker.filterChannel(WrappedSender.fromPlayer(sender), message, null);
+		return checkMessage(sender, message);
+	}
+
+	/**
+	 * Run antispam, anticaps, time and delay checks as well as rules for the given message
+	 *
+	 * @param wrapped
+	 * @param message
+	 * @return
+	 */
+	public static Checker checkMessage(final WrappedSender wrapped, final String message) {
+		final Checker checker = Checker.filterChannel(wrapped, message, null);
 
 		return checker;
 	}
@@ -70,13 +81,38 @@ public final class ChatControlAPI {
 	 * Apply the given rules type for the message sent by the player
 	 *
 	 * @param type
+	 * @param wrapped
+	 * @param message
+	 * @return
+	 */
+	public static RuleCheck<?> checkRules(final RuleType type, final WrappedSender wrapped, final String message) {
+		return checkRules(type, wrapped, message, null);
+	}
+
+	/**
+	 * Apply the given rules type for the message sent by the player
+	 *
+	 * @param type
 	 * @param sender
 	 * @param message
 	 * @param channel
 	 * @return
 	 */
 	public static RuleCheck<?> checkRules(final RuleType type, final CommandSender sender, final String message, final Channel channel) {
-		return Rule.filter(type, WrappedSender.fromSender(sender), message, channel);
+		return checkRules(type, WrappedSender.fromSender(sender), message, channel);
+	}
+
+	/**
+	 * Apply the given rules type for the message sent by the player
+	 *
+	 * @param type
+	 * @param wrapped
+	 * @param message
+	 * @param channel
+	 * @return
+	 */
+	public static RuleCheck<?> checkRules(final RuleType type, final WrappedSender wrapped, final String message, final Channel channel) {
+		return Rule.filter(type, wrapped, message, channel);
 	}
 
 	/**

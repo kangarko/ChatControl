@@ -265,7 +265,11 @@ public final class Announce {
 				final CompMaterial icon = params.get("icon", CompMaterial.class, CompMaterial.BOOK);
 				final CompToastStyle style = params.get("style", CompToastStyle.class, CompToastStyle.GOAL);
 
-				Remain.sendToastToAudience(receivers, receiver -> Variables.builder(receiver).replaceLegacy(message), icon, style);
+				if (!CompMaterial.isAir(icon))
+					Remain.sendToastToAudience(receivers, receiver -> Variables.builder(receiver).replaceLegacy(message), icon, style);
+				else
+					for (final FoundationPlayer receiver : receivers)
+						receiver.sendMessage(SimpleComponent.fromMiniAmpersand(Variables.builder(receiver).replaceLegacy(message)));
 
 			} else
 				for (final FoundationPlayer receiver : receivers)

@@ -34,8 +34,10 @@ Since purchases are one-time but life goes on and my expenses are monthly, pleas
 ## Compiling
 Please note that NO support is provided for the compilation process and for non-buyers. Consider purchasing the plugin to support its development, get our insider rank on our [Discord](https://mineacademy.org/discord) and get support.
 
-1. Download and compile [Foundation](https://github.com/kangarko/foundation).
+1. Download and compile [Foundation v7](https://github.com/kangarko/Foundation/tree/v7).
 2. Run Maven "clean install" in your IDE.
+
+If you encounter any missing dependencies error, download the plugins manually and add them to `/library`.
 
 ## Addons
 

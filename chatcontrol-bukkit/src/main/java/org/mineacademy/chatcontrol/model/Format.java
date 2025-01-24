@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
@@ -484,6 +486,10 @@ public final class Format extends YamlConfig {
 				message = String.join("", parts);
 			}
 
+			// Process custom {#RGB} color placeholders after gradient handling
+			// but before MiniMessage parsing to maintain tag integrity
+			message = replaceColorPlaceholders(message);
+
 			SimpleComponent component = SimpleComponent.fromMiniAmpersand(message);
 
 			// This is about 2x faster but click/hover are lost
@@ -767,6 +773,35 @@ public final class Format extends YamlConfig {
 			} catch (final Throwable t) {
 				CommonCore.throwError(t, "Error initializing format " + format.getName());
 			}
+	}
+
+	/**
+	 * Replaces {#RGB} and {#RRGGBB} color placeholders with MiniMessage-compatible
+	 * color tags. Expands 3-digit hex codes to 6 digits for proper RGB conversion.
+	 *
+	 * @param message The input message containing color placeholders
+	 * @return The message with placeholders converted to MiniMessage tags
+	 */
+
+	private static String replaceColorPlaceholders(String message) {
+		// Match both 3-digit and 6-digit hex codes inside {#} brackets
+		Pattern pattern = Pattern.compile("\\{#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\\}");
+		Matcher matcher = pattern.matcher(message);
+		StringBuffer buffer = new StringBuffer();
+
+		while (matcher.find()) {
+			String hex = matcher.group(1);
+			// Expand 3-digit hex codes to 6 digits (e.g., #F00 → FF0000)
+			if (hex.length() == 3) {
+				hex = hex.replaceAll("(.)", "$1$1");
+			}
+			// Convert to MiniMessage color format while preserving case sensitivity
+			String replacement = "<#" + hex + ">";
+			matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+		}
+		matcher.appendTail(buffer);
+
+		return buffer.toString();
 	}
 
 	/**

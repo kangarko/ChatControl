@@ -41,7 +41,7 @@ public final class LegacyChatListener implements EventExecutor, Listener {
 		chatEvent.setCancelled(state.isCancelled());
 
 		if (state.isMessageChanged())
-			chatEvent.setMessage(SimpleComponent.fromMiniNative(state.getChatMessage()).toLegacySection());
+			chatEvent.setMessage(SimpleComponent.fromMiniSection(state.getChatMessage()).toLegacySection());
 
 		final String console = state.getConsoleFormat();
 

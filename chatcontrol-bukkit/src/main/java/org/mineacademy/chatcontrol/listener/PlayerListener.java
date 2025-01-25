@@ -512,6 +512,8 @@ public final class PlayerListener implements Listener {
 		// Check anvil rules
 		if (event.getInventory().getType() == InventoryType.ANVIL && event.getSlotType() == InventoryType.SlotType.RESULT && currentItem.hasItemMeta() && currentItem.getItemMeta().hasDisplayName()) {
 			final ItemMeta meta = currentItem.getItemMeta();
+
+			LogUtil.logOnce("anvil-colors", "Applying rules to Anvil. If you wish players to use colors on items, give them 'chatcontrol.use.color.anvil' permission.");
 			String itemName = Colors.removeColorsNoPermission(player, meta.getDisplayName(), Colors.Type.ANVIL);
 
 			// Check mute

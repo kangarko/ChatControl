@@ -101,7 +101,7 @@ public final class BookListener extends SimpleListener<PlayerEditBookEvent> {
 				this.cancel();
 
 			if (changed || Settings.Colors.APPLY_ON.contains(Colors.Type.BOOK))
-				bookMeta.setTitle(SimpleComponent.fromMiniNative(title).toLegacySection());
+				bookMeta.setTitle(SimpleComponent.fromMiniSection(title).toLegacySection());
 		}
 
 		// Check pages
@@ -128,7 +128,7 @@ public final class BookListener extends SimpleListener<PlayerEditBookEvent> {
 					page = pageCheck.getMessage();
 
 					if (!signing)
-						page = SimpleComponent.fromMiniNative(page).toPlain();
+						page = SimpleComponent.fromMiniSection(page).toPlain();
 				}
 
 				newPages.add(page);
@@ -136,7 +136,7 @@ public final class BookListener extends SimpleListener<PlayerEditBookEvent> {
 
 			if (changed || Settings.Colors.APPLY_ON.contains(Colors.Type.BOOK)) {
 				if (signing)
-					Remain.setPages(bookMeta, CommonCore.convertList(newPages, page -> SimpleComponent.fromMiniNative(ChatColor.stripColor(page))));
+					Remain.setPages(bookMeta, CommonCore.convertList(newPages, page -> SimpleComponent.fromMiniSection(ChatColor.stripColor(page))));
 				else
 					bookMeta.setPages(newPages);
 			}

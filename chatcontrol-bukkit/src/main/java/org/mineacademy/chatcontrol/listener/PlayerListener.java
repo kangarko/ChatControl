@@ -428,7 +428,7 @@ public final class PlayerListener implements Listener {
 
 					// In this case, we will have to rerender the line order
 					// and simply merge everything together (spaces will be lost)
-					final String[] split = CommonCore.split(SimpleComponent.fromMiniNative(allLinesCheck.getMessage()).toLegacySection(), 15);
+					final String[] split = CommonCore.split(SimpleComponent.fromMiniSection(allLinesCheck.getMessage()).toLegacySection(), 15);
 
 					for (int i = 0; i < 4; i++) {
 						final String replacement = i < split.length ? split[i] : "";
@@ -456,7 +456,7 @@ public final class PlayerListener implements Listener {
 						ignoreSpying = true;
 
 					if (lineCheck.isMessageChanged()) {
-						event.setLine(i, CommonCore.limit(SimpleComponent.fromMiniNative(lineCheck.getMessage()).toLegacySection(), 15));
+						event.setLine(i, CommonCore.limit(SimpleComponent.fromMiniSection(lineCheck.getMessage()).toLegacySection(), 15));
 						linesChanged.add(i);
 					}
 				}
@@ -466,7 +466,7 @@ public final class PlayerListener implements Listener {
 			if (Settings.Colors.APPLY_ON.contains(Colors.Type.SIGN))
 				for (int i = 0; i < 4; i++)
 					if (!linesChanged.contains(i))
-						event.setLine(i, SimpleComponent.fromMiniNative(Colors.removeColorsNoPermission(player, event.getLine(i), Colors.Type.SIGN)).toLegacySection());
+						event.setLine(i, SimpleComponent.fromMiniSection(Colors.removeColorsNoPermission(player, event.getLine(i), Colors.Type.SIGN)).toLegacySection());
 
 			// If rule is silent, send packet back as if the sign remained unchanged
 			if (cancelSilently)
@@ -533,7 +533,7 @@ public final class PlayerListener implements Listener {
 				if (CompChatColor.stripColorCodes(itemName).isEmpty())
 					throw new EventHandledException(true);
 
-				meta.setDisplayName(SimpleComponent.fromMiniNative(itemName).toLegacySection());
+				meta.setDisplayName(SimpleComponent.fromMiniSection(itemName).toLegacySection());
 
 				currentItem.setItemMeta(meta);
 				event.setCurrentItem(currentItem);

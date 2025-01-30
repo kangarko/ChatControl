@@ -326,8 +326,15 @@ public final class Placeholders extends SimpleExpansion {
 		for (final ToggleType toggleType : Settings.Toggle.APPLY_ON) {
 			final String toggleName = toggleType.getKey();
 
-			if (identifier.equals("player_is_ignoring_" + toggleName) || identifier.equals("player_is_ignoring_" + toggleName + "s"))
+			if (identifier.equals("is_ignoring_" + toggleName) || identifier.equals("player_is_ignoring_" + toggleName) || identifier.equals("player_is_ignoring_" + toggleName + "s"))
 				return playerCache == null ? "false" : String.valueOf(playerCache.hasToggledPartOff(toggleType));
+		}
+
+		for (final PlayerMessageType messageType : Settings.Messages.APPLY_ON) {
+			final String toggleName = messageType.getKey();
+
+			if (identifier.equals("is_ignoring_" + toggleName) || identifier.equals("player_is_ignoring_" + toggleName) || identifier.equals("player_is_ignoring_" + toggleName + "s"))
+				return playerCache == null ? "false" : String.valueOf(playerCache.isIgnoringMessages(messageType));
 		}
 
 		// TODO merge with SyncedCache variables and remove duplicated code

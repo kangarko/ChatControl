@@ -1321,7 +1321,7 @@ Locale: en_US
 #
 # Requires the "chatcontrol.chat.links" permission (given by default to all players).
 # -------------------------------------------------------------------------------------------------
-Make_Chat_Links_Clickable: false
+Make_Chat_Links_Clickable: true
 
 # -------------------------------------------------------------------------------------------------
 # We filter out unknown MiniMessage tags by default for security reasons. If this causes

@@ -4,9 +4,10 @@ import org.mineacademy.chatcontrol.proxy.Redis;
 
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 
+import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public final class RedisListener {
+public final class RedisListener implements Listener {
 
 	/**
 	 * Listen to plugin messages across network

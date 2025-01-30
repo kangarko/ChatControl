@@ -11,7 +11,7 @@
 
 	<artifactId>chatcontrol-velocity</artifactId>
 	<name>VelocityControl</name>
-	<version>2.1.7</version>
+	<version>2.1.8</version>
 	
 	<properties>
 		<main.class>org.mineacademy.chatcontrol.velocity.VelocityControl</main.class>

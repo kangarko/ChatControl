@@ -7,7 +7,7 @@
 
 # Support proxy? (BungeeCord/Waterfall, Velocity, etc.)
 # See https://github.com/kangarko/ChatControl/wiki/proxy for installation guide.
-Enabled: true
+Enabled: false
 
 # The prefix before the message sent to proxy. Set to empty to disable.
 Prefix: "<dark_gray>[<yellow>{server_name}<dark_gray>] <gray>"

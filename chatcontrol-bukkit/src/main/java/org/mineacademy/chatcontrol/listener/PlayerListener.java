@@ -93,14 +93,15 @@ public final class PlayerListener implements Listener {
 		final OfflinePlayer offline = Remain.getOfflinePlayerByUniqueId(uniqueId);
 
 		// Disallowed usernames
-		if (AntiBot.DISALLOWED_USERNAMES_LIST.isInListRegex(playerName) && (offline == null || !HookManager.hasVaultPermission(offline, Permissions.Bypass.LOGIN_USERNAMES))) {
-			for (final String command : AntiBot.DISALLOWED_USERNAMES_COMMANDS)
-				Platform.dispatchConsoleCommand(null, command.replace("{uuid}", uniqueId.toString()).replace("{player}", playerName));
+		if (HookManager.isVaultLoaded())
+			if (AntiBot.DISALLOWED_USERNAMES_LIST.isInListRegex(playerName) && (offline == null || !HookManager.hasVaultPermission(offline, Permissions.Bypass.LOGIN_USERNAMES))) {
+				for (final String command : AntiBot.DISALLOWED_USERNAMES_COMMANDS)
+					Platform.dispatchConsoleCommand(null, command.replace("{uuid}", uniqueId.toString()).replace("{player}", playerName));
 
-			event.setKickMessage(Lang.legacy("player-kick-disallowed-nickname"));
-			event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-			return;
-		}
+				event.setKickMessage(Lang.legacy("player-kick-disallowed-nickname"));
+				event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
+				return;
+			}
 	}
 
 	/**

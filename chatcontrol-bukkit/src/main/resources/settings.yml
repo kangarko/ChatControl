@@ -350,6 +350,8 @@ Anti_Bot:
   Block_Same_Text_Signs: false
  
   # Filter bad player names from entering your server.
+  #
+  # **IMPORTANT** Requires Vault and a compatible permissions plugin.
   Disallowed_Usernames:
     
     # Supports regular expresisons. Example:

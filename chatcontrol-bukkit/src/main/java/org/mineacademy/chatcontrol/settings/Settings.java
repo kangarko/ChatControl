@@ -104,6 +104,8 @@ public final class Settings extends SimpleSettings {
 			final File databaseYml = FileUtil.extract("database.yml");
 			final YamlConfig databaseConfig = YamlConfig.fromFile(databaseYml);
 
+			databaseConfig.setDefaults(YamlConfig.fromInternalPath("database.yml"));
+
 			setPathPrefix("Database");
 
 			boolean save = false;

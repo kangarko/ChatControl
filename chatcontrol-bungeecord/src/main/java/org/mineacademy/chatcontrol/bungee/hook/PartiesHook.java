@@ -8,12 +8,10 @@ import com.alessiodp.parties.api.Parties;
 import com.alessiodp.parties.api.interfaces.PartiesAPI;
 import com.alessiodp.parties.api.interfaces.PartyPlayer;
 
-import net.md_5.bungee.api.plugin.Listener;
-
 /**
  * Provides integration with the Parties plugin
  */
-public final class PartiesHook implements Listener {
+public final class PartiesHook {
 
 	/**
 	 * Set the nickname inside Parties plugin from the given nick (coming from ChatControl)

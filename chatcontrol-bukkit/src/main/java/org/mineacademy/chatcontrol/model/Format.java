@@ -99,13 +99,18 @@ public final class Format extends YamlConfig {
 	protected void onLoad() {
 		this.newLinePerPart = this.getBoolean("New_Line_Per_Part", false);
 
-		for (final Entry<String, Object> entry : this.getMap("Parts", String.class, Object.class).entrySet())
-			try {
-				this.parts.add(Part.deserialize(SerializedMap.fromObject(entry.getValue()), this.getFile().getName(), entry.getKey()));
+		for (final Entry<String, Object> entry : this.getMap("Parts", String.class, Object.class).entrySet()) {
+			if (entry.getValue() instanceof String) {
+				new IllegalArgumentException(this.getFileName() + " has invalid format part in Parts." + entry.getKey() + " - it cannot be a string! See https://github.com/kangarko/ChatControl/wiki/formats for configuration.").printStackTrace();
 
-			} catch (final FoException ex) {
-				ex.printStackTrace();
-			}
+			} else
+				try {
+					this.parts.add(Part.deserialize(SerializedMap.fromObject(entry.getValue()), this.getFile().getName(), entry.getKey()));
+
+				} catch (final FoException ex) {
+					ex.printStackTrace();
+				}
+		}
 	}
 
 	@Override
@@ -401,7 +406,7 @@ public final class Format extends YamlConfig {
 				try {
 					image.drawFromHead(variables.replaceLegacy(this.imageHead));
 
-				} catch (final IOException ex) {
+				} catch (final IOException | NullPointerException ex) {
 					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from head: " + this.imageHead + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 
@@ -409,7 +414,7 @@ public final class Format extends YamlConfig {
 				try {
 					image.drawFromUrl(variables.replaceLegacy(this.imageUrl));
 
-				} catch (final IOException ex) {
+				} catch (final IOException | NullPointerException ex) {
 					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from URL: " + this.imageUrl + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 
@@ -417,7 +422,7 @@ public final class Format extends YamlConfig {
 				try {
 					image.drawFromFile(FileUtil.getFile("images/" + this.imageFile));
 
-				} catch (final IOException ex) {
+				} catch (final IOException | NullPointerException ex) {
 					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from file: " + this.imageFile + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 

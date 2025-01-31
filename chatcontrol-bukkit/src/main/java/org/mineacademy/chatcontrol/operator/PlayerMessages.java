@@ -1,6 +1,7 @@
 package org.mineacademy.chatcontrol.operator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -146,7 +147,7 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 * @return
 	 */
 	public <T extends PlayerMessage> List<T> getMessages(final PlayerMessageType type) {
-		return (List<T>) Collections.unmodifiableList(this.messages.get(type));
+		return (List<T>) Collections.unmodifiableList(this.messages.getOrDefault(type, new ArrayList<>()));
 	}
 
 	/* ------------------------------------------------------------------------------- */

@@ -17,7 +17,6 @@ import org.mineacademy.chatcontrol.model.SyncType;
 import org.mineacademy.chatcontrol.model.ToggleType;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.SerializeUtilCore.Language;
-import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.platform.FoundationPlayer;
@@ -610,9 +609,11 @@ public final class SyncedCache {
 				final String value = entry.getValue().toString();
 
 				final SyncedCache cache = uniqueCacheMap.get(uniqueId);
-				ValidCore.checkNotNull(cache, "Cannot upload '" + type + "' data '" + value + "' for " + uniqueId + " because he is not loaded yet - was header sent? Loaded: " + uniqueCacheMap.keySet());
 
-				cache.loadData(type, value);
+				// Temporarily be more lenient
+				//ValidCore.checkNotNull(cache, "Cannot upload '" + type + "' data '" + value + "' for " + uniqueId + " because he is not loaded yet - was header sent? Loaded: " + uniqueCacheMap.keySet());
+				if (cache != null)
+					cache.loadData(type, value);
 			}
 		}
 	}

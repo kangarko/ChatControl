@@ -102,7 +102,7 @@ public final class Discord extends DiscordListener {
 		}
 
 		UUID linkedId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getAuthor().getId());
-		String minecraftName = event.getAuthor().getName();
+		String minecraftName = event.getMember().getEffectiveName();
 
 		OfflinePlayer offlinePlayer = null;
 
@@ -112,12 +112,8 @@ public final class Discord extends DiscordListener {
 		if (offlinePlayer == null)
 			offlinePlayer = Bukkit.getOfflinePlayer(minecraftName);
 
-		if (offlinePlayer != null)
+		if (offlinePlayer != null && offlinePlayer.getName() != null)
 			minecraftName = offlinePlayer.getName();
-
-		// Fallback, if we cant find a matching player name
-		if (minecraftName == null)
-			minecraftName = event.getAuthor().getName();
 
 		if (linkedId == null && offlinePlayer != null)
 			linkedId = offlinePlayer.getUniqueId();

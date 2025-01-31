@@ -1,7 +1,9 @@
 package org.mineacademy.chatcontrol.proxy;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mineacademy.fo.platform.FoundationPlayer;
 import org.mineacademy.fo.settings.DataFileConfig;
@@ -21,7 +23,7 @@ public final class ProxyServerCache {
 	 * A list of players who got "caught" up by this plugin,
 	 * used for first join messages.
 	 */
-	private List<UUID> registeredPlayers;
+	private Set<UUID> registeredPlayers;
 
 	/**
 	 * Load the file
@@ -36,7 +38,8 @@ public final class ProxyServerCache {
 	private void onLoad() {
 		final YamlConfig dataFile = DataFileConfig.getInstance();
 
-		this.registeredPlayers = dataFile.getList("Players", UUID.class);
+		this.registeredPlayers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+		this.registeredPlayers.addAll(dataFile.getList("Players", UUID.class));
 	}
 
 	public void save() {

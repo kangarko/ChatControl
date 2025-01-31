@@ -45,7 +45,7 @@ public final class ProxyEvents {
 	 *
 	 * It overrides previous values, only last message will get shown
 	 */
-	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessages = new HashMap<>();
+	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessages = ExpiringMap.builder().expiration(10, TimeUnit.SECONDS).build();
 
 	/**
 	 * Message de-duplicator
@@ -56,7 +56,7 @@ public final class ProxyEvents {
 	 * Because join and switch events are called in the same event (ServerSwitchEvent), we
 	 * need to store joining players here to handle network switch.
 	 */
-	private static final Map<UUID, FoundationServer> players = new HashMap<>();
+	private static final Map<String, String> playerServerNamesByUniqueId = new HashMap<>();
 
 	public static void registerCommands() {
 		if (ProxySettings.Say.ENABLED)
@@ -90,7 +90,7 @@ public final class ProxyEvents {
 		// Force-create if not exist
 		SyncedCache.getOrCreate(player.getName(), player.getUniqueId());
 
-		if (!players.containsKey(player.getUniqueId()) && !isSilent(server)) {
+		if (!playerServerNamesByUniqueId.containsKey(player.getUniqueId().toString()) && !isSilent(server)) {
 			final String toServer = ProxySettings.getServerNameAlias(server.getName());
 
 			if (!isSilent(toServer)) {
@@ -130,11 +130,11 @@ public final class ProxyEvents {
 	 * @param currentServer
 	 */
 	public static void handleSwitch(final FoundationPlayer player, final FoundationServer currentServer) {
-		final FoundationServer lastServer = players.put(player.getUniqueId(), currentServer);
+		final String lastServerName = playerServerNamesByUniqueId.put(player.getUniqueId().toString(), currentServer.getName());
 
 		// Announce switches to/from silent servers on servers not silenced
-		if (lastServer != null) {
-			final String fromServer = ProxySettings.getServerNameAlias(lastServer.getName());
+		if (lastServerName != null) {
+			final String fromServer = ProxySettings.getServerNameAlias(lastServerName);
 			final String toServer = ProxySettings.getServerNameAlias(currentServer.getName());
 
 			if (!isSilent(fromServer)) {
@@ -162,10 +162,10 @@ public final class ProxyEvents {
 		final UUID playerUniqueId = player.getUniqueId();
 
 		final ProxyServerCache cache = ProxyServerCache.getInstance();
-		final FoundationServer server = players.remove(playerUniqueId);
+		final String serverName = playerServerNamesByUniqueId.remove(playerUniqueId.toString());
 
-		if (server != null && !isSilent(server)) {
-			final String fromServer = ProxySettings.getServerNameAlias(server.getName());
+		if (serverName != null && !isSilent(serverName)) {
+			final String fromServer = ProxySettings.getServerNameAlias(serverName);
 			final SyncedCache synced = SyncedCache.fromUniqueId(playerUniqueId);
 
 			if (synced == null)

@@ -5,11 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.command.CommandDummy;
@@ -355,11 +353,6 @@ public final class ChatControl extends BukkitPlugin {
 				"Try '/me is the best' today! #seriously",
 				"Cracked by kangarko (MineAcademy.org) #joke",
 				"Censored for stating the obvious! #elonMusk");
-	}
-
-	@Override
-	public Set<String> getConsoleFilter() {
-		return Settings.ConsoleFilter.ENABLED ? Settings.ConsoleFilter.MESSAGES : new HashSet<>();
 	}
 
 	@Override

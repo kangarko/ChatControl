@@ -1063,22 +1063,6 @@ public final class Settings extends SimpleSettings {
 	}
 
 	/**
-	 * Settings for the console filter
-	 */
-	public static class ConsoleFilter {
-
-		public static Boolean ENABLED = false;
-		public static Set<String> MESSAGES = new HashSet<>();
-
-		private static void init() {
-			setPathPrefix("Console_Filter");
-
-			ENABLED = getBoolean("Enabled");
-			MESSAGES = getSet("Messages", String.class);
-		}
-	}
-
-	/**
 	 * AuthMe support.
 	 */
 	public static class AuthMe {

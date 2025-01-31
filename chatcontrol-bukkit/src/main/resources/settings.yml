@@ -1153,22 +1153,6 @@ Log:
     - /nick
 
 # -------------------------------------------------------------------------------------------------
-# Remove unwanted messages from the console.
-# -------------------------------------------------------------------------------------------------
-Console_Filter:
-  
-  # Should we enable this feature? Does not support reloading.
-  Enabled: false
-  
-  # A list of messages to hide from console. We match them using "contains" logic.
-  #
-  # [WARNING] If you have Multicraft, DO NOT place the following messages there else 
-  #          your server will literaly stop working properly. This is a bug in Multicraft:
-  #          - UUID of player
-  #          - lost connection
-  Messages: []
-
-# -------------------------------------------------------------------------------------------------
 # AuthMe integration.
 # -------------------------------------------------------------------------------------------------
 AuthMe:

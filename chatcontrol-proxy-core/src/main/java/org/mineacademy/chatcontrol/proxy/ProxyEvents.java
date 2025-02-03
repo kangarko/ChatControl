@@ -45,7 +45,7 @@ public final class ProxyEvents {
 	 *
 	 * It overrides previous values, only last message will get shown
 	 */
-	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessages = ExpiringMap.builder().expiration(10, TimeUnit.SECONDS).build();
+	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessagesV2 = ExpiringMap.builder().expiration(10, TimeUnit.SECONDS).build();
 
 	/**
 	 * Message de-duplicator
@@ -86,40 +86,42 @@ public final class ProxyEvents {
 	 * @param server
 	 */
 	public static void handleConnect(final FoundationPlayer player, final FoundationServer server) {
+		synchronized (pendingMessagesV2) {
 
-		// Force-create if not exist
-		SyncedCache.getOrCreate(player.getName(), player.getUniqueId());
+			// Force-create if not exist
+			SyncedCache.getOrCreate(player.getName(), player.getUniqueId());
 
-		if (!playerServerNamesByUniqueId.containsKey(player.getUniqueId().toString()) && !isSilent(server)) {
-			final String toServer = ProxySettings.getServerNameAlias(server.getName());
+			if (!playerServerNamesByUniqueId.containsKey(player.getUniqueId().toString()) && !isSilent(server)) {
+				final String toServer = ProxySettings.getServerNameAlias(server.getName());
 
-			if (!isSilent(toServer)) {
-				Debugger.debug("player-message", "Detected " + player.getName() + " join to " + toServer + ", waiting for server data..");
+				if (!isSilent(toServer)) {
+					Debugger.debug("player-message", "Detected " + player.getName() + " join to " + toServer + ", waiting for server data..");
 
-				pendingMessages.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.JOIN, CommonCore.newHashMap(
-						"server", toServer,
-						"server_name", toServer,
-						"player_server_name", toServer)));
+					pendingMessagesV2.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.JOIN, CommonCore.newHashMap(
+							"server", toServer,
+							"server_name", toServer,
+							"player_server_name", toServer)));
+				}
 			}
-		}
 
-		final OutgoingMessage message = new OutgoingMessage(ChatControlProxyMessage.SERVER_ALIAS);
+			final OutgoingMessage message = new OutgoingMessage(ChatControlProxyMessage.SERVER_ALIAS);
 
-		message.writeString(server.getName());
-		message.writeString(ProxySettings.getServerNameAlias(server.getName()));
+			message.writeString(server.getName());
+			message.writeString(ProxySettings.getServerNameAlias(server.getName()));
 
-		final byte[] data = message.toByteArray(CommonCore.ZERO_UUID, server.getName());
+			final byte[] data = message.toByteArray(CommonCore.ZERO_UUID, server.getName());
 
-		if (data.length > Short.MAX_VALUE)
-			CommonCore.log("[forwardData-main] Outgoing proxy message was oversized, not sending. Max length: 32766 bytes, got " + data.length + " bytes.");
+			if (data.length > Short.MAX_VALUE)
+				CommonCore.log("[forwardData-main] Outgoing proxy message was oversized, not sending. Max length: 32766 bytes, got " + data.length + " bytes.");
 
-		else {
-			if (Redis.isEnabled())
-				Redis.sendDataToOtherServers(player.getUniqueId(), ProxyConstants.CHATCONTROL_CHANNEL, data);
-			else
-				for (final FoundationServer iteratedServer : Platform.getServers())
-					if (!iteratedServer.getPlayers().isEmpty())
-						iteratedServer.sendData(ProxyConstants.BUNGEECORD_CHANNEL, data);
+			else {
+				if (Redis.isEnabled())
+					Redis.sendDataToOtherServers(player.getUniqueId(), ProxyConstants.CHATCONTROL_CHANNEL, data);
+				else
+					for (final FoundationServer iteratedServer : Platform.getServers())
+						if (!iteratedServer.getPlayers().isEmpty())
+							iteratedServer.sendData(ProxyConstants.BUNGEECORD_CHANNEL, data);
+			}
 		}
 	}
 
@@ -130,23 +132,25 @@ public final class ProxyEvents {
 	 * @param currentServer
 	 */
 	public static void handleSwitch(final FoundationPlayer player, final FoundationServer currentServer) {
-		final String lastServerName = playerServerNamesByUniqueId.put(player.getUniqueId().toString(), currentServer.getName());
+		synchronized (pendingMessagesV2) {
+			final String lastServerName = playerServerNamesByUniqueId.put(player.getUniqueId().toString(), currentServer.getName());
 
-		// Announce switches to/from silent servers on servers not silenced
-		if (lastServerName != null) {
-			final String fromServer = ProxySettings.getServerNameAlias(lastServerName);
-			final String toServer = ProxySettings.getServerNameAlias(currentServer.getName());
+			// Announce switches to/from silent servers on servers not silenced
+			if (lastServerName != null) {
+				final String fromServer = ProxySettings.getServerNameAlias(lastServerName);
+				final String toServer = ProxySettings.getServerNameAlias(currentServer.getName());
 
-			if (!isSilent(fromServer)) {
-				Debugger.debug("player-message", "Detected " + player.getName() + " switch from " + fromServer + " to " + toServer + ", waiting for server data..");
+				if (!isSilent(fromServer)) {
+					Debugger.debug("player-message", "Detected " + player.getName() + " switch from " + fromServer + " to " + toServer + ", waiting for server data..");
 
-				pendingMessages.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.SWITCH, CommonCore.newHashMap(
-						"from_server", fromServer,
-						"from_server_name", fromServer,
-						"player_from_server_name", fromServer,
-						"to_server", toServer,
-						"to_server_name", toServer,
-						"player_to_server_name", toServer)));
+					pendingMessagesV2.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.SWITCH, CommonCore.newHashMap(
+							"from_server", fromServer,
+							"from_server_name", fromServer,
+							"player_from_server_name", fromServer,
+							"to_server", toServer,
+							"to_server_name", toServer,
+							"player_to_server_name", toServer)));
+				}
 			}
 		}
 	}
@@ -271,37 +275,39 @@ public final class ProxyEvents {
 	 * @param player
 	 */
 	public static void broadcastPendingMessage(@NonNull final FoundationPlayer player) {
-		final FoundationPlayer audience = Platform.toPlayer(player);
-		final UUID playerUniqueId = player.getUniqueId();
-		final String playerName = player.getName();
+		synchronized (pendingMessagesV2) {
+			final FoundationPlayer audience = Platform.toPlayer(player);
+			final UUID playerUniqueId = player.getUniqueId();
+			final String playerName = player.getName();
 
-		final Tuple<PlayerMessageType, Map<String, Object>> data = pendingMessages.remove(playerUniqueId);
+			final Tuple<PlayerMessageType, Map<String, Object>> data = pendingMessagesV2.remove(playerUniqueId);
 
-		if (data != null) {
-			final PlayerMessageType type = data.getKey();
-			final Map<String, Object> placeholders = data.getValue();
-			final SyncedCache cache = SyncedCache.fromUniqueId(playerUniqueId);
+			if (data != null) {
+				final PlayerMessageType type = data.getKey();
+				final Map<String, Object> placeholders = data.getValue();
+				final SyncedCache cache = SyncedCache.fromUniqueId(playerUniqueId);
 
-			if (cache == null)
-				throw new FoException("Unable to find synced data for " + playerName);
+				if (cache == null)
+					throw new FoException("Unable to find synced data for " + playerName);
 
-			if (!cache.isVanished() || player.hasPermission(Permissions.Bypass.VANISH)) {
-				if (lastMessages.containsKey(playerUniqueId)) {
-					Debugger.debug("player-message", "Not broadcasting " + type + " message for " + playerName + ", broadcasted recently, preventing duplicate.");
+				if (!cache.isVanished() || player.hasPermission(Permissions.Bypass.VANISH)) {
+					if (lastMessages.containsKey(playerUniqueId)) {
+						Debugger.debug("player-message", "Not broadcasting " + type + " message for " + playerName + ", broadcasted recently, preventing duplicate.");
 
-					return;
-				}
+						return;
+					}
 
-				Debugger.debug("player-message", "Broadcast " + type + " message for " + playerName + " with variables " + placeholders);
+					Debugger.debug("player-message", "Broadcast " + type + " message for " + playerName + " with variables " + placeholders);
 
-				ProxyPlayerMessages.broadcast(type, audience, placeholders);
-				lastMessages.put(playerUniqueId, type);
+					ProxyPlayerMessages.broadcast(type, audience, placeholders);
+					lastMessages.put(playerUniqueId, type);
 
-			} else
-				Debugger.debug("player-message", "Failed sending " + type + " message for " + playerName + ", vanished ? " + cache.isVanished() + ", has bypass reach perm ? " + player.hasPermission(Permissions.Bypass.VANISH));
+				} else
+					Debugger.debug("player-message", "Failed sending " + type + " message for " + playerName + ", vanished ? " + cache.isVanished() + ", has bypass reach perm ? " + player.hasPermission(Permissions.Bypass.VANISH));
+			}
+
+			else
+				Debugger.debug("player-message", "Failed finding pending join/switch message for " + playerName + ", pending message was null. All data: " + pendingMessagesV2);
 		}
-
-		else
-			Debugger.debug("player-message", "Failed finding pending join/switch message for " + playerName + ", data were null");
 	}
 }

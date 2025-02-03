@@ -1,18 +1,13 @@
 package org.mineacademy.chatcontrol.command;
 
 import java.util.List;
-import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.mineacademy.chatcontrol.SyncedCache;
 import org.mineacademy.chatcontrol.command.chatcontrol.ChatControlCommands.ChatControlCommand;
-import org.mineacademy.chatcontrol.model.Format;
 import org.mineacademy.chatcontrol.model.Permissions;
 import org.mineacademy.chatcontrol.model.PrivateMessage;
 import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.chatcontrol.settings.Settings;
-import org.mineacademy.fo.Common;
-import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.settings.Lang;
 
 public final class CommandReply extends ChatControlCommand {
@@ -41,21 +36,7 @@ public final class CommandReply extends ChatControlCommand {
 
 		this.checkNotNull(replyPlayer, Lang.component("command-reply-alone"));
 
-		// Handle replying to console
-		if (replyPlayer.equalsIgnoreCase("CONSOLE")) {
-			final Map<String, Object> placeholders = CommonCore.newHashMap(
-					"message", message,
-					"receiver", Lang.legacy("part-console"),
-					"player", Lang.legacy("part-console"),
-					"sender", this.audience.getName());
-
-			this.tell(Format.parse(Settings.PrivateMessages.FORMAT_SENDER).build(wrapped, placeholders));
-			Common.tell(Bukkit.getConsoleSender(), Format.parse(Settings.PrivateMessages.FORMAT_RECEIVER).build(wrapped, placeholders));
-
-			return;
-		}
-
-		final SyncedCache syncedCache = SyncedCache.fromPlayerName(replyPlayer);
+		final SyncedCache syncedCache = replyPlayer.equalsIgnoreCase("CONSOLE") ? SyncedCache.fromConsole() : SyncedCache.fromPlayerName(replyPlayer);
 		this.checkNotNull(syncedCache, Lang.component("player-not-online", "player", replyPlayer));
 
 		PrivateMessage.send(wrapped, syncedCache, message);

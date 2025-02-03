@@ -83,7 +83,6 @@ public final class ProxyChat {
 
 				for (final WrappedSender wrapped : pendingProxyJoins)
 					ProxyUtil.sendPluginMessage(ChatControlProxyMessage.DATABASE_READY, wrapped.getName(), wrapped.getUniqueId(), ProxyChat.collect(wrapped));
-
 			}
 		}
 	}

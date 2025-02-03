@@ -535,8 +535,13 @@ public final class Format extends YamlConfig {
 					String line = lines[i];
 
 					// Receiver conditions will be lost
-					if (MinecraftVersion.hasVersion() && MinecraftVersion.olderThan(V.v1_13) && MiniMessage.miniMessage().stripTags(line).length() > SimpleComponent.LEGACY_HOVER_LINE_LENGTH_LIMIT)
-						line = String.join("\n", CommonCore.split(line, SimpleComponent.LEGACY_HOVER_LINE_LENGTH_LIMIT));
+					try {
+						if (MinecraftVersion.hasVersion() && MinecraftVersion.olderThan(V.v1_13) && MiniMessage.miniMessage().stripTags(line).length() > SimpleComponent.LEGACY_HOVER_LINE_LENGTH_LIMIT)
+							line = String.join("\n", CommonCore.split(line, SimpleComponent.LEGACY_HOVER_LINE_LENGTH_LIMIT));
+
+					} catch (final NoSuchMethodError err) {
+						// Really old, and using CraftBukkit
+					}
 
 					if (gradientSupport)
 						joined = joined.append(SimpleComponent.MINIMESSAGE_PARSER.deserialize(line));

@@ -464,6 +464,15 @@ public final class SyncedCache {
 	}
 
 	/**
+	 * Get or create a cache for the given player
+	 *
+	 * @return
+	 */
+	public static SyncedCache fromConsole() {
+		return new SyncedCache(Lang.plain("part-console"), CommonCore.ZERO_UUID);
+	}
+
+	/**
 	 * Return true should the given server name match a valid server we know of...
 	 *
 	 * @param serverName

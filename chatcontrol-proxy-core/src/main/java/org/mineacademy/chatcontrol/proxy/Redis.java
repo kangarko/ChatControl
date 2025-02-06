@@ -88,50 +88,40 @@ final class Hook {
 
 				if (data.length == 4 && data[0].equals("SEND_SB")) {
 					final UUID playerId = UUID.fromString(data[1]);
-
-					// is this player on this proxy?
 					final FoundationPlayer player = Platform.getPlayer(playerId);
 
 					if (player != null && player.getServer() != null) {
-
-						// re-encode the message
 						final byte[] byteOutput = decapsulate(data[3]);
-
 						player.getServer().sendData(ProxyConstants.REDIS_CHANNEL, byteOutput);
 					}
 
 				} else if (data.length == 4 && data[0].equals("SEND_OB")) {
-
 					// send to servers that player is not on
 					final UUID playerId = UUID.fromString(data[1]);
 
 					for (final FoundationServer otherServer : Platform.getServers()) {
-						boolean allow = false;
-
+						// Check if the player is on this server
+						boolean playerOnServer = false;
+						
 						for (final FoundationPlayer otherPlayer : otherServer.getPlayers()) {
 							if (otherPlayer.getUniqueId().equals(playerId)) {
-								allow = false;
-
+								playerOnServer = true;
 								break;
 							}
-
-							allow = true;
 						}
 
-						if (allow) {
+						// Only send to servers where the player is NOT present
+						if (!playerOnServer) {
 							Debugger.debug("redis", "Sending data to " + otherServer.getName());
 							final byte[] byteOutput = decapsulate(data[3]);
-
 							otherServer.sendData(ProxyConstants.BUNGEECORD_CHANNEL, byteOutput);
-
-						} else
-							Debugger.debug("redis", "Not sending to " + otherServer.getName());
+						} else {
+							Debugger.debug("redis", "Not sending to " + otherServer.getName() + " as player is present");
+						}
 					}
 
 				} else if (data.length == 4 && data[0].equals("SEND_M")) {
 					final UUID playerId = UUID.fromString(data[1]);
-
-					// is this player on this proxy?
 					final FoundationPlayer player = Platform.getPlayer(playerId);
 
 					if (player != null)
@@ -143,9 +133,9 @@ final class Hook {
 			} catch (final Throwable throwable) {
 				CommonCore.error(throwable, "Error processing Redis message");
 			}
-
 		}
 	}
+	
 
 	public static Collection<String> getServers() {
 		return redisAPI.getAllProxies();

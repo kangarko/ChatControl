@@ -1,16 +1,23 @@
 package org.mineacademy.chatcontrol.proxy;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.mineacademy.chatcontrol.SyncedCache;
+import org.mineacademy.chatcontrol.model.ChatControlProxyMessage;
+import org.mineacademy.chatcontrol.model.SyncType;
 import org.mineacademy.fo.CommonCore;
+import org.mineacademy.fo.SerializeUtilCore.Language;
+import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.FoundationPlayer;
 import org.mineacademy.fo.platform.FoundationServer;
 import org.mineacademy.fo.platform.Platform;
+import org.mineacademy.fo.proxy.message.OutgoingMessage;
 
 import com.imaginarycode.minecraft.redisbungee.AbstractRedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.api.events.IPubSubMessageEvent;
@@ -65,6 +72,17 @@ public final class Redis {
 	}
 
 	/**
+	 * Sends a SyncedCache data for the given synced type to the Redis network
+	 * 
+	 * @param type
+	 * @param data
+	 */
+	public static void sendPlayerCacheData(final SyncType type, SerializedMap data) {
+		if (enabled)
+			Hook.sendPlayerCacheData(type, data);
+	}
+
+	/**
 	 * Executes the given command across Redis network
 	 *
 	 * @param command
@@ -102,7 +120,7 @@ final class Hook {
 					for (final FoundationServer otherServer : Platform.getServers()) {
 						// Check if the player is on this server
 						boolean playerOnServer = false;
-						
+
 						for (final FoundationPlayer otherPlayer : otherServer.getPlayers()) {
 							if (otherPlayer.getUniqueId().equals(playerId)) {
 								playerOnServer = true;
@@ -120,6 +138,23 @@ final class Hook {
 						}
 					}
 
+				} else if (data.length == 4 && data[0].equals("SEND_CACHE")) {
+					final SyncType type = SyncType.valueOf(data[1]);
+					final String redisProxyId = data[2];
+					final byte[] byteOutput = decapsulate(data[3]);
+					final String json = new String(byteOutput, StandardCharsets.UTF_8);
+					final SerializedMap playerUniqueIdsAndValues = SerializedMap.fromObject(Language.JSON, json);
+
+					if (!redisProxyId.equals(redisAPI.getProxyId())) {
+						final OutgoingMessage message = new OutgoingMessage(ChatControlProxyMessage.SYNCED_CACHE_BY_UUID);
+
+						message.writeString(type.toString());
+						message.writeMap(playerUniqueIdsAndValues);
+						message.broadcast();
+
+						SyncedCache.uploadClusterFromUids(type, playerUniqueIdsAndValues);
+					}
+
 				} else if (data.length == 4 && data[0].equals("SEND_M")) {
 					final UUID playerId = UUID.fromString(data[1]);
 					final FoundationPlayer player = Platform.getPlayer(playerId);
@@ -135,7 +170,6 @@ final class Hook {
 			}
 		}
 	}
-	
 
 	public static Collection<String> getServers() {
 		return redisAPI.getAllProxies();
@@ -143,6 +177,10 @@ final class Hook {
 
 	public static void sendDataToOtherServers(final UUID uuid, final String channel, final byte[] data) {
 		redisAPI.sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_OB:" + uuid.toString() + ":" + channel.replace("\\", "\\\\").replace(":", " \\;") + ":" + encapsulate(data));
+	}
+
+	public static void sendPlayerCacheData(final SyncType type, SerializedMap data) {
+		redisAPI.sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_CACHE:" + type.toString() + ":" + redisAPI.getProxyId() + ":" + encapsulate(data.toJson().getBytes(StandardCharsets.UTF_8)));
 	}
 
 	static void dispatchCommand(final String command) {

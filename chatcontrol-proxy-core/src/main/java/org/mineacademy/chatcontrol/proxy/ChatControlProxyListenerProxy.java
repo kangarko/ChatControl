@@ -24,6 +24,8 @@ import org.mineacademy.fo.proxy.ProxyListener;
 import org.mineacademy.fo.proxy.message.IncomingMessage;
 import org.mineacademy.fo.proxy.message.OutgoingMessage;
 
+import com.imaginarycode.minecraft.redisbungee.AbstractRedisBungeeAPI;
+
 import lombok.Getter;
 
 /**
@@ -75,11 +77,25 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 				final SerializedMap namesAndUniqueIds = new SerializedMap();
 				final Set<UUID> onlineUniqueIds = new HashSet<>();
 
-				for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
-					namesAndUniqueIds.put(online.getName(), online.getUniqueId());
-					onlineUniqueIds.add(online.getUniqueId());
+				if (Redis.isEnabled()) {
+					final AbstractRedisBungeeAPI redis = AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI();
 
-					SyncedCache.getOrCreate(online.getName(), online.getUniqueId());
+					for (final UUID uniqueId : redis.getPlayersOnline()) {
+						final String name = redis.getNameFromUuid(uniqueId);
+
+						namesAndUniqueIds.put(name, uniqueId);
+						onlineUniqueIds.add(uniqueId);
+
+						SyncedCache.getOrCreate(name, uniqueId);
+					}
+
+				} else {
+					for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
+						namesAndUniqueIds.put(online.getName(), online.getUniqueId());
+						onlineUniqueIds.add(online.getUniqueId());
+
+						SyncedCache.getOrCreate(online.getName(), online.getUniqueId());
+					}
 				}
 
 				// Send header first
@@ -111,6 +127,9 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 					message.broadcast();
 
 					SyncedCache.uploadClusterFromUids(type, playerUniqueIdsAndValues);
+
+					if (Redis.isEnabled())
+						Redis.sendPlayerCacheData(type, playerUniqueIdsAndValues);
 				}
 
 				this.clusteredData.clear();

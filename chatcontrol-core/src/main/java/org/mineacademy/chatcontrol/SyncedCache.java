@@ -619,8 +619,6 @@ public final class SyncedCache {
 
 				final SyncedCache cache = uniqueCacheMap.get(uniqueId);
 
-				// Temporarily be more lenient
-				//ValidCore.checkNotNull(cache, "Cannot upload '" + type + "' data '" + value + "' for " + uniqueId + " because he is not loaded yet - was header sent? Loaded: " + uniqueCacheMap.keySet());
 				if (cache != null)
 					cache.loadData(type, value);
 			}

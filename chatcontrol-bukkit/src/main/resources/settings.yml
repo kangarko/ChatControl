@@ -122,7 +122,7 @@ Channels:
   # - Message_Delay: This overrides Anti_Spam.Chat.Delay so you can chat chat delay per channel.
   #                  Put string values there like "5 seconds" or "1 minute" etc.
   #
-  # - Proxy: true/false option. If not set, we default to Proxy.Enabled option. 
+  # - Proxy: true/false option. If not set, we default to Enabled option in proxy.yml. 
   #
   # - Proxy_Spy: true/false option. True = we will send channel messages to spying administrators 
   #               over proxy. This works even if Proxy is disabled so you can spy

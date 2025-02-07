@@ -49,7 +49,7 @@ public final class ChatControlAPI {
 	 * @return
 	 */
 	public static Checker checkMessage(final Player sender, final String message) {
-		return checkMessage(sender, message);
+		return checkMessage(WrappedSender.fromPlayer(sender), message);
 	}
 
 	/**

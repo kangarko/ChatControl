@@ -592,7 +592,7 @@ public abstract class PlayerMessage extends Operator {
 				// Add the main part and add prefix for all lines
 				final Format format = Format.isFormatLoaded(message) ? Format.findFormat(message) : Format.parse("{message}");
 
-				if (prefix == null)
+				if (prefix == null || prefix.isEmpty())
 					prefix = "";
 				else {
 					final char startChar = prefix.charAt(0);

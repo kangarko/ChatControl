@@ -1212,8 +1212,12 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 
 			final String message = CommonCore.getOrDefaultStrict(this.message, "");
 
-			map.put("message", SimpleComponent.MINIMESSAGE_PARSER.stripTags(message));
-			map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.MINIMESSAGE_PARSER.stripTags(this.originalMessage));
+			try {
+				map.put("message", SimpleComponent.MINIMESSAGE_PARSER.stripTags(message));
+				map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.MINIMESSAGE_PARSER.stripTags(this.originalMessage));
+			} catch (final NoSuchMethodError err) {
+				// Really old, and using CraftBukkit
+			}
 
 			map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedSender.getUniqueId(), PlaceholderPrefix.SENDER));
 

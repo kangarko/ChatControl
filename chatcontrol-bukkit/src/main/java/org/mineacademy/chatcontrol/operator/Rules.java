@@ -190,7 +190,8 @@ public final class Rules<T extends Rule> extends RuleSetReader<T> {
 	 * @return
 	 */
 	public List<Rule> getRules(final RuleType type) {
-		ValidCore.checkBoolean(this.rules.containsKey(type), "Rules do not contain type " + type + " (or not loaded yet -- check for plugin errors during startup)");
+		if (!this.rules.containsKey(type))
+			throw new FoException("Rules do not contain type " + type + " (or not loaded yet -- check for plugin errors during startup, and avoid using PlugMan)", false);
 
 		return Collections.unmodifiableList(this.rules.get(type));
 	}

@@ -45,7 +45,7 @@
 			<artifactId>RedisBungee-BungeeCord</artifactId>
 			<version>1</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/library/RedisBungee-Proxy-Bungee-0.12.5-all.jar</systemPath>
+			<systemPath>${basedir}/library/RedisBungee-Proxy-Bungee-0.12.6-all.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.mineacademy.plugin</groupId>

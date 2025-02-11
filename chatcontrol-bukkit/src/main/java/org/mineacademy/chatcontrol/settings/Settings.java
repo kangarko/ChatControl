@@ -131,11 +131,8 @@ public final class Settings extends SimpleSettings {
 			if (isSet("Line"))
 				databaseConfig.set("Line", getString("Line"));
 
-			if (save) {
+			if (save)
 				Common.log("Migrated 'Database' section from settings.yml to database.yml. Please check.");
-
-				databaseConfig.save();
-			}
 
 			TYPE = databaseConfig.get("Type", DatabaseType.class);
 			final String HOST = databaseConfig.getString("Host");
@@ -143,6 +140,8 @@ public final class Settings extends SimpleSettings {
 			final String USER = databaseConfig.getString("User");
 			final String PASSWORD = databaseConfig.getString("Password");
 			final String LINE = databaseConfig.getString("Line");
+
+			databaseConfig.save();
 
 			boolean remoteFailed = false;
 

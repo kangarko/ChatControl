@@ -52,7 +52,6 @@ public final class ProxyChat {
 	public static void scheduleTask() {
 		Platform.runTaskTimerAsync(20 * 2, new SyncTask());
 		Platform.runTaskTimerAsync(10, new PendingProxyJoinTask());
-
 	}
 
 	private static final class PendingProxyJoinTask extends SimpleRunnable {

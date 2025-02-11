@@ -73,9 +73,7 @@ public final class ProxyEvents {
 	 * @param server
 	 */
 	public static void handlePostConnect(final FoundationPlayer player, final FoundationServer server) {
-		final List<FoundationPlayer> players = server.getPlayers();
-
-		if (players.size() <= 1)
+		if (server.getPlayerCount() <= 1)
 			ChatControlProxyListenerProxy.getInstance().sendPendingMutes(server.getName());
 	}
 
@@ -119,7 +117,7 @@ public final class ProxyEvents {
 					Redis.sendDataToOtherServers(player.getUniqueId(), ProxyConstants.CHATCONTROL_CHANNEL, data);
 				else
 					for (final FoundationServer iteratedServer : Platform.getServers())
-						if (!iteratedServer.getPlayers().isEmpty())
+						if (!iteratedServer.isEmpty())
 							iteratedServer.sendData(ProxyConstants.BUNGEECORD_CHANNEL, data);
 			}
 		}

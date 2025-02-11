@@ -70,7 +70,7 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 	 * Reschedule data sync task
 	 */
 	public void scheduleSyncTask() {
-		Platform.runTaskTimerAsync(20, () -> {
+		Platform.runTaskTimerAsync(20 * 2, () -> {
 			synchronized (ProxyListener.DEFAULT_CHANNEL) {
 
 				// Upload the always reliable player list from proxy (do not compile lists given by downstream

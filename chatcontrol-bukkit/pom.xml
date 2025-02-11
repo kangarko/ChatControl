@@ -11,7 +11,7 @@
 
 	<artifactId>chatcontrol-bukkit</artifactId>
 	<name>ChatControl</name>
-	<version>11.2.1</version>
+	<version>11.2.2</version>
 	
 	<properties>
 		<main.class>org.mineacademy.chatcontrol.ChatControl</main.class>

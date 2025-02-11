@@ -221,7 +221,7 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 	public void sendPendingMutes(String serverName) {
 		/*synchronized (pendingMutes) {
 			final List<byte[]> datas = pendingMutes.remove(serverName);
-		
+
 			if (datas != null)
 				for (final byte[] data : datas)
 					this.forwardData(ChatControlProxyMessage.MUTE, data, false);
@@ -250,7 +250,7 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 				final String iteratedAlias = ProxySettings.getServerNameAlias(iteratedName);
 				final String iteratedCluster = ProxySettings.Clusters.getFromServerName(iteratedName, iteratedAlias);
 
-				if (iteratedServer.getPlayers().isEmpty()) {
+				if (iteratedServer.isEmpty()) {
 					Debugger.debug("proxy", "\tDid not send to '" + iteratedName + "', the server is empty");
 
 					if (message == ChatControlProxyMessage.MUTE)

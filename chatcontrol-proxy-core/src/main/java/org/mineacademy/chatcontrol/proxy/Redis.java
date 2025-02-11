@@ -73,7 +73,7 @@ public final class Redis {
 
 	/**
 	 * Sends a SyncedCache data for the given synced type to the Redis network
-	 * 
+	 *
 	 * @param type
 	 * @param data
 	 */
@@ -121,9 +121,10 @@ final class Hook {
 						// Check if the player is on this server
 						boolean playerOnServer = false;
 
-						for (final FoundationPlayer otherPlayer : otherServer.getPlayers()) {
-							if (otherPlayer.getUniqueId().equals(playerId)) {
+						for (final UUID otherPlayerUid : otherServer.getPlayerUniqueIds()) {
+							if (otherPlayerUid.equals(playerId)) {
 								playerOnServer = true;
+
 								break;
 							}
 						}

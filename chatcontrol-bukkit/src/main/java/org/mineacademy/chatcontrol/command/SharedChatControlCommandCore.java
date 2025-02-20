@@ -287,6 +287,8 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 	 * @param tag
 	 */
 	default void setTag(final Tag.Type type, final PlayerCache cache, String tag) {
+		this.checkBoolean(!tag.isEmpty(), Lang.component("command-tag-empty"));
+
 		final boolean remove = "off".equals(tag) || tag.equals(cache.getPlayerName());
 		final boolean self = this.getAudience().getName().equals(cache.getPlayerName());
 

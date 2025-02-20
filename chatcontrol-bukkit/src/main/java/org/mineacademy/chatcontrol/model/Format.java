@@ -396,8 +396,15 @@ public final class Format extends YamlConfig {
 			// Support chat images
 			final ChatImage image = ChatImage.builder();
 
-			if (this.imageHeight != null)
+			if (this.imageHeight != null) {
+				if (this.imageHeight < 2) {
+					Common.logFramed("Image height cannot be less than 2. Setting to 2. Format: " + this.formatName + "." + this.name);
+
+					this.imageHeight = 2;
+				}
+
 				image.height(this.imageHeight);
+			}
 
 			if (this.imageFillterCharacter != null)
 				image.fillerCharacter(this.imageFillterCharacter);

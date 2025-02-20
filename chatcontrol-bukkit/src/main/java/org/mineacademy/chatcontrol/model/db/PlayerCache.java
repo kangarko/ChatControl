@@ -1170,8 +1170,18 @@ public final class PlayerCache extends Row {
 	 * @return
 	 */
 	public static boolean isCached(final Player player) {
+		return isCached(player.getUniqueId());
+	}
+
+	/**
+	 * Return true if the player is cached
+	 *
+	 * @param uniqueId
+	 * @return
+	 */
+	public static boolean isCached(final UUID uniqueId) {
 		synchronized (uniqueCacheMap) {
-			return uniqueCacheMap.containsKey(player.getUniqueId());
+			return uniqueCacheMap.containsKey(uniqueId);
 		}
 	}
 

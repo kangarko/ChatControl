@@ -784,6 +784,7 @@
   "command-tag-already-used": "This nick is already used.",
   "command-tag-description": "Set your tag.",
   "command-tag-disabled": "Please fill your Tag.Apply_On key in settings.yml first before using this command.",
+  "command-tag-empty": "Cannot set an empty tag (the server might have edited your tag to an empty string).",
   "command-tag-exceeded-length": "Your tag's length ({length}) is over maximum limit of {max} letters.",
   "command-tag-no-colors-only": "Your tag cannot consist only of colors.",
   "command-tag-no-impersonation": "The nick cannot impersonate a real player name.",

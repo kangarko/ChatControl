@@ -193,8 +193,12 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 			final Player online = Remain.getPlayerByUUID(uniqueId);
 
 			if (online != null) {
-				if (!Platform.getCustomServerName().equals(originServerName))
+				if (!Platform.getCustomServerName().equals(originServerName)) {
+					if (!PlayerCache.isCached(uniqueId))
+						new PlayerCache(online.getName(), uniqueId).putToCacheMap();
+
 					PlayerCache.fromCached(online).loadDataFromDataSectionOfMap(data);
+				}
 
 				if (!message.isEmpty())
 					Messenger.info(online, message);

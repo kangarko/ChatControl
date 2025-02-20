@@ -319,7 +319,7 @@ public final class Placeholders extends SimpleExpansion {
 				"player_chat_color".equals(identifier) ||
 				"player_chat_decoration_name".equals(identifier) ||
 				"player_chat_decoration".equals(identifier) ||
-				(this.args.length > 2 && "player_data".equalsIgnoreCase(this.args[0] + "_" + this.args[1])))
+				identifier.startsWith("player_data_"))
 
 			return "";
 

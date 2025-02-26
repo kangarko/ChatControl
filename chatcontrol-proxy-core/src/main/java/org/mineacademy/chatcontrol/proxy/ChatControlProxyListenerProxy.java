@@ -1,8 +1,10 @@
 package org.mineacademy.chatcontrol.proxy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +46,7 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 	/**
 	 * The pending mutes to be sent to servers once they are not empty
 	 */
-	//private final Map<String, List<byte[]>> pendingMutes = new HashMap<>();
+	private final Map<String, List<byte[]>> pendingMutes = new HashMap<>();
 
 	/**
 	 * The present senders UUID
@@ -219,13 +221,13 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 	 * @param serverName
 	 */
 	public void sendPendingMutes(String serverName) {
-		/*synchronized (pendingMutes) {
+		synchronized (pendingMutes) {
 			final List<byte[]> datas = pendingMutes.remove(serverName);
 
 			if (datas != null)
 				for (final byte[] data : datas)
 					this.forwardData(ChatControlProxyMessage.MUTE, data, false);
-		}*/
+		}
 	}
 
 	/*
@@ -254,11 +256,11 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 					Debugger.debug("proxy", "\tDid not send to '" + iteratedName + "', the server is empty");
 
 					if (message == ChatControlProxyMessage.MUTE)
-						//synchronized (pendingMutes) {
-						//	pendingMutes.computeIfAbsent(iteratedName, key -> new ArrayList<>()).add(data);
-						//}
+						synchronized (pendingMutes) {
+							pendingMutes.computeIfAbsent(iteratedName, key -> new ArrayList<>()).add(data);
+						}
 
-						continue;
+					continue;
 				}
 
 				if (!forceSelf && !iteratedCluster.equals(fromCluster)) {

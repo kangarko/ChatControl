@@ -352,10 +352,21 @@ public final class Format extends YamlConfig {
 
 			// Replace ItemsAdder inside the {message} placeholder
 			if (variables.placeholders().containsKey("message") && sender != null) {
-				SimpleComponent component = (SimpleComponent) variables.placeholders().get("message");
+				final Object messageRaw = variables.placeholders().get("message");
 
-				component = HookManager.replaceFontImages(sender.getPlayer(), component);
-				variables.placeholder("message", component);
+				if (messageRaw instanceof SimpleComponent) {
+					SimpleComponent component = (SimpleComponent) messageRaw;
+
+					component = HookManager.replaceFontImages(sender.getPlayer(), component);
+					variables.placeholder("message", component);
+
+				} else if (messageRaw instanceof String) {
+					String message = (String) messageRaw;
+
+					message = HookManager.replaceFontImagesLegacy(sender.getPlayer(), message);
+					variables.placeholder("message", message);
+				} else
+					throw new FoException("Invalid message type: " + messageRaw.getClass() + " in " + this);
 			}
 
 			if (this.senderPermission != null && sender != null && !sender.hasPermission(this.senderPermission))

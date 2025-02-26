@@ -65,10 +65,6 @@ public final class BungeeControl extends BungeePlugin {
 						servers.add(server);
 				}
 
-				if (servers.isEmpty() && !names.isEmpty())
-					CommonCore.log("Your RedisBungee server name does not match your proxy. Redis servers: "
-							+ names + " - please set your 'proxy-id' in RedisBungee to match this server's name for BungeeControl to work.");
-
 				return servers;
 			});
 

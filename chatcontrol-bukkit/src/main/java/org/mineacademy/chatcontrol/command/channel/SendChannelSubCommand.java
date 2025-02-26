@@ -5,6 +5,7 @@ import java.util.List;
 import org.mineacademy.chatcontrol.command.channel.ChannelCommands.ChannelSubCommand;
 import org.mineacademy.chatcontrol.model.Channel;
 import org.mineacademy.chatcontrol.model.Permissions;
+import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.fo.settings.Lang;
 
 public final class SendChannelSubCommand extends ChannelSubCommand {
@@ -28,7 +29,7 @@ public final class SendChannelSubCommand extends ChannelSubCommand {
 
 		this.checkPerm(Permissions.Channel.SEND.replace("{channel}", channel.getName()));
 
-		channel.sendMessage(this.getSender(), message);
+		channel.sendMessage(Channel.State.from(WrappedSender.fromSender(this.getSender()), message, true));
 
 	}
 

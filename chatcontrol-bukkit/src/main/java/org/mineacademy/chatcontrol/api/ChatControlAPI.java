@@ -146,6 +146,6 @@ public final class ChatControlAPI {
 		final Channel channel = Channel.findChannel(channelName);
 		ValidCore.checkNotNull(channel, "Channel '" + channelName + "' is not installed. Use ChatControlAPI#isChannelInstalled to check that first!");
 
-		channel.sendMessage(sender, message);
+		channel.sendMessage(Channel.State.from(WrappedSender.fromSender(sender), message, true));
 	}
 }

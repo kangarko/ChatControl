@@ -222,7 +222,7 @@ final class ChatHandler {
 				return;
 			}
 
-			final Channel.State result = writeChannel.sendMessage(wrapped, state.getChatMessage());
+			final Channel.State result = writeChannel.sendMessage(Channel.State.from(wrapped, state.getChatMessage(), false));
 
 			state.setChatMessage(result.getMessage());
 			state.setConsoleFormat(result.getConsoleFormat());
@@ -243,6 +243,7 @@ final class ChatHandler {
 	 */
 	@Getter
 	static final class State {
+
 		private final Player player;
 		private final Set<Player> viewers;
 		private String chatMessage;

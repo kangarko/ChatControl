@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.command.channel.ChannelCommands.ChannelSubCommand;
 import org.mineacademy.chatcontrol.model.Channel;
 import org.mineacademy.chatcontrol.model.Permissions;
+import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.settings.Lang;
@@ -35,7 +36,7 @@ public final class SendAsChannelSubCommand extends ChannelSubCommand {
 		this.checkPerm(Permissions.Channel.SEND_AS.replace("{channel}", channel.getName()));
 
 		try {
-			channel.sendMessage(player, message);
+			channel.sendMessage(Channel.State.from(WrappedSender.fromPlayer(player), message, true));
 
 		} catch (final EventHandledException ex) {
 			final StringBuilder builder = new StringBuilder();

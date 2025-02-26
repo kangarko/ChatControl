@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.mineacademy.chatcontrol.SyncedCache;
@@ -173,7 +175,16 @@ final class Hook {
 	}
 
 	public static Collection<String> getServers() {
-		return redisAPI.getAllProxies();
+		final Set<String> servers = new HashSet<>();
+
+		for (final UUID playerId : redisAPI.getPlayersOnline()) {
+			final String serverName = redisAPI.getServerNameFor(playerId);
+
+			if (serverName != null)
+				servers.add(serverName);
+		}
+
+		return servers;
 	}
 
 	public static void sendDataToOtherServers(final UUID uuid, final String channel, final byte[] data) {

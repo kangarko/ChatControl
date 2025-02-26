@@ -63,10 +63,6 @@ public final class VelocityControl extends VelocityPlugin {
 						servers.add(server);
 				}
 
-				if (servers.isEmpty() && !names.isEmpty())
-					CommonCore.log("Your RedisBungee server name does not match your proxy. Redis servers: "
-							+ names + " - please set your 'proxy-id' in RedisBungee to match this server's name for VelocityControl to work.");
-
 				return servers;
 			});
 

@@ -350,6 +350,14 @@ public final class Format extends YamlConfig {
 			// Ugly hack for channel name to avoid having to parse variables in variables, we just hardcode support for this one
 			final String channelName = (String) variables.placeholders().getOrDefault("channel", "");
 
+			// Replace ItemsAdder inside the {message} placeholder
+			if (variables.placeholders().containsKey("message") && sender != null) {
+				SimpleComponent component = (SimpleComponent) variables.placeholders().get("message");
+
+				component = HookManager.replaceFontImages(sender.getPlayer(), component);
+				variables.placeholder("message", component);
+			}
+
 			if (this.senderPermission != null && sender != null && !sender.hasPermission(this.senderPermission))
 				return null;
 
@@ -438,6 +446,8 @@ public final class Format extends YamlConfig {
 
 			// Compile the list
 			for (String line : this.messages) {
+
+				// Replace ItemsAdder in the actual format part Message key
 				if (sender != null)
 					line = HookManager.replaceFontImagesLegacy(sender.getPlayer(), line);
 

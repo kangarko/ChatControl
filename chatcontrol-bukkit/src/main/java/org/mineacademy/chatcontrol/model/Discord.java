@@ -130,7 +130,7 @@ public final class Discord extends DiscordListener {
 		PlayerCache.poll(minecraftName, cache -> {
 			try {
 				final DiscordSender sender = new DiscordSender(finalName, finalUUID, cache, finalOfflinePlayer, event.getAuthor(), discordChannel, discordMessage);
-				final Channel.State state = Channel.State.from(WrappedSender.fromSender(sender), finalMessage);
+				final Channel.State state = Channel.State.from(WrappedSender.fromSender(sender), finalMessage, true);
 
 				state.setPlaceholders(this.compilePlaceholders(finalMessage, finalName, finalUUID, event.getMember(), discordChannel, discordMessage));
 				chatControlChannel.sendMessage(state);

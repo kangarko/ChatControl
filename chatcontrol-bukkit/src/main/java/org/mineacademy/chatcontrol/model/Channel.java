@@ -472,19 +472,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	 * @throws EventHandledException
 	 */
 	public State sendMessage(final CommandSender sender, final String message) throws EventHandledException {
-		return this.sendMessage(WrappedSender.fromSender(sender), message);
-	}
-
-	/**
-	 * Send a message to the channel
-	 *
-	 * @param wrapped
-	 * @param message
-	 * @return
-	 * @throws EventHandledException
-	 */
-	public State sendMessage(final WrappedSender wrapped, final String message) throws EventHandledException {
-		return this.sendMessage(State.from(wrapped, message));
+		return this.sendMessage(State.from(WrappedSender.fromSender(sender), message, true));
 	}
 
 	/**
@@ -685,7 +673,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		state.setConsoleFormat(consoleFormat);
 
 		// Log manually if not handled in player chat event
-		if (!sender.isPlayer() && !"none".equals(consoleFormat))
+		if ((state.isLogToConsole() || !sender.isPlayer()) && !"none".equals(consoleFormat))
 			Platform.log(SimpleComponent.fromMiniAmpersand(consoleFormat).toLegacySection());
 
 		return state;
@@ -967,6 +955,12 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		 */
 		private String consoleFormat;
 
+		/**
+		 * Should we log to console manually?
+		 */
+		@Setter
+		private boolean logToConsole;
+
 		public void setPlaceholders(final Map<String, Object> placeholders) {
 			this.variables.placeholders(placeholders);
 		}
@@ -975,14 +969,15 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			this.variables.placeholder(key, value);
 		}
 
-		private State(final WrappedSender sender, final String message) {
+		private State(final WrappedSender sender, final String message, final boolean logToConsole) {
 			this.sender = sender;
 			this.message = message;
 			this.variables = Variables.builder(sender.getAudience());
+			this.logToConsole = logToConsole;
 		}
 
-		public static final State from(final WrappedSender sender, final String message) {
-			return new State(sender, message);
+		public static final State from(final WrappedSender sender, final String message, final boolean logToConsole) {
+			return new State(sender, message, logToConsole);
 		}
 	}
 

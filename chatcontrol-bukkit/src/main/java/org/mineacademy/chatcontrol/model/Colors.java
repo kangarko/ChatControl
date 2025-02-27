@@ -227,7 +227,15 @@ public final class Colors {
 		if ("reset".equals(tag) || "gradient".equals(tag))
 			return sender.hasPermission(Permissions.Color.COLOR + tag);
 
-		if ("hover".equals(tag) || "click".equals(tag) || "insertion".equals(tag) || "rainbow".equals(tag) || "font".equals(tag))
+		if ("hover".equals(tag)
+				|| "click".equals(tag)
+				|| "insertion".equals(tag)
+				|| "rainbow".equals(tag)
+				|| "shadow".equals(tag)
+				|| "lang".equals(tag)
+				|| "transition".equals(tag)
+				|| "font".equals(tag))
+
 			return sender.hasPermission(Permissions.Color.ACTION + tag);
 
 		if (NamedTextColor.NAMES.value(tag) != null)

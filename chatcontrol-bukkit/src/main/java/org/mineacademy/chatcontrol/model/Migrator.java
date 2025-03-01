@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
@@ -127,7 +128,11 @@ public final class Migrator {
 
 					@Override
 					public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes) throws IOException {
-						Files.copy(file, backupFolder.resolve(oldFolder.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+						try {
+							Files.copy(file, backupFolder.resolve(oldFolder.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+						} catch (final NoSuchFileException ex) {
+							// Removed in the meanwhile
+						}
 
 						return FileVisitResult.CONTINUE;
 					}

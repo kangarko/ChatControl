@@ -159,15 +159,14 @@ final class SimpleClansListener implements Listener {
 		final ClanPlayer sender = event.getSender();
 		final Player senderPlayer = sender.toPlayer();
 
+		if (senderPlayer == null)
+			return;
+
 		if (!SenderCache.from(senderPlayer).isDatabaseLoaded())
 			return;
 
 		final WrappedSender wrapped = WrappedSender.fromPlayer(senderPlayer);
-
 		final List<ClanPlayer> recipients = event.getReceivers();
-
-		if (senderPlayer == null)
-			return;
 
 		try {
 			final Checker checker = Checker.filterChannel(wrapped, message, null);

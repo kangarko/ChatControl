@@ -298,11 +298,13 @@ public final class Placeholders extends SimpleExpansion {
 			else if ("player_channel_range".equals(identifier))
 				return playerCache.getWriteChannel() != null && playerCache.getWriteChannel().getRange() != null ? playerCache.getWriteChannel().getRange() : Lang.plain("part-none").toLowerCase();
 
-			else if (this.args.length > 2 && "player_data".equalsIgnoreCase(this.args[0] + "_" + this.args[1])) {
-				final String key = this.join(2);
-				final Object value = playerCache.getRuleData(key);
+			else if (this.args.length > 2) {
+				if ("player_data".equalsIgnoreCase(this.args[0] + "_" + this.args[1])) {
+					final String key = this.join(2);
+					final Object value = playerCache.getRuleData(key);
 
-				return value != null ? SerializeUtilCore.serialize(Language.YAML, value).toString() : "";
+					return value != null ? SerializeUtilCore.serialize(Language.YAML, value).toString() : "";
+				}
 			}
 		}
 

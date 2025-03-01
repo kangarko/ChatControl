@@ -360,7 +360,15 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 			checkBoolean(split.length >= 3, "Invalid 'then toast' syntax. Usage: <material> <task/goal/challenge> <message>");
 
 			final CompMaterial icon = ReflectionUtil.lookupEnumSilent(CompMaterial.class, split[0].toUpperCase());
+
+			if (icon == null)
+				throw new FoException("Invalid material '" + split[0] + "' in 'then toast' for rule: " + this, false);
+
 			final CompToastStyle style = ReflectionUtil.lookupEnumSilent(CompToastStyle.class, split[1].toUpperCase());
+
+			if (style == null)
+				throw new FoException("Invalid style '" + split[1] + "' in 'then toast' for rule: " + this, false);
+
 			final String message = CommonCore.joinRange(2, split);
 
 			this.toast = new ToastMessage(icon, style, message);

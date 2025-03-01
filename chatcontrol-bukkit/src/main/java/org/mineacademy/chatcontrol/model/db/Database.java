@@ -417,7 +417,8 @@ public final class Database extends SimpleDatabase {
 		final String playerName = player.getName();
 		final UUID uniqueId = player.getUniqueId();
 
-		ValidCore.checkBoolean(senderCache.getCacheLoadingTask() == null, "Cache loading task already scheduled! Only call loadAndStoreCache() once when player joins!");
+		ValidCore.checkBoolean(senderCache.getCacheLoadingTask() == null, "Cache loading task already scheduled! Only call loadAndStoreCache() once when player joins. If you are running a custom server, "
+				+ "you are calling the join event in an unsupported way");
 
 		this.nameToUniqueId.put(playerName, uniqueId);
 		this.uniqueIdToName.put(uniqueId, playerName);

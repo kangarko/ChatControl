@@ -144,7 +144,7 @@
   "command-announce-invalid-file": "No such file: {file}",
   "command-announce-invalid-image": "Unable to find image '{file}'",
   "command-announce-invalid-image-height": "Image height must be between {min} and {max}.",
-  "command-announce-invalid-key": "Invalid key '{key}' value: {value}. Available: {available}",
+  "command-announce-invalid-key": "Invalid {key} value '{value}'. Available: {available}",
   "command-announce-invalid-raw-type": "Invalid type! Only 'raw' is supported at the moment.",
   "command-announce-invalid-time-seconds": "Please enter a valid integer representing time in seconds.",
   "command-announce-invalid-time-ticks": "Please enter a valid integer representing a time in ticks.",

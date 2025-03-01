@@ -665,7 +665,8 @@ public final class Format extends YamlConfig {
 					final List<?> runCommands = (List<?>) runCommand;
 
 					if (!runCommands.isEmpty()) {
-						ValidCore.checkBoolean(runCommands.size() == 1, "Minecraft only supports running 1 command in Run_Command, got: " + runCommand);
+						if (runCommands.size() != 1)
+							throw new FoException("Minecraft only supports running 1 command in Run_Command, got: " + runCommand, false);
 
 						runCommand = runCommands.get(0);
 					}

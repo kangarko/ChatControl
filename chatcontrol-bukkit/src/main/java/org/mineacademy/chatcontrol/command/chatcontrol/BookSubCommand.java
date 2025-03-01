@@ -101,7 +101,7 @@ public final class BookSubCommand extends MainSubCommand {
 			try {
 				book = SimpleBook.fromFile(this.args[1]);
 
-			} catch (final IllegalArgumentException ex) {
+			} catch (final Throwable ex) {
 				this.returnTell(ex.getMessage());
 
 				return;

@@ -350,23 +350,20 @@ public final class Format extends YamlConfig {
 			// Ugly hack for channel name to avoid having to parse variables in variables, we just hardcode support for this one
 			final String channelName = (String) variables.placeholders().getOrDefault("channel", "");
 
+			Object messageVariable = variables.placeholders().remove("message");
+
 			// Replace ItemsAdder inside the {message} placeholder
-			if (variables.placeholders().containsKey("message") && sender != null) {
-				final Object messageRaw = variables.placeholders().get("message");
+			if (messageVariable != null && sender != null) {
+				if (messageVariable instanceof SimpleComponent)
+					messageVariable = HookManager.replaceFontImages(sender.getPlayer(), (SimpleComponent) messageVariable);
 
-				if (messageRaw instanceof SimpleComponent) {
-					SimpleComponent component = (SimpleComponent) messageRaw;
+				else if (messageVariable instanceof String)
+					messageVariable = HookManager.replaceFontImagesLegacy(sender.getPlayer(), (String) messageVariable);
 
-					component = HookManager.replaceFontImages(sender.getPlayer(), component);
-					variables.placeholder("message", component);
+				else
+					throw new FoException("Invalid message type: " + messageVariable.getClass() + " in " + this);
 
-				} else if (messageRaw instanceof String) {
-					String message = (String) messageRaw;
-
-					message = HookManager.replaceFontImagesLegacy(sender.getPlayer(), message);
-					variables.placeholder("message", message);
-				} else
-					throw new FoException("Invalid message type: " + messageRaw.getClass() + " in " + this);
+				variables.placeholder("message", messageVariable);
 			}
 
 			if (this.senderPermission != null && sender != null && !sender.hasPermission(this.senderPermission))

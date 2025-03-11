@@ -637,7 +637,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 					if (!check.isLoggingIgnored())
 						Log.logChannel(sender.getSender(), this, chatMessageAsLegacy);
 
-					if (this.discordChannelId != -1) {
+					if (this.discordChannelId != -1 && HookManager.isDiscordSRVLoaded()) {
 						final String formatedComponentAsJson = finalFormattedComponent.toAdventureJson(null, MinecraftVersion.olderThan(V.v1_16));
 
 						if (!sender.isDiscord()) {

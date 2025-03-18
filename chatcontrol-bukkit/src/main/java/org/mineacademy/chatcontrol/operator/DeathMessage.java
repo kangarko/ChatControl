@@ -786,7 +786,7 @@ public final class DeathMessage extends PlayerMessage {
 					"killer_name", this.killer == null ? "" : this.getKillerName(),
 
 					"killer_type", this.killerType == null ? "" : ChatUtil.capitalizeFully(this.killerType),
-					"killer_item", killerItemLabel == null ? "Air" : SimpleComponent.MINIMESSAGE_PARSER.serialize(killerItemLabel),
+					"killer_item", killerItemLabel == null ? "Air" : SimpleComponent.serializeAdventureToMini(killerItemLabel),
 					"block_type", this.blockType == null ? "" : this.blockType.name(),
 					"block_type_formatted", this.blockType == null ? "" : ChatUtil.capitalizeFully(this.blockType),
 					"cause", this.damageCause.name(),

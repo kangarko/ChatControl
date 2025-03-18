@@ -569,7 +569,7 @@ public final class Format extends YamlConfig {
 					}
 
 					if (gradientSupport)
-						joined = joined.append(SimpleComponent.MINIMESSAGE_PARSER.deserialize(line));
+						joined = joined.append(SimpleComponent.deserializeMiniToAdventure(line));
 					else
 						joined = joined.append(Component.text(line));
 

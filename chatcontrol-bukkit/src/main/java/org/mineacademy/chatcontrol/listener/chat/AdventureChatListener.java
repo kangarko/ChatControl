@@ -49,7 +49,7 @@ public final class AdventureChatListener implements EventExecutor, Listener {
 		if (bukkitRecipients.isEmpty())
 			return;
 
-		String miniMessage = SimpleComponent.MINIMESSAGE_PARSER.serialize(chatEvent.message());
+		String miniMessage = SimpleComponent.serializeAdventureToMini(chatEvent.message());
 
 		// There is no way for us to differentiate player tags and tags from plugins editing this event
 		// before us, so we merge them and remove colors players dont have permissions for
@@ -60,7 +60,7 @@ public final class AdventureChatListener implements EventExecutor, Listener {
 
 		ChatHandler.handle(state);
 
-		final Component chatComponent = SimpleComponent.MINIMESSAGE_PARSER.deserialize(state.getChatMessage());
+		final Component chatComponent = SimpleComponent.deserializeMiniToAdventure(state.getChatMessage());
 
 		if (state.isMessageChanged())
 			chatEvent.message(chatComponent);

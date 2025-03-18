@@ -714,7 +714,7 @@ public final class SyncedCache {
 				prefix + "_prefix", cache != null ? cache.getPrefix() : "",
 				prefix + "_suffix", cache != null ? cache.getSuffix() : "",
 				prefix + "_server", cache != null ? cache.getServerName() : "",
-				prefix + "_channels", cache == null || cache.getChannels().isEmpty() ? Lang.plain("part-none") : CommonCore.join(cache.getChannels().keySet()),
+				prefix + "_channels", cache == null || cache.getChannels().isEmpty() ? Lang.plain("part-none") : CommonCore.join(CommonCore.newSet(cache.getChannels().keySet())), // Clone to prevent CME
 				prefix + "_is_afk", cache != null && cache.isAfk() ? "true" : "false",
 				prefix + "_is_vanished", cache != null && cache.isVanished() ? "true" : "false");
 

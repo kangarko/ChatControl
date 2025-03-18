@@ -331,7 +331,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 				}
 
 			} catch (final Throwable ex) {
-				CommonCore.throwError(ex, "Syntax error in 'delay' operator. Valid: <amount> <unit> (1 second, 2 minutes). Got: " + String.join(" ", args));
+				throw new FoException("Syntax error in 'delay' operator. Valid: <amount> <unit> (1 second, 2 minutes). Got: " + String.join(" ", args), false);
 			}
 		}
 
@@ -428,7 +428,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 				fine = Double.parseDouble(theRest);
 
 			} catch (final NumberFormatException ex) {
-				throw new FoException("Invalid whole number in 'then fine': " + theRest);
+				throw new FoException("Invalid whole number in 'then fine': " + theRest, false);
 			}
 
 			this.fine = fine;
@@ -446,7 +446,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 				points = Double.parseDouble(split[1]);
 
 			} catch (final NumberFormatException ex) {
-				throw new FoException("Invalid whole number in 'then points': " + split[1]);
+				throw new FoException("Invalid whole number in 'then points': " + split[1], false);
 			}
 
 			this.warningPoints.put(warningSet, points);
@@ -498,7 +498,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 				secondsToShow = Integer.parseInt(split[2]);
 
 			} catch (final NumberFormatException ex) {
-				throw new FoException("Invalid seconds to show in 'then bossbar': " + split[2]);
+				throw new FoException("Invalid seconds to show in 'then bossbar': " + split[2], false);
 			}
 
 			final String message = CommonCore.joinRange(3, split);
@@ -1221,8 +1221,8 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 			final String message = CommonCore.getOrDefaultStrict(this.message, "");
 
 			try {
-				map.put("message", SimpleComponent.MINIMESSAGE_PARSER.stripTags(message));
-				map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.MINIMESSAGE_PARSER.stripTags(this.originalMessage));
+				map.put("message", SimpleComponent.stripMiniMessageTags(message));
+				map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.stripMiniMessageTags(this.originalMessage));
 			} catch (final NoSuchMethodError err) {
 				// Really old, and using CraftBukkit
 			}

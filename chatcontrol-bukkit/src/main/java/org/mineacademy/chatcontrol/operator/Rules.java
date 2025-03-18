@@ -82,7 +82,7 @@ public final class Rules<T extends Rule> extends RuleSetReader<T> {
 				imported = RuleType.fromKey(ruleType);
 
 			} catch (final IllegalArgumentException ex) {
-				throw new FoException("Your @import operator in " + file + " refers to unknown rule type: " + ruleType + ". Available: " + CommonCore.join(RuleType.values()));
+				throw new FoException("Your @import operator in " + file + " refers to unknown rule type: " + ruleType + ". Available: " + CommonCore.join(RuleType.values()), false);
 			}
 
 			final List<RuleType> importedTypes = this.imports.getOrDefault(current, new ArrayList<>());

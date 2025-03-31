@@ -442,25 +442,39 @@ public abstract class RuleOperator extends Operator {
 			if (this.channel != null && !operator.getRequireChannels().isEmpty()) {
 				boolean foundChannel = false;
 
-				if (!this.wrappedSender.isPlayer())
-					return false;
+				if (this.wrappedSender.isPlayer())
+					for (final Entry<String, String> entry : operator.getRequireChannels().entrySet()) {
+						final String channelName = entry.getKey();
+						final String channelMode = entry.getValue();
 
-				for (final Entry<String, String> entry : operator.getRequireChannels().entrySet()) {
-					final String channelName = entry.getKey();
-					final String channelMode = entry.getValue();
+						// Logical fallacy, can never send a message from reading channel
+						if ("read".equals(channelMode) && this.wrappedSender.getPlayerCache().getChannelMode(channelName) == ChannelMode.READ) {
+							foundChannel = true;
 
-					// Logical fallacy, can never send a message from reading channel
-					if ("read".equals(channelMode) && this.wrappedSender.getPlayerCache().getChannelMode(channelName) == ChannelMode.READ) {
-						foundChannel = true;
+							continue;
+						}
 
-						continue;
+						if (this.channel.getName().equalsIgnoreCase(channelName) && this.wrappedSender.getPlayerCache().isInChannel(channelName)
+								&& (channelMode.isEmpty() || channelMode.equalsIgnoreCase(this.wrappedSender.getPlayerCache().getChannelMode(channelName).getKey()))) {
+							foundChannel = true;
+							Debugger.debug("operator", "Executing due to " + channelName + " in mode " + channelMode + " being found in required");
+
+							break;
+						}
 					}
 
-					if (this.channel.getName().equalsIgnoreCase(channelName) && this.wrappedSender.getPlayerCache().isInChannel(channelName)
-							&& (channelMode.isEmpty() || channelMode.equalsIgnoreCase(this.wrappedSender.getPlayerCache().getChannelMode(channelName).getKey()))) {
-						foundChannel = true;
+				else if (this.wrappedSender.isDiscord()) {
+					final String sendingChannel = this.wrappedSender.getDiscordSender().getChannelName();
 
-						break;
+					for (final Entry<String, String> entry : operator.getRequireChannels().entrySet()) {
+						final String channelName = entry.getKey();
+
+						if (sendingChannel.equalsIgnoreCase(channelName)) {
+							foundChannel = true;
+							Debugger.debug("operator", "Executing due to " + channelName + " being found in required for discord sender");
+
+							break;
+						}
 					}
 				}
 
@@ -519,10 +533,12 @@ public abstract class RuleOperator extends Operator {
 				for (final String playersRegion : DiskRegion.findRegionNames(this.wrappedSender.getPlayer().getLocation()))
 					if (operator.getIgnoreRegions().contains(playersRegion))
 						return false;
+			}
 
-				if (this.channel != null) {
-					Debugger.debug("operator", "Ignored channels: " + operator.getIgnoreChannels());
+			if (this.channel != null) {
+				Debugger.debug("operator", "Ignored channels: " + operator.getIgnoreChannels());
 
+				if (this.wrappedSender.isPlayer())
 					for (final Entry<String, String> entry : operator.getIgnoreChannels().entrySet()) {
 						final String channelName = entry.getKey();
 						final String channelMode = entry.getValue();
@@ -534,6 +550,19 @@ public abstract class RuleOperator extends Operator {
 						if (this.channel.getName().equalsIgnoreCase(channelName) && this.wrappedSender.getPlayerCache().isInChannel(channelName)
 								&& (channelMode.isEmpty() || channelMode.equalsIgnoreCase(this.wrappedSender.getPlayerCache().getChannelMode(channelName).getKey()))) {
 							Debugger.debug("operator", "Not executing due to " + channelName + " in mode " + channelMode + " being ignored");
+
+							return false;
+						}
+					}
+
+				else if (this.wrappedSender.isDiscord()) {
+					final String sendingChannel = this.wrappedSender.getDiscordSender().getChannelName();
+
+					for (final Entry<String, String> entry : operator.getIgnoreChannels().entrySet()) {
+						final String channelName = entry.getKey();
+
+						if (sendingChannel.equalsIgnoreCase(channelName)) {
+							Debugger.debug("operator", "Not executing due to " + channelName + " being ignored for discord sender");
 
 							return false;
 						}

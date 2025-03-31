@@ -24,6 +24,7 @@ import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.FileUtil;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.exception.EventHandledException;
+import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.Platform;
 
@@ -92,7 +93,7 @@ public class Rule extends RuleOperator {
 	 * supporting per-rule color/accent strip
 	 */
 	private Matcher compileMatcher(@NonNull final Pattern pattern, final String message) {
-		String strippedMessage = this.stripColors ? SimpleComponent.fromMiniAmpersand(message).toPlain() : message;
+		String strippedMessage = this.stripColors ? SimpleComponent.fromMiniNative(CompChatColor.stripColorCodes(message, true)).toPlain() : message;
 		strippedMessage = this.stripAccents ? ChatUtil.replaceDiacritic(strippedMessage) : strippedMessage;
 
 		return pattern.matcher(strippedMessage);
@@ -319,9 +320,14 @@ public class Rule extends RuleOperator {
 			final String originalMessage = this.message;
 			String messageMatched = this.message;
 
-			// Prepare the message before checking
-			for (final Entry<Pattern, String> entry : rule.getBeforeReplace().entrySet())
-				messageMatched = ruleEvaluated.compileMatcher(entry.getKey(), messageMatched).replaceAll(entry.getValue());
+			// Prepare the message before checking, avoid calling compileMatcher in loop to save performance
+			{
+				String strippedMessage = ruleEvaluated.isStripColors() ? SimpleComponent.fromMiniNative(CompChatColor.stripColorCodes(messageMatched, true)).toPlain() : messageMatched;
+				strippedMessage = ruleEvaluated.isStripAccents() ? ChatUtil.replaceDiacritic(strippedMessage) : strippedMessage;
+
+				for (final Entry<Pattern, String> entry : rule.getBeforeReplace().entrySet())
+					messageMatched = entry.getKey().matcher(strippedMessage).replaceAll(entry.getValue());
+			}
 
 			// Find group early
 			final Group group = ruleEvaluated.getGroup() != null ? Groups.getInstance().findGroup(ruleEvaluated.getGroup()) : null;

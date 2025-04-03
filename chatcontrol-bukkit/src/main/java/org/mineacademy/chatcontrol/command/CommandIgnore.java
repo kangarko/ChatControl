@@ -99,6 +99,9 @@ public final class CommandIgnore extends ChatControlCommand {
 				if (!ignored && otherOnline != null && otherOnline.isOnline() && otherOnline.hasPermission(Permissions.Bypass.REACH))
 					this.returnTell(Lang.component("command-ignore-cannot-ignore-admin"));
 
+				if (!ignored && forCache.getIgnoredPlayers().size() > 200)
+					this.returnTell(Lang.component("command-ignore-limit-reached", "limit", 200));
+
 				forCache.setIgnoredPlayer(targetId, !ignored);
 
 				// Hook into CMI/Essentials async to prevent server freeze

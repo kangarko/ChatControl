@@ -107,8 +107,16 @@ public final class ProxyChat {
 					if (senderCache.isDatabaseLoaded()) {
 						final WrappedSender wrapped = WrappedSender.fromPlayerCaches(online, PlayerCache.fromCached(online), senderCache);
 
-						for (final SyncType syncType : SyncType.values())
-							syncTypeDataMap.computeIfAbsent(syncType, key -> new SerializedMap()).put(online.getUniqueId().toString(), compileValue(syncType, wrapped));
+						for (final SyncType syncType : SyncType.values()) {
+							final String value = compileValue(syncType, wrapped);
+
+							if (value.length() > Short.MAX_VALUE - 3000 /* safety margin */) {
+								Common.logTimed(60 * 5, "Skipping syncing " + syncType + " for player " + wrapped.getName() + " due to his data being too large: " + value.length() + " characters. "
+										+ "This message will not be repeated for 5 minutes.");
+
+							} else
+								syncTypeDataMap.computeIfAbsent(syncType, key -> new SerializedMap()).put(online.getUniqueId().toString(), value);
+						}
 					}
 				}
 

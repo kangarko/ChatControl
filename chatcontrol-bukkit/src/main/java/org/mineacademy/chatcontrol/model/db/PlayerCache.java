@@ -28,13 +28,17 @@ import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.model.Permissions;
 import org.mineacademy.chatcontrol.model.PlayerMessageType;
 import org.mineacademy.chatcontrol.model.Players;
+import org.mineacademy.chatcontrol.model.ProxyChat;
 import org.mineacademy.chatcontrol.model.Spy;
 import org.mineacademy.chatcontrol.model.ToggleType;
+import org.mineacademy.chatcontrol.model.WrappedSender;
+import org.mineacademy.chatcontrol.model.db.Mail.Recipient;
 import org.mineacademy.chatcontrol.operator.PlayerMessage;
 import org.mineacademy.chatcontrol.operator.Tag;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.chatcontrol.util.LogUtil;
 import org.mineacademy.fo.CommonCore;
+import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.SerializeUtilCore.Language;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.ValidCore;
@@ -52,6 +56,7 @@ import org.mineacademy.fo.model.SimpleTime;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -305,11 +310,102 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
-	 * Check if player has not exceeded any cache limits and disable appropriately
+	 * Processes the joining of this player
 	 *
 	 * @param player
+	 * @param senderCache
 	 */
-	public void checkLimits(final Player player) {
+	public void onJoin(Player player, SenderCache senderCache) {
+		this.onJoin(player, senderCache, null);
+	}
+
+	/**
+	 * Processes the joining of this player
+	 *
+	 * @param player
+	 * @param senderCache
+	 * @param fallbackJoinMessage
+	 */
+	public void onJoin(Player player, SenderCache senderCache, String fallbackJoinMessage) {
+		final UUID uniqueId = player.getUniqueId();
+		final Database database = Database.getInstance();
+
+		final WrappedSender wrapped = WrappedSender.fromPlayerCaches(player, this, senderCache);
+
+		// Force load all synced data
+		ProxyChat.loadAllSyncedData(wrapped);
+
+		// Update tablist name from nick
+		Players.setTablistName(wrapped);
+
+		// Remove old channels over limit
+		this.checkLimits(player);
+
+		// Auto join channels
+		if (Settings.Channels.ENABLED)
+			Channel.autoJoin(player, this);
+
+		// Motd
+		if (Settings.Motd.ENABLED) {
+			Players.showMotd(wrapped, true);
+
+			Platform.runTask(Settings.Motd.DELAY.getTimeTicks(), () -> {
+				for (final String consoleCmd : Settings.Motd.CONSOLE_COMMANDS)
+					Platform.dispatchConsoleCommand(wrapped.getAudience(), consoleCmd);
+
+				for (final String playerCmd : Settings.Motd.PLAYER_COMMANDS)
+					wrapped.getAudience().dispatchCommand(playerCmd);
+			});
+		}
+
+		if (Settings.PrivateMessages.DISABLED_BY_DEFAULT && !this.hasManuallyToggledPMs()) {
+			this.setToggledPart(ToggleType.PRIVATE_MESSAGE, true);
+
+			LogUtil.logTip("TIP: " + player.getName() + " did not manually toggle on private messages. He will not be able to send/receive them until he toggles them back on.");
+		}
+
+		// Spying
+		if (player.hasPermission(Permissions.Spy.AUTO_ENABLE) && !Settings.Spy.APPLY_ON.isEmpty()) {
+			this.setSpyingOn(player);
+
+			if (!Lang.plain("command-spy-auto-enable-1").equals("none"))
+				wrapped.getAudience().sendMessage(Lang
+						.component("command-spy-auto-enable-1")
+						.append(Lang.component("command-spy-auto-enable-2"))
+						.onHover(Lang.component("command-spy-auto-enable-tooltip", "permission", Permissions.Spy.AUTO_ENABLE)));
+
+			LogUtil.logOnce("spy-autojoin", "TIP: Automatically enabling spy mode for " + player.getName() + " because he has '" + Permissions.Spy.AUTO_ENABLE + "'"
+					+ " permission. To stop automatically enabling spy mode for players, give them negative '" + Permissions.Spy.AUTO_ENABLE + "' permission"
+					+ " (a value of false when using LuckPerms).");
+		}
+
+		// Unread mail notification
+		if (Settings.Mail.ENABLED && player.hasPermission(Permissions.Command.MAIL))
+			Platform.runTaskAsync(() -> {
+				int unreadCount = 0;
+
+				for (final Mail mail : database.findMailsTo(uniqueId)) {
+					final Recipient recipient = mail.findRecipient(uniqueId);
+
+					if (!recipient.isMarkedDeleted() && !recipient.isOpened())
+						unreadCount++;
+				}
+
+				if (unreadCount > 0) {
+					final int finalUnreadCount = unreadCount;
+
+					Platform.runTask(4, () -> Messenger.warn(player, Lang.component("command-mail-join-notification", "amount", finalUnreadCount)));
+				}
+			});
+
+		senderCache.setJoinMessage(CommonCore.getOrEmpty(fallbackJoinMessage));
+		senderCache.sendJoinMessage(wrapped);
+	}
+
+	/*
+	 * Check if player has not exceeded any cache limits and disable appropriately
+	 */
+	private void checkLimits(final Player player) {
 		boolean save = false;
 
 		// Check if player still has permissions for their custom color/decoration

@@ -452,7 +452,7 @@ Rules:
   
   # Replace colors before matching? Such as "<red>He<yellow>llo" will be matched as "Hello".
   # You can override this by using the "strip colors" operator for each rule.
-  Strip_Colors: true
+  Strip_Colors: false
   
   # Evaluate the "match" operator case insensitively? Poses slight performance penalty.
   # [TIP] When testing on regex101.com make sure you toggle "insensitive" flag
@@ -1158,6 +1158,14 @@ Log:
 # AuthMe integration.
 # -------------------------------------------------------------------------------------------------
 AuthMe:
+  
+  # Commands that we won't filter and allow even if our database is not loaded.
+  Allow_Commands:
+  - /login
+  - /log
+  - /l
+  - /register
+  - /reg
   
   # Show join message (see Messages.Apply_On) only after the player has logged in
   Delay_Join_Message_Until_Logged: false

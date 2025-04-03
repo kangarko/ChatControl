@@ -24,6 +24,7 @@ import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.settings.Lang;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a cache with data from proxy
@@ -118,6 +119,13 @@ public final class SyncedCache {
 	 */
 	@Getter
 	private boolean hasMuteBypass;
+
+	/**
+	 * Has the player logged in?
+	 */
+	@Getter
+	@Setter
+	private boolean loggedIn;
 
 	/*
 	 * Create a synced cache from the given data map
@@ -631,8 +639,10 @@ public final class SyncedCache {
 	 * @param playerName
 	 * @param uniqueId
 	 * @param cachesByType
+	 *
+	 * @return the synced cache
 	 */
-	public static void uploadAll(final String playerName, final UUID uniqueId, final SerializedMap cachesByType) {
+	public static SyncedCache uploadAll(final String playerName, final UUID uniqueId, final SerializedMap cachesByType) {
 		synchronized (uniqueCacheMap) {
 			SyncedCache cache = uniqueCacheMap.get(uniqueId);
 
@@ -648,6 +658,8 @@ public final class SyncedCache {
 
 				cache.loadData(type, value);
 			}
+
+			return cache;
 		}
 	}
 

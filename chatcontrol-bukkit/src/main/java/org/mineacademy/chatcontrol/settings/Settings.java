@@ -1068,12 +1068,14 @@ public final class Settings extends SimpleSettings {
 	 */
 	public static class AuthMe {
 
+		public static List<String> ALLOW_COMMANDS;
 		public static Boolean DELAY_JOIN_MESSAGE_UNTIL_LOGGED;
 		public static Boolean HIDE_QUIT_MESSAGE_IF_NOT_LOGGED;
 
 		private static void init() {
 			setPathPrefix("AuthMe");
 
+			ALLOW_COMMANDS = getStringList("Allow_Commands");
 			DELAY_JOIN_MESSAGE_UNTIL_LOGGED = getBoolean("Delay_Join_Message_Until_Logged");
 			HIDE_QUIT_MESSAGE_IF_NOT_LOGGED = getBoolean("Hide_Quit_Message_If_Not_Logged");
 		}

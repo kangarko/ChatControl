@@ -281,6 +281,7 @@
   "command-header-no-subcommand-permission": "<red>You don't have permissions to view any subcommands.",
   "command-ignore-cannot-ignore-admin": "You cannot ignore that player.",
   "command-ignore-cannot-ignore-self": "You are already ignoring yourself when you don't listen to your body or your mind, fail to set boundaries and don't meet your own needs. Stop it, get some help.",
+  "command-ignore-limit-reached": "You can only ignore {limit} players at once.",
   "command-ignore-cannot-pm": "{receiver_name} is ignoring you. No message sent.",
   "command-ignore-cannot-pm-ignored": "You are ignoring {receiver_name}. No message sent.",
   "command-ignore-cannot-sound-notify-receiver": "Cannot tag {player} because he ignores you.",

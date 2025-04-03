@@ -29,7 +29,6 @@ import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.SerializeUtilCore;
 import org.mineacademy.fo.SerializeUtilCore.Language;
-import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.database.SimpleDatabase;
 import org.mineacademy.fo.database.SimpleResultSet;
@@ -417,12 +416,17 @@ public final class Database extends SimpleDatabase {
 		final String playerName = player.getName();
 		final UUID uniqueId = player.getUniqueId();
 
-		ValidCore.checkBoolean(senderCache.getCacheLoadingTask() == null, "Cache loading task already scheduled! Only call loadAndStoreCache() once when player joins. If you are running a custom server, "
-				+ "you are calling the join event in an unsupported way");
+		if (senderCache.getCacheLoadingTask() != null)
+			try {
+				senderCache.getCacheLoadingTask().cancel();
+			} catch (final Throwable t) {
+				// ignore
+			}
 
 		this.nameToUniqueId.put(playerName, uniqueId);
 		this.uniqueIdToName.put(uniqueId, playerName);
 
+		// This can take some time, so we cache it and cancel in case player rejoins
 		final Task task = Platform.runTaskAsync(() -> {
 			try {
 				final long now = System.currentTimeMillis();

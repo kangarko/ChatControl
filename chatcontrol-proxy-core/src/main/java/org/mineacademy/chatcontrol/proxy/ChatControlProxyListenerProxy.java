@@ -193,7 +193,10 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 				final FoundationPlayer player = Platform.getPlayer(playerUniqueId);
 
 				if (player != null) {
-					SyncedCache.uploadAll(playerName, playerUniqueId, dataMap);
+					final SyncedCache cache = SyncedCache.uploadAll(playerName, playerUniqueId, dataMap);
+
+					// Database ready packet is only broadcasted when the player is loaded = logged in
+					cache.setLoggedIn(true);
 
 					ProxyEvents.broadcastPendingMessage(player);
 

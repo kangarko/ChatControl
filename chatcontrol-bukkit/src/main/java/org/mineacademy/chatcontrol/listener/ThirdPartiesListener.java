@@ -21,6 +21,7 @@ import org.mineacademy.chatcontrol.model.Format;
 import org.mineacademy.chatcontrol.model.Permissions;
 import org.mineacademy.chatcontrol.model.Spy;
 import org.mineacademy.chatcontrol.model.WrappedSender;
+import org.mineacademy.chatcontrol.model.db.Database;
 import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.chatcontrol.operator.Tag.Type;
 import org.mineacademy.chatcontrol.settings.Settings;
@@ -355,12 +356,8 @@ final class AuthMeListener implements Listener {
 	public void onLogin(final LoginEvent event) {
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
-		final WrappedSender wrapped = senderCache.isDatabaseLoaded() ? WrappedSender.fromPlayer(player)
-				// Terrible workaround but the broadcast code leads to operator package which wont save data to cache so it's fine for now
-				: WrappedSender.fromPlayerCaches(player, new PlayerCache(player.getName(), player.getUniqueId()), senderCache);
 
-		if (Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED && wrapped.getSenderCache().getJoinMessage() != null)
-			wrapped.getSenderCache().sendJoinMessage(wrapped);
+		Database.getInstance().loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache));
 	}
 }
 

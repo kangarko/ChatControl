@@ -12,6 +12,7 @@ import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.chatcontrol.model.db.Log;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.ValidCore;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.event.SimpleListener;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.settings.Lang;
@@ -45,6 +46,22 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
 
+		String message = event.getMessage();
+
+		final String[] args = event.getMessage().split(" ");
+		final String label = args[0];
+
+		for (String allowed : Settings.AuthMe.ALLOW_COMMANDS) {
+			if (!allowed.startsWith("/"))
+				allowed = "/" + allowed;
+
+			if (message.startsWith(allowed)) {
+				Debugger.debug("player-message", "[Authy/Allow Commands] Bypassing checks in " + message + " for " + player.getName());
+
+				return;
+			}
+		}
+
 		if (!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) {
 			event.setCancelled(true);
 
@@ -52,11 +69,6 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 		}
 
 		final WrappedSender wrapped = WrappedSender.fromPlayer(player);
-
-		String message = event.getMessage();
-
-		final String[] args = event.getMessage().split(" ");
-		final String label = args[0];
 
 		// Prevent internal command alias from being filtered
 		for (final String alias : SimpleSettings.MAIN_COMMAND_ALIASES)

@@ -25,22 +25,16 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.mineacademy.chatcontrol.SenderCache;
-import org.mineacademy.chatcontrol.model.Channel;
 import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.model.Mute;
 import org.mineacademy.chatcontrol.model.Newcomer;
 import org.mineacademy.chatcontrol.model.Permissions;
 import org.mineacademy.chatcontrol.model.PlayerMessageType;
-import org.mineacademy.chatcontrol.model.Players;
-import org.mineacademy.chatcontrol.model.ProxyChat;
 import org.mineacademy.chatcontrol.model.RuleType;
 import org.mineacademy.chatcontrol.model.Spy;
-import org.mineacademy.chatcontrol.model.ToggleType;
 import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.chatcontrol.model.db.Database;
 import org.mineacademy.chatcontrol.model.db.Log;
-import org.mineacademy.chatcontrol.model.db.Mail;
-import org.mineacademy.chatcontrol.model.db.Mail.Recipient;
 import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.chatcontrol.operator.PlayerMessages;
 import org.mineacademy.chatcontrol.operator.Rule;
@@ -53,6 +47,7 @@ import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.ValidCore;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.HookManager;
@@ -112,7 +107,6 @@ public final class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onJoin(final PlayerJoinEvent event) {
 		final Player player = event.getPlayer();
-		final UUID uniqueId = player.getUniqueId();
 
 		final SenderCache senderCache = SenderCache.from(player);
 		final Database database = Database.getInstance();
@@ -134,82 +128,11 @@ public final class PlayerListener implements Listener {
 		// Moves MySQL off of the main thread
 		// Delays the execution so that, if player comes from another server,
 		// his data is saved first in case database has slower connection than us
-		database.loadAndStoreCache(player, senderCache, cache -> {
-			final WrappedSender wrapped = WrappedSender.fromPlayerCaches(player, cache, senderCache);
+		if (HookManager.isAuthMeLoaded() && Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED) {
+			Debugger.debug("player-message", "Waiting for " + player.getName() + " to log in AuthMe before loading his data and join message.");
 
-			// Force load all synced data
-			ProxyChat.loadAllSyncedData(wrapped);
-
-			// Update tablist name from nick
-			Players.setTablistName(wrapped);
-
-			// Remove old channels over limit
-			cache.checkLimits(player);
-
-			// Auto join channels
-			if (Settings.Channels.ENABLED)
-				Channel.autoJoin(player, cache);
-
-			// Motd
-			if (Settings.Motd.ENABLED) {
-				Players.showMotd(wrapped, true);
-
-				Platform.runTask(Settings.Motd.DELAY.getTimeTicks(), () -> {
-					for (final String consoleCmd : Settings.Motd.CONSOLE_COMMANDS)
-						Platform.dispatchConsoleCommand(wrapped.getAudience(), consoleCmd);
-
-					for (final String playerCmd : Settings.Motd.PLAYER_COMMANDS)
-						wrapped.getAudience().dispatchCommand(playerCmd);
-				});
-			}
-
-			if (Settings.PrivateMessages.DISABLED_BY_DEFAULT && !cache.hasManuallyToggledPMs()) {
-				cache.setToggledPart(ToggleType.PRIVATE_MESSAGE, true);
-
-				LogUtil.logTip("TIP: " + player.getName() + " did not manually toggle on private messages. He will not be able to send/receive them until he toggles them back on.");
-			}
-
-			// Spying
-			if (player.hasPermission(Permissions.Spy.AUTO_ENABLE) && !Settings.Spy.APPLY_ON.isEmpty()) {
-				cache.setSpyingOn(player);
-
-				if (!Lang.plain("command-spy-auto-enable-1").equals("none"))
-					wrapped.getAudience().sendMessage(Lang
-							.component("command-spy-auto-enable-1")
-							.append(Lang.component("command-spy-auto-enable-2"))
-							.onHover(Lang.component("command-spy-auto-enable-tooltip", "permission", Permissions.Spy.AUTO_ENABLE)));
-
-				LogUtil.logOnce("spy-autojoin", "TIP: Automatically enabling spy mode for " + player.getName() + " because he has '" + Permissions.Spy.AUTO_ENABLE + "'"
-						+ " permission. To stop automatically enabling spy mode for players, give them negative '" + Permissions.Spy.AUTO_ENABLE + "' permission"
-						+ " (a value of false when using LuckPerms).");
-			}
-
-			// Unread mail notification
-			if (Settings.Mail.ENABLED && player.hasPermission(Permissions.Command.MAIL))
-				Platform.runTaskAsync(() -> {
-					int unreadCount = 0;
-
-					for (final Mail mail : database.findMailsTo(uniqueId)) {
-						final Recipient recipient = mail.findRecipient(uniqueId);
-
-						if (!recipient.isMarkedDeleted() && !recipient.isOpened())
-							unreadCount++;
-					}
-
-					if (unreadCount > 0) {
-						final int finalUnreadCount = unreadCount;
-
-						Platform.runTask(4, () -> Messenger.warn(player, Lang.component("command-mail-join-notification", "amount", finalUnreadCount)));
-					}
-				});
-
-			senderCache.setJoinMessage(CommonCore.getOrEmpty(event.getJoinMessage()));
-
-			if (HookManager.isAuthMeLoaded() && Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED) {
-				// Do nothing
-			} else
-				senderCache.sendJoinMessage(wrapped);
-		});
+		} else
+			database.loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache, event.getJoinMessage()));
 	}
 
 	/**

@@ -45,7 +45,7 @@ public final class ProxyEvents {
 	 *
 	 * It overrides previous values, only last message will get shown
 	 */
-	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessagesV2 = ExpiringMap.builder().expiration(10, TimeUnit.SECONDS).build();
+	private static final Map<UUID, Tuple<PlayerMessageType, Map<String, Object>>> pendingMessages = ExpiringMap.builder().expiration(10, TimeUnit.SECONDS).build();
 
 	/**
 	 * Message de-duplicator
@@ -84,7 +84,7 @@ public final class ProxyEvents {
 	 * @param server
 	 */
 	public static void handleConnect(final FoundationPlayer player, final FoundationServer server) {
-		synchronized (pendingMessagesV2) {
+		synchronized (pendingMessages) {
 
 			// Force-create if not exist
 			SyncedCache.getOrCreate(player.getName(), player.getUniqueId());
@@ -95,7 +95,7 @@ public final class ProxyEvents {
 				if (!isSilent(toServer)) {
 					Debugger.debug("player-message", "Detected " + player.getName() + " join to " + toServer + ", waiting for server data..");
 
-					pendingMessagesV2.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.JOIN, CommonCore.newHashMap(
+					pendingMessages.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.JOIN, CommonCore.newHashMap(
 							"server", toServer,
 							"server_name", toServer,
 							"player_server_name", toServer)));
@@ -130,7 +130,7 @@ public final class ProxyEvents {
 	 * @param currentServer
 	 */
 	public static void handleSwitch(final FoundationPlayer player, final FoundationServer currentServer) {
-		synchronized (pendingMessagesV2) {
+		synchronized (pendingMessages) {
 			final String lastServerName = playerServerNamesByUniqueId.put(player.getUniqueId().toString(), currentServer.getName());
 
 			// Announce switches to/from silent servers on servers not silenced
@@ -141,7 +141,7 @@ public final class ProxyEvents {
 				if (!isSilent(fromServer)) {
 					Debugger.debug("player-message", "Detected " + player.getName() + " switch from " + fromServer + " to " + toServer + ", waiting for server data..");
 
-					pendingMessagesV2.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.SWITCH, CommonCore.newHashMap(
+					pendingMessages.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.SWITCH, CommonCore.newHashMap(
 							"from_server", fromServer,
 							"from_server_name", fromServer,
 							"player_from_server_name", fromServer,
@@ -172,6 +172,9 @@ public final class ProxyEvents {
 
 			if (synced == null)
 				Debugger.debug("player-message", "Skipping " + type.getKey() + " message for " + playerName + " on server " + fromServer + ", cache is null");
+
+			else if (!synced.isLoggedIn())
+				Debugger.debug("player-message", "Skipping " + type.getKey() + " message for " + playerName + " on server " + fromServer + ", player is not logged in");
 
 			else if (isSilent(fromServer))
 				Debugger.debug("player-message", "Skipping " + type.getKey() + " message for " + playerName + " on server " + fromServer + ", server is silent");
@@ -273,12 +276,12 @@ public final class ProxyEvents {
 	 * @param player
 	 */
 	public static void broadcastPendingMessage(@NonNull final FoundationPlayer player) {
-		synchronized (pendingMessagesV2) {
+		synchronized (pendingMessages) {
 			final FoundationPlayer audience = Platform.toPlayer(player);
 			final UUID playerUniqueId = player.getUniqueId();
 			final String playerName = player.getName();
 
-			final Tuple<PlayerMessageType, Map<String, Object>> data = pendingMessagesV2.remove(playerUniqueId);
+			final Tuple<PlayerMessageType, Map<String, Object>> data = pendingMessages.remove(playerUniqueId);
 
 			if (data != null) {
 				final PlayerMessageType type = data.getKey();
@@ -305,7 +308,7 @@ public final class ProxyEvents {
 			}
 
 			else
-				Debugger.debug("player-message", "Failed finding pending join/switch message for " + playerName + ", pending message was null. All data: " + pendingMessagesV2);
+				Debugger.debug("player-message", "Failed finding pending join/switch message for " + playerName + ", pending message was null. All data: " + pendingMessages);
 		}
 	}
 }

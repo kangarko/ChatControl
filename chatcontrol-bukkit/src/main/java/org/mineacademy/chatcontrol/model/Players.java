@@ -68,7 +68,8 @@ public final class Players {
 			if (!motd.isEmpty())
 				wrapped.getAudience().sendMessage(Format.parse(motd).build(wrapped));
 
-			Settings.Motd.SOUND.play(player);
+			if (!motd.isEmpty() || Settings.Motd.PLAY_SOUND_IF_NO_MESSAGE)
+				Settings.Motd.SOUND.play(player);
 		});
 	}
 

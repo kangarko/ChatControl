@@ -801,6 +801,9 @@ Motd:
   
   # See Sound_Notify.Sound for help.
   Sound: ENTITY_FIREWORK_LAUNCH 1F 0.1F
+  
+  # Should the sound above be played even if you set the messages above to empty?
+  Play_Sound_If_No_Message: false
  
   # Commands to run. 
   # [WARNING] They will only be run when player joins, NOT when you run /motd manually.

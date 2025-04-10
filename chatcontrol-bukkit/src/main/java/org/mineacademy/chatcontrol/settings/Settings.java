@@ -725,6 +725,7 @@ public final class Settings extends SimpleSettings {
 		public static String FORMAT_MOTD_FIRST_TIME;
 		public static String FORMAT_MOTD_NEWCOMER;
 		public static SimpleSound SOUND;
+		public static Boolean PLAY_SOUND_IF_NO_MESSAGE;
 		public static List<String> CONSOLE_COMMANDS;
 		public static List<String> PLAYER_COMMANDS;
 
@@ -738,6 +739,7 @@ public final class Settings extends SimpleSettings {
 			FORMAT_MOTD_FIRST_TIME = getString("Format_Motd_First_Time");
 			FORMAT_MOTD_NEWCOMER = getString("Format_Motd_Newcomer");
 			SOUND = get("Sound", SimpleSound.class);
+			PLAY_SOUND_IF_NO_MESSAGE = getBoolean("Play_Sound_If_No_Message");
 			CONSOLE_COMMANDS = getStringList("Commands.Console");
 			PLAYER_COMMANDS = getStringList("Commands.Player");
 		}

@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.mineacademy</groupId>
 			<artifactId>chatcontrol-core</artifactId>
-			<version>LATEST</version>
+			<version>1.0.0</version>
 			<scope>compile</scope>
 		</dependency>
 		

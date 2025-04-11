@@ -432,6 +432,17 @@ public final class SenderCache {
 		}
 	}
 
+	/**
+	 * Remove the sender cache for the given player
+	 *
+	 * @param player
+	 */
+	public static void remove(Player player) {
+		synchronized (uniqueCacheMap) {
+			uniqueCacheMap.remove(player.getUniqueId());
+		}
+	}
+
 	// ------------------------------------------------------------------------------------------------------------
 	// Classes
 	// ------------------------------------------------------------------------------------------------------------

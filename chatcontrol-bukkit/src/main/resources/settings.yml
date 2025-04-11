@@ -1364,6 +1364,12 @@ Show_Tips: true
 Register_Regions: false
 
 # -------------------------------------------------------------------------------------------------
+# Remove player cache on exit? This is useful for servers with 50+ players to reduce memory usage.
+# The downside is that anti-spam timers, join flood timer and some other features will be reset.
+# -------------------------------------------------------------------------------------------------
+Clear_Cache_On_Exit: false
+
+# -------------------------------------------------------------------------------------------------
 # Clear data for players who had not logged in for the given period. Set to 0 to disable. 
 # [WARNING] For big tables (>10,000 ROWS), this can produce lag. Disable this option and run the SQL 
 # query manually, for example: 'DELETE FROM ChatControl WHERE LastModified < 1735457446981'

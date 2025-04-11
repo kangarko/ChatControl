@@ -1361,4 +1361,15 @@ public final class PlayerCache extends Row {
 			Platform.runTask(() -> syncCallback.accept(caches));
 		});
 	}
+
+	/**
+	 * Remove the player from the cache map
+	 *
+	 * @param player
+	 */
+	public static void remove(final Player player) {
+		synchronized (uniqueCacheMap) {
+			uniqueCacheMap.remove(player.getUniqueId());
+		}
+	}
 }

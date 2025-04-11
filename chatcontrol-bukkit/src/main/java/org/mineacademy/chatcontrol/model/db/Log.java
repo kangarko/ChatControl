@@ -1,6 +1,7 @@
 package org.mineacademy.chatcontrol.model.db;
 
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -122,14 +123,19 @@ public final class Log extends RowDate {
 	Log(final SimpleResultSet resultSet) throws SQLException {
 		super(resultSet);
 
-		this.server = resultSet.getStringStrict("Server");
-		this.type = resultSet.getEnumStrict("Type", LogType.class);
-		this.sender = resultSet.getString("Sender");
-		this.content = resultSet.getString("Content");
-		this.receivers = CommonCore.convertJsonToList(CommonCore.getOrEmpty(resultSet.getString("Receiver")).replace("\\\"", "\""));
-		this.channelName = resultSet.getString("ChannelName");
-		this.ruleName = resultSet.getString("RuleName");
-		this.ruleGroupName = resultSet.getString("RuleGroupName");
+		try {
+			this.server = resultSet.getStringStrict("Server");
+			this.type = resultSet.getEnumStrict("Type", LogType.class);
+			this.sender = resultSet.getString("Sender");
+			this.content = resultSet.getString("Content");
+			this.receivers = CommonCore.convertJsonToList(CommonCore.getOrEmpty(resultSet.getString("Receiver")).replace("\\\"", "\""));
+			this.channelName = resultSet.getString("ChannelName");
+			this.ruleName = resultSet.getString("RuleName");
+			this.ruleGroupName = resultSet.getString("RuleGroupName");
+
+		} catch (final SQLSyntaxErrorException ex) {
+			throw new FoException(ex, "Log database has incorrect schema or values.", false);
+		}
 	}
 
 	@Override

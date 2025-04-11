@@ -25,6 +25,7 @@ import org.mineacademy.fo.ProxyUtil;
 import org.mineacademy.fo.SerializeUtil;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
+import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleBook;
@@ -727,8 +728,8 @@ public final class Spy {
 			final Long channelId = map.getLong("Channel_Id");
 			final String format = map.getString("Format");
 
-			if (enabled)
-				ValidCore.checkNotNull(channelId, "If spy to Discord is enabled, Channel_Id must be set!");
+			if (enabled && channelId == null)
+				throw new FoException("If spy to Discord is enabled, Channel_Id must be set", false);
 
 			return new DiscordSpy(enabled, channelId, format);
 		}

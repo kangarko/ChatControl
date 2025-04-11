@@ -299,11 +299,15 @@ public final class Placeholders extends SimpleExpansion {
 				return playerCache.getWriteChannel() != null && playerCache.getWriteChannel().getRange() != null ? playerCache.getWriteChannel().getRange() : Lang.plain("part-none").toLowerCase();
 
 			else if (this.args.length > 2) {
-				if ("player_data".equalsIgnoreCase(this.args[0] + "_" + this.args[1])) {
-					final String key = this.join(2);
-					final Object value = playerCache.getRuleData(key);
+				try {
+					if ("player_data".equalsIgnoreCase(this.args[0] + "_" + this.args[1])) {
+						final String key = this.join(2);
+						final Object value = playerCache.getRuleData(key);
 
-					return value != null ? SerializeUtilCore.serialize(Language.YAML, value).toString() : "";
+						return value != null ? SerializeUtilCore.serialize(Language.YAML, value).toString() : "";
+					}
+				} catch (final ArrayIndexOutOfBoundsException ex) {
+					// No idea why it still happens when the array length is checked
 				}
 			}
 		}

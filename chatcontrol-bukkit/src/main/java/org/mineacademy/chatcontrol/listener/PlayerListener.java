@@ -216,6 +216,7 @@ public final class PlayerListener implements Listener {
 				event.setQuitMessage("");
 			}
 
+			PlayerCache.remove(player);
 			return;
 		}
 
@@ -243,6 +244,12 @@ public final class PlayerListener implements Listener {
 
 		if (!hasQuitMessage)
 			event.setQuitMessage(null);
+
+		// This data is stored in the database, so we can remove it from memory always
+		PlayerCache.remove(player);
+
+		if (Settings.CLEAR_CACHE_ON_EXIT)
+			SenderCache.remove(player);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

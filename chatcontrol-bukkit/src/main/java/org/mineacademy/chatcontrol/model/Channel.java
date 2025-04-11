@@ -42,6 +42,7 @@ import org.mineacademy.fo.ProxyUtil;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.exception.EventHandledException;
+import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.model.ConfigStringSerializable;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleComponent;
@@ -194,6 +195,9 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	 */
 	@Override
 	protected void onLoad() {
+		if (this.getObject("") instanceof String)
+			throw new FoException("Wrong configuration for channel " + this.getName() + ". Expected a map of settings inside the channel, but got a string. Delete Channels.List section of settings.yml to regenerate.", false);
+
 		final SerializedMap map = this.getMap("");
 
 		// Prevent users from putting keys we cannot detect in their config

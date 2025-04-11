@@ -13,9 +13,9 @@
 	<modules>
 		<module>chatcontrol-core</module>
 		<module>chatcontrol-proxy-core</module>
-		<module>chatcontrol-bukkit</module>
 		<module>chatcontrol-velocity</module>
 		<module>chatcontrol-bungeecord</module>
+		<module>chatcontrol-bukkit</module>
 	</modules>
 
 	<repositories>

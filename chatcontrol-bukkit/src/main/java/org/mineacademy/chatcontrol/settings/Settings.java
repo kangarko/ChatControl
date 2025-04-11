@@ -1203,12 +1203,12 @@ public final class Settings extends SimpleSettings {
 
 	public static Boolean RULES_CASE_INSENSITIVE;
 	public static Boolean RULES_UNICODE;
-
 	public static Boolean MAKE_CHAT_LINKS_CLICKABLE;
 	public static Boolean FILTER_UNKNOWN_MINI_TAGS;
 	public static Boolean UUID_LOOKUP;
 	public static Tuple<EventPriority, Boolean> CHAT_LISTENER_PRIORITY;
 	public static Boolean SHOW_TIPS;
+	public static Boolean CLEAR_CACHE_ON_EXIT;
 	public static SimpleTime CLEAR_DATA_IF_INACTIVE;
 
 	private static void init() {
@@ -1237,8 +1237,12 @@ public final class Settings extends SimpleSettings {
 			modern = false;
 		}
 
+		if (priority.isEmpty())
+			throw new FoException("Chat_Listener_Priority is not set in settings.yml. Delete the key to let it regenerate to default.", false);
+
 		CHAT_LISTENER_PRIORITY = new Tuple<>(ReflectionUtil.lookupEnum(EventPriority.class, priority), modern);
 		SHOW_TIPS = getBoolean("Show_Tips");
+		CLEAR_CACHE_ON_EXIT = getBoolean("Clear_Cache_On_Exit");
 		CLEAR_DATA_IF_INACTIVE = getTime("Clear_Data_If_Inactive");
 
 		// Force register tools if regions are enabled

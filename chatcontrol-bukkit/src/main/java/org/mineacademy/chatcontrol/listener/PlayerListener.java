@@ -443,9 +443,10 @@ public final class PlayerListener implements Listener {
 		// Check anvil rules
 		if (event.getInventory().getType() == InventoryType.ANVIL && event.getSlotType() == InventoryType.SlotType.RESULT && currentItem.hasItemMeta() && currentItem.getItemMeta().hasDisplayName()) {
 			final ItemMeta meta = currentItem.getItemMeta();
+			final boolean enabledOnAnvil = Settings.Colors.APPLY_ON.contains(Colors.Type.ANVIL);
 
 			LogUtil.logOnce("anvil-colors", "Applying rules to Anvil. If you wish players to use colors on items, give them 'chatcontrol.use.color.anvil' permission.");
-			String itemName = Colors.removeColorsNoPermission(player, meta.getDisplayName(), Colors.Type.ANVIL);
+			String itemName = enabledOnAnvil ? Colors.removeColorsNoPermission(player, meta.getDisplayName(), Colors.Type.ANVIL) : meta.getDisplayName();
 
 			// Check mute
 			if (Mute.isSomethingMutedIf(Settings.Mute.PREVENT_ANVIL, wrapped)) {
@@ -461,15 +462,17 @@ public final class PlayerListener implements Listener {
 				if (check.isMessageChanged())
 					itemName = check.getMessage();
 
-				itemName = itemName.trim();
+				if (check.isMessageChanged() || enabledOnAnvil) {
+					itemName = itemName.trim();
 
-				if (CompChatColor.stripColorCodes(itemName).isEmpty())
-					throw new EventHandledException(true);
+					if (CompChatColor.stripColorCodes(itemName).isEmpty())
+						throw new EventHandledException(true);
 
-				meta.setDisplayName(SimpleComponent.fromMiniSection(itemName).toLegacySection());
+					meta.setDisplayName(SimpleComponent.fromMiniSection(itemName).toLegacySection());
 
-				currentItem.setItemMeta(meta);
-				event.setCurrentItem(currentItem);
+					currentItem.setItemMeta(meta);
+					event.setCurrentItem(currentItem);
+				}
 
 				// Send to spying players
 				if (!check.isSpyingIgnored())

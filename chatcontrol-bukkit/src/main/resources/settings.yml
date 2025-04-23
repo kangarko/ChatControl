@@ -605,6 +605,9 @@ Colors:
  
   # Where should we let players to use & or MiniMessage tags?
   # Available: anvil, book, chat, me, say, sign, prefix, nick, suffix, private_message
+  #
+  # [NOTICE] If anvil is enabled, we will always filter colors according to player's permission,
+  #          so custom items will lose their colors unless player has permissions to use them.
   Apply_On: []
 
 # -------------------------------------------------------------------------------------------------

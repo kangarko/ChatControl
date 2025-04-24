@@ -66,4 +66,4 @@ group swear
 # 1. Purchase our addon pack, that covers all commonly used English swear words! Get it here: https://builtbybit.com/resources/18217/
 # 2. Use our in-game rule creator in the "/chc rules" command.
 # 3. Use our web-based rules generator at https://app.mineacademy.org/chatcontrol-rules-generator
-# 4. Or learn about how to make rules at https://github.com/kangarko/ChatControl/wiki/Rules#making-efficient-rules
+# 4. Or learn about how to make rules at https://docs.mineacademy.org/chatcontrol/rules#making-efficient-rules

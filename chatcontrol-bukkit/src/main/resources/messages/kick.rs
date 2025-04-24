@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------------
 # Kick messages. Uses the same syntax as files in rules/ folder but operators
 # are slightly different. For documentation and a quick tutorial, see:
-# https://github.com/kangarko/ChatControl/wiki/messages
+# https://docs.mineacademy.org/chatcontrol/messages
 #
 # Files in messages/ folder are read from top to bottom. Using a true value in your settings file,
 # in the 'Stop_On_First_Match' part means that if you have multiple messages there,

@@ -3,7 +3,7 @@
 # !-----------------------------------------------------------------------------------------------!
 #
 #    - For support and documentation, please visit:
-#      - https://github.com/kangarko/ChatControl/wiki
+#      - https://docs.mineacademy.org/chatcontrol
 #
 #    - TO CUSTOMIZE MESSAGES in the plugin, type "/chc dumplocale". 
 #       - To hide a message, set it to 'none'.
@@ -14,10 +14,10 @@
 #       - To use HEX colors, use <#123456> syntax: "Hello <#123456>world."
 #
 #    - For UNICODE CHARACTERS (smileys, symbols, ..), save the file in UTF-8 encoding. See
-#       - https://github.com/kangarko/ChatControl/wiki/Use-Right-Encoding
+#       - https://docs.mineacademy.org/general/use-right-encoding
 #
 #    - JSON is supported.
-#       - For usage, see https://github.com/kangarko/ChatControl/wiki/JSON
+#       - For usage, see https://docs.mineacademy.org/chatcontrol/JSON
 #
 #    - WHITELISTS can be turned into blacklists, by putting "@blacklist" on the first line.
 #       - Doing such, filters will only apply for messages in those lists.
@@ -31,7 +31,7 @@
 # channel and give players autojoin permission, see the next tip.
 #
 # [TIP] To make players automatically join channels upon joining, see 
-#       https://github.com/kangarko/ChatControl/wiki/Channels#auto-join
+#       https://docs.mineacademy.org/chatcontrol/channels#auto-join
 # -------------------------------------------------------------------------------------------------
 Channels: 
   
@@ -72,7 +72,7 @@ Channels:
   Ranged_Channel_No_Near_Player_Delay: 3 seconds
   
   # Channels configuration. Add or remove channels as needed. See the link below for a tutorial: 
-  # https://github.com/kangarko/ChatControl/wiki/Channels
+  # https://docs.mineacademy.org/chatcontrol/channels
   #
   # Keys you can use in channels:
   #
@@ -129,14 +129,14 @@ Channels:
   #               local chat over your network. If not set, defaults to "proxy" option, see above.
   #
   # - Discord_Channel_Id: A numeric ID of your Discord channel to link this channel with, see:
-  #                       https://github.com/kangarko/ChatControl/wiki/Discord
+  #                       https://docs.mineacademy.org/chatcontrol/discord
   #
   # - Discord_Spy_Channel_Id: A numeric ID to override the one set in Spy.Discord section below for
   #                           chat. Set to -1 to exclude the channel from being logged to Discord.
   #
   # - Cancel_Event: true/false option. Set to true if you want this channel to be hidden from DynMap
   #                 or other plugins. You may need adjusting this: 
-  #                 https://github.com/kangarko/ChatControl/wiki/Listener-Priorities
+  #                 https://docs.mineacademy.org/chatcontrol/listener-priorities
   #
   # - Sound: A sound played to all players who read/write to the channel each time a message is posted.
   #          See Sound_Notify.Sound for help.
@@ -995,7 +995,7 @@ Spy:
 # Create groups to apply different settings from this file for different people.
 # You can create and remove sections below as needed.
 #
-# See https://github.com/kangarko/ChatControl/wiki/Groups for a quick tutorial.
+# See https://docs.mineacademy.org/chatcontrol/groups for a quick tutorial.
 # -------------------------------------------------------------------------------------------------
 Groups: 
   admin: 
@@ -1276,7 +1276,7 @@ Dynmap:
 # -------------------------------------------------------------------------------------------------
 # Sections that affects the plugin performance.
 #
-# [TIP] See https://github.com/kangarko/ChatControl/wiki/performance for optimization tips.
+# [TIP] See https://docs.mineacademy.org/chatcontrol/performance for optimization tips.
 # -------------------------------------------------------------------------------------------------
 Performance:
 
@@ -1340,7 +1340,7 @@ UUID_Lookup: true
 # -------------------------------------------------------------------------------------------------
 # The priority we format and check the chat with. By default, no need to modify.
 # Plugins which may require changing this: FactionsChat, BanManager, WorldGuard, InteractiveChat
-# See: https://github.com/kangarko/ChatControl/wiki/Listener-Priorities for help.
+# See: https://docs.mineacademy.org/chatcontrol/listener-priorities for help.
 #
 # DO NOT RELOAD WHEN CHANGING THIS - THIS IS UNSUPPORTED.
 #

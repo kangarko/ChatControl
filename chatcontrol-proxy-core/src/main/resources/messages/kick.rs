@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------------
 # Kick messages. Uses the same syntax as files in rules/ folder but operators
 # are slightly different. For documentation and a quick tutorial, see:
-# https://github.com/kangarko/ChatControl/wiki/messages
+# https://docs.mineacademy.org/chatcontrol/messages
 # ---------------------------------------------------------------------------------
 
 group kick_default

@@ -105,11 +105,11 @@ public final class TourSubCommand extends MainSubCommand {
 					" ",
 					" - &7messages/ folder: &fStores join, quit, death and timed",
 					"  broadcast messages you can customize completely. See:",
-					"  &o<click:open_url:'https://github.com/kangarko/ChatControl/wiki/Messages'>https://github.com/kangarko/ChatControl/wiki/Messages</click>",
+					"  &o<click:open_url:'https://docs.mineacademy.org/chatcontrol/messages'>https://docs.mineacademy.org/chatcontrol/messages</click>",
 					" ",
 					" - &7rules/ folder: &fStores filters for game eventy such as",
 					"  chat messages or commands. See:",
-					"  &o<click:open_url:'https://github.com/kangarko/ChatControl/wiki/Rules'>https://github.com/kangarko/ChatControl/wiki/Rules</click>",
+					"  &o<click:open_url:'https://docs.mineacademy.org/chatcontrol/rules'>https://docs.mineacademy.org/chatcontrol/rules</click>",
 					" ",
 					" - &7variables/ folder: &fStores JavaScript placeholders",
 					"  such as {player_rank} or [item] to be used in chat.",
@@ -135,7 +135,7 @@ public final class TourSubCommand extends MainSubCommand {
 					"&c> &7Links",
 					" ",
 					" - &7Docs: ",
-					"   &f&o<click:open_url:'https://github.com/kangarko/chatcontrol/wiki'>https://github.com/kangarko/chatcontrol/wiki",
+					"   &f&o<click:open_url:'https://docs.mineacademy.org/chatcontrol'>https://docs.mineacademy.org/chatcontrol",
 					" ",
 					" - &7Issues: ",
 					"   &f&o<click:open_url:'https://github.com/kangarko/chatcontrol/issues'>https://github.com/kangarko/chatcontrol/issues",
@@ -188,7 +188,7 @@ public final class TourSubCommand extends MainSubCommand {
 
 			pages.add(SimpleComponent.empty());
 			pages.add(SimpleComponent.fromPlain(" For more information, please visit:"));
-			pages.add(SimpleComponent.fromMiniNative(" <italic><click:open_url:'https://github.com/kangarko/chatcontrol/wiki/Hooks'>https://github.com/kangarko/chatcontrol/wiki/Hooks</click></italic>"));
+			pages.add(SimpleComponent.fromMiniNative(" <italic><click:open_url:'https://docs.mineacademy.org/chatcontrol/compatibility'>https://docs.mineacademy.org/chatcontrol/compatibility</click></italic>"));
 
 			new ChatPaginator(17)
 					.setFoundationHeader("Supported Plugins")
@@ -235,7 +235,7 @@ public final class TourSubCommand extends MainSubCommand {
 					" our tour process. Otherwise you will get no support.",
 					" ",
 					" &c> &7Please read now:",
-					" &f<click:open_url:'https://github.com/kangarko/chatcontrol/wiki/Terms'>https://github.com/kangarko/chatcontrol/wiki/Terms</click>",
+					" &f<click:open_url:'https://docs.mineacademy.org/chatcontrol/terms'>https://docs.mineacademy.org/chatcontrol/terms</click>",
 					" ",
 					" &c> &7If you need support, we're happy to help at this link:",
 					" &f<click:open_url:'https://github.com/kangarko/chatcontrol/issues'>https://github.com/kangarko/chatcontrol/issues</click>",

@@ -257,7 +257,7 @@ public final class ChatControl extends BukkitPlugin {
 		if (Settings.SHOW_TIPS)
 			CommonCore.log("",
 					"For documentation & tutorial, see:",
-					"&chttps://github.com/kangarko/chatcontrol/wiki",
+					"&chttps://docs.mineacademy.org/chatcontrol",
 					"",
 					"Loaded! Random joke: " + this.getRandomSplash(),
 					"");

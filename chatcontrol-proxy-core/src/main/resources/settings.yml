@@ -113,7 +113,7 @@ Integration:
     Enabled: true
 
     # The string used to get player's name, you can place all supported variables here from:
-    # https://github.com/kangarko/ChatControl/wiki/Variables#proxy--variables
+    # https://docs.mineacademy.org/chatcontrol/variables.html#proxy-variables
     Player_Name: "{player_nick}"
 
 # -------------------------------------------------------------------------------------------------

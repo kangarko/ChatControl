@@ -101,7 +101,7 @@ public final class Format extends YamlConfig {
 
 		for (final Entry<String, Object> entry : this.getMap("Parts", String.class, Object.class).entrySet()) {
 			if (entry.getValue() instanceof String) {
-				new IllegalArgumentException(this.getFileName() + " has invalid format part in Parts." + entry.getKey() + " - it cannot be a string! See https://github.com/kangarko/ChatControl/wiki/formats for configuration.").printStackTrace();
+				new IllegalArgumentException(this.getFileName() + " has invalid format part in Parts." + entry.getKey() + " - it cannot be a string! See https://docs.mineacademy.org/chatcontrol/formats for configuration.").printStackTrace();
 
 			} else
 				try {
@@ -703,7 +703,7 @@ public final class Format extends YamlConfig {
 				ValidCore.checkBoolean(FileUtil.getFile("images/" + part.imageFile).exists(), "Image file '" + part.imageFile + "' not found in images/ folder for part: " + part);
 
 			if (!map.isEmpty())
-				Common.warning("Format " + formatName + " has part '" + partName + "' with unrecognized keys '" + map.keySet() + "', see https://github.com/kangarko/chatcontrol/wiki/Formats for what keys you can use in formats.");
+				Common.warning("Format " + formatName + " has part '" + partName + "' with unrecognized keys '" + map.keySet() + "', see https://docs.mineacademy.org/chatcontrol/formats for what keys you can use in formats.");
 
 			return part;
 		}

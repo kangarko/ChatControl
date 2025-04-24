@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------------------------
 # This file applies rules to signs and includes rules from global.rs
 #
-# For help, see https://github.com/kangarko/ChatControl/wiki/Rules
+# For help, see https://docs.mineacademy.org/chatcontrol/rules
 #
 # PS: Use the {sign_lines} variable to get all sign lines, joined with a space.
 # -----------------------------------------------------------------------------------------------

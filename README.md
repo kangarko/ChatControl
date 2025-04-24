@@ -48,6 +48,6 @@ If you encounter any missing dependencies error, download the plugins manually a
 
 You have to purchase ChatControl to be eligible for customer support.
 
-1. Please read our **[Wiki](https://github.com/kangarko/ChatControl/wiki)** first before opening a ticket.
-2. See [Common Issues](https://github.com/kangarko/ChatControl/wiki/Common-Issues) whether your question or bug has already been answered.
-3. To open a ticket, please read the [Getting Help the Best Way](https://github.com/kangarko/ChatControl/wiki/Getting-Help-The-Right-Way).
+1. Please read our **[Wiki](https://docs.mineacademy.org/chatcontrol)** first before opening a ticket.
+2. See [Common Issues](https://docs.mineacademy.org/chatcontrol/common-issues) whether your question or bug has already been answered.
+3. To open a ticket, please read the [Getting Help the Best Way](https://docs.mineacademy.org/general/getting-help).

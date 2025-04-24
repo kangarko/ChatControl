@@ -6,7 +6,7 @@
 # Groups support all operators you would typically use on rules except:
 # ignore type
 #
-# For help, see https://github.com/kangarko/ChatControl/wiki/Rules
+# For help, see https://docs.mineacademy.org/chatcontrol/rules
 # -----------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------

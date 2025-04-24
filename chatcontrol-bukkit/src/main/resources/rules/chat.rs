@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------------------------
 # This file applies rules to chat messages and includes rules from global.rs.
 #
-# For help, see https://github.com/kangarko/ChatControl/wiki/Rules
+# For help, see https://docs.mineacademy.org/chatcontrol/rules
 # -----------------------------------------------------------------------------------------------
 
 @import global
@@ -220,7 +220,7 @@
 #then deny
 
 # Or you can create advanced bots saving and showing data (data is saved permanently)
-# See https://github.com/kangarko/ChatControl/wiki/Rules for a tutorial
+# See https://docs.mineacademy.org/chatcontrol/rules for a tutorial
 #match ^(\@bot name)$
 #ignore key name
 #then warn <dark_gray>[<light_purple>Bot<dark_gray>] <gray>Please enter your name.

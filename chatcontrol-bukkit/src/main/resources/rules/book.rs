@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------------------------
 # This file applies rules to book pages and titles and includes rules from global.rs.
 #
-# For help, see https://github.com/kangarko/ChatControl/wiki/Rules
+# For help, see https://docs.mineacademy.org/chatcontrol/rules
 # -----------------------------------------------------------------------------------------------
 
 @import global

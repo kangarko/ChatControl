@@ -5,7 +5,7 @@ contact_links:
     url: https://mineacademy.org/contact
     about: Send us an email in case of a billing or a payment related issue.
   - name: View common issues
-    url: https://github.com/kangarko/ChatControl/wiki/Common-Issues
+    url: https://docs.mineacademy.org/chatcontrol/common-issues
     about: Check the list of known common issues to see if it solves your problem.
   - name: Ask volunteers on Discord
     url: https://mineacademy.org/discord

@@ -238,13 +238,25 @@ public final class Colors {
 
 			return sender.hasPermission(Permissions.Color.ACTION + tag);
 
-		if (NamedTextColor.NAMES.value(tag) != null)
-			return hasAllColors || sender.hasPermission(Permissions.Color.COLOR + tag);
+		if (NamedTextColor.NAMES.value(tag) != null) {
+			final boolean canUse = sender.hasPermission(Permissions.Color.COLOR + tag);
+
+			if (!canUse)
+				return false;
+
+			return hasAllColors || canUse;
+		}
 
 		final String decoration = DECORATION_PERMISSIONS.get(tag);
 
-		if (decoration != null)
-			return hasAllDecorations || sender.hasPermission(Permissions.Color.COLOR + decoration);
+		if (decoration != null) {
+			final boolean canUse = sender.hasPermission(Permissions.Color.COLOR + decoration);
+
+			if (!canUse)
+				return false;
+
+			return hasAllDecorations || canUse;
+		}
 
 		if (Settings.FILTER_UNKNOWN_MINI_TAGS) {
 			Common.warning("Filtering unknown tag '" + tag + "' in message '" + message + "'. To allow it, set Filter_Unknown_Mini_Tags to false in settings.yml.");

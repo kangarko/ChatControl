@@ -103,6 +103,12 @@ public final class ChannelCommands extends SimpleCommandGroup {
 				final String name = channel.getName();
 				final ChannelMode mode = isPlayer ? cache.getChannelMode(channel) : null;
 
+				final String permissionPart = Permissions.Channel.JOIN.replace("{channel}", name);
+
+				// If the player does not have write nor read perm and is not in channel, hide the channel
+				if (!this.getAudience().hasPermission(permissionPart.replace("{mode}", "write")) && !this.getAudience().hasPermission(permissionPart.replace("{mode}", "read")) && mode == null)
+					continue;
+
 				SimpleComponent component = SimpleComponent.fromMiniNative("<gray> - " + (mode != null ? "<green>" : "<white>") + name + " ");
 
 				if (mode == null) {

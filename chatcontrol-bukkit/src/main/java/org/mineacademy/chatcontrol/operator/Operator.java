@@ -754,6 +754,8 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 	 */
 	public abstract static class OperatorCheck<T extends Operator> {
 
+		private static final Object LOCK = new Object();
+
 		/**
 		 * The message that is being altered
 		 */
@@ -1212,24 +1214,29 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 * @return
 		 */
 		protected Map<String, Object> prepareVariables(final WrappedSender sender, final T operator) {
-			final Map<String, Object> map = new HashMap<>();
+			synchronized (LOCK) {
+				final Map<String, Object> map = new HashMap<>();
 
-			if (this.wrappedSender.isPlayer())
-				for (final Map.Entry<String, Object> data : this.wrappedSender.getPlayerCache().getRuleData().entrySet())
-					map.put("data_" + data.getKey(), SerializeUtilCore.serialize(Language.YAML, data.getValue()).toString());
+				if (this.wrappedSender.isPlayer())
+					for (final Map.Entry<String, Object> data : this.wrappedSender.getPlayerCache().getRuleData().entrySet())
+						map.put("data_" + data.getKey(), SerializeUtilCore.serialize(Language.YAML, data.getValue()).toString());
 
-			final String message = CommonCore.getOrDefaultStrict(this.message, "");
+				final String message = CommonCore.getOrDefaultStrict(this.message, "");
 
-			try {
-				map.put("message", SimpleComponent.stripMiniMessageTags(message));
-				map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.stripMiniMessageTags(this.originalMessage));
-			} catch (final NoSuchMethodError err) {
-				// Really old, and using CraftBukkit
+				try {
+					map.put("message", SimpleComponent.stripMiniMessageTags(message));
+					map.put("original_message", this.originalMessage == null ? "" : SimpleComponent.stripMiniMessageTags(this.originalMessage));
+				} catch (final NoSuchMethodError err) {
+
+					// Really old, and using CraftBukkit
+					map.put("message", message);
+					map.put("original_message", this.originalMessage == null ? "" : this.originalMessage);
+				}
+
+				map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedSender.getUniqueId(), PlaceholderPrefix.SENDER));
+
+				return map;
 			}
-
-			map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedSender.getUniqueId(), PlaceholderPrefix.SENDER));
-
-			return map;
 		}
 
 		/**

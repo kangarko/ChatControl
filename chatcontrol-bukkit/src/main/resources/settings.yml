@@ -1289,11 +1289,12 @@ Performance:
   # Must be on true if you want to use variables in variables/ folder in the Value key.
   #
   # [WARNING] Imposes a 2x performance loss since we need to parse every variable twice.
+  # In some cases, you might also need to enable Support_Full_PlaceholderAPI_Syntax.
   Support_Variables_In_Variables: true
   
   # true = support both {syntax} and %syntax% placeholders, essentially /2X performance
   #        This also improves compatibility with plugins like ItemsAdder and TAB where 
-  #        %% syntax is required to keep both plugins compatible.
+  #        %% syntax is required to keep both plugins compatible, among other minor things.
   # false = support {syntax} PlaceholderAPI variables only using our own, optimized method
   Support_Full_PlaceholderAPI_Syntax: true
   

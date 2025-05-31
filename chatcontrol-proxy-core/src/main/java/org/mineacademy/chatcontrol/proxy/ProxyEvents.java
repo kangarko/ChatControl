@@ -99,8 +99,10 @@ public final class ProxyEvents {
 							"server", toServer,
 							"server_name", toServer,
 							"player_server_name", toServer)));
-				}
-			}
+				} else
+					Debugger.debug("player-message", "Skipping join message for " + player.getName() + " because the server is ignored.");
+			} else
+				Debugger.debug("player-message", "Skipping join message for " + player.getName() + " because the last server name was already set.");
 
 			final OutgoingMessage message = new OutgoingMessage(ChatControlProxyMessage.SERVER_ALIAS);
 
@@ -139,7 +141,7 @@ public final class ProxyEvents {
 				final String toServer = ProxySettings.getServerNameAlias(currentServer.getName());
 
 				if (!isSilent(fromServer)) {
-					Debugger.debug("player-message", "Detected " + player.getName() + " switch from " + fromServer + " to " + toServer + ", waiting for server data..");
+					Debugger.debug("player-message", "Detected " + player.getName() + " switch from " + fromServer + " to " + toServer + ", waiting for server data...");
 
 					pendingMessages.put(player.getUniqueId(), new Tuple<>(PlayerMessageType.SWITCH, CommonCore.newHashMap(
 							"from_server", fromServer,
@@ -148,8 +150,10 @@ public final class ProxyEvents {
 							"to_server", toServer,
 							"to_server_name", toServer,
 							"player_to_server_name", toServer)));
-				}
-			}
+				} else
+					Debugger.debug("player-message", "Skipping switch message for " + player.getName() + " because the server is ignored.");
+			} else
+				Debugger.debug("player-message", "Skipping switch message for " + player.getName() + " because the last server name was null.");
 		}
 	}
 

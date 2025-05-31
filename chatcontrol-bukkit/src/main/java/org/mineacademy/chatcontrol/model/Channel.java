@@ -561,7 +561,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			throw new EventHandledException(true, SimpleComponent.fromAmpersand("&cChannel " + this.name + " is using non-existing formatting '" + this.format + "&c'. Please contact administrator."));
 
 		// Build the component we send -- send the changed message from sound notify
-		SimpleComponent formattedComponent = format.build(sender, state.getVariables().placeholders());
+		SimpleComponent formattedComponent = format.build(sender, state.getVariables().placeholdersReadOnly());
 
 		// Build log
 		String consoleFormat = this.consoleFormat != null ? this.consoleFormat : Settings.Channels.FORMAT_CONSOLE;
@@ -599,7 +599,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 
 				Platform.runTaskAsync(() -> {
 					if (!check.isSpyingIgnored())
-						Spy.broadcastChannel(this, sender, chatComponent, Arrays.asList(sender.getUniqueId()), state.getVariables().placeholders(), check.isCancelledSilently());
+						Spy.broadcastChannel(this, sender, chatComponent, Arrays.asList(sender.getUniqueId()), state.getVariables().placeholdersReadOnly(), check.isCancelledSilently());
 
 					if (!check.isLoggingIgnored())
 						Log.logChannel(sender.getSender(), this, Lang.plain("command-spy-deny-silently") + chatMessageAsLegacy);
@@ -636,7 +636,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 								this.sound.play(receiver);
 
 					if (!check.isSpyingIgnored())
-						Spy.broadcastChannel(this, sender, chatComponent, CommonCore.convertList(receivers, Player::getUniqueId), state.getVariables().placeholders(), check.isCancelledSilently());
+						Spy.broadcastChannel(this, sender, chatComponent, CommonCore.convertList(receivers, Player::getUniqueId), state.getVariables().placeholdersReadOnly(), check.isCancelledSilently());
 
 					if (!check.isLoggingIgnored())
 						Log.logChannel(sender.getSender(), this, chatMessageAsLegacy);

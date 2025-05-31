@@ -10,7 +10,7 @@
 
 	<artifactId>chatcontrol-bukkit</artifactId>
 	<name>ChatControl</name>
-	<version>11.3.4</version>
+	<version>11.3.5</version>
 	
 	<properties>
 		<main.class>org.mineacademy.chatcontrol.ChatControl</main.class>

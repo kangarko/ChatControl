@@ -133,35 +133,37 @@ public final class Format extends YamlConfig {
 	 * Compile the format for the given message and his message, and insert given variables
 	 *
 	 * @param sender
-	 * @param placeholders
+	 * @param placeholder
 	 * @return
 	 */
-	public SimpleComponent build(final WrappedSender sender, @NonNull final Map<String, Object> placeholders) {
+	public SimpleComponent build(final WrappedSender sender, @NonNull final Map<String, Object> placeholder) {
 		SimpleComponent component = SimpleComponent.empty();
 		UUID messageId;
 		int index = 0;
 
-		if (!placeholders.containsKey("sender")) {
-			placeholders.put("sender", sender == null ? "" : sender.getName());
-			placeholders.put("sender_name", sender == null ? "" : sender.getName());
+		final Map<String, Object> placeholdersCopy = new HashMap<>(placeholder);
+
+		if (!placeholdersCopy.containsKey("sender")) {
+			placeholdersCopy.put("sender", sender == null ? "" : sender.getName());
+			placeholdersCopy.put("sender_name", sender == null ? "" : sender.getName());
 		}
 
 		if (sender != null && sender.isPlayer())
 			for (final Map.Entry<String, Object> data : sender.getPlayerCache().getRuleData().entrySet())
-				placeholders.put("data_" + data.getKey(), SerializeUtilCore.serialize(Language.YAML, data.getValue()).toString());
+				placeholdersCopy.put("data_" + data.getKey(), SerializeUtilCore.serialize(Language.YAML, data.getValue()).toString());
 
-		if (!placeholders.containsKey("message_uuid")) {
+		if (!placeholdersCopy.containsKey("message_uuid")) {
 			messageId = UUID.randomUUID();
 
-			placeholders.put("message_uuid", messageId.toString());
+			placeholdersCopy.put("message_uuid", messageId.toString());
 
 		} else {
-			final Object obj = placeholders.get("message_uuid");
+			final Object obj = placeholdersCopy.get("message_uuid");
 
 			messageId = obj instanceof UUID ? (UUID) obj : UUID.fromString(obj.toString());
 		}
 
-		final Variables variables = Variables.builder(sender != null ? sender.getAudience() : null).cache(true).placeholders(placeholders);
+		final Variables variables = Variables.builder(sender != null ? sender.getAudience() : null).cache(true).placeholders(placeholdersCopy);
 
 		for (final Part part : this.parts) {
 			SimpleComponent partComponent = null;
@@ -348,9 +350,9 @@ public final class Format extends YamlConfig {
 		public SimpleComponent build(final WrappedSender sender, final Variables variables) {
 
 			// Ugly hack for channel name to avoid having to parse variables in variables, we just hardcode support for this one
-			final String channelName = (String) variables.placeholders().getOrDefault("channel", "");
+			final String channelName = (String) variables.placeholdersReadOnly().getOrDefault("channel", "");
 
-			Object messageVariable = variables.placeholders().remove("message");
+			Object messageVariable = variables.removePlaceholder("message");
 
 			// Replace ItemsAdder inside the {message} placeholder
 			if (messageVariable != null && sender != null) {

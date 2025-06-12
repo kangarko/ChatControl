@@ -29,7 +29,7 @@ Visit [MineAcademy.org/ChatControl](https://mineacademy.org/chatcontrol) to purc
 
 <a href="https://buy.stripe.com/7sIg1QgQv9RC4ik6op">![Donate To ChatControl](https://i.imgur.com/vn1IUul.png)</a>
 
-Since purchases are one-time but life goes on and my expenses are monthly, please [consider donating to ChatControl to support its continued development here](https://buy.stripe.com/7sIg1QgQv9RC4ik6op).
+Please [consider donating to ChatControl to support its continued development here](https://buy.stripe.com/7sIg1QgQv9RC4ik6op).
 
 ## Compiling
 Please note that NO support is provided for the compilation process and for non-buyers. Consider purchasing the plugin to support its development, get our insider rank on our [Discord](https://mineacademy.org/discord) and get support.

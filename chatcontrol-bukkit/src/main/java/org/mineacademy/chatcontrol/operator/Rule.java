@@ -326,7 +326,7 @@ public class Rule extends RuleOperator {
 				strippedMessage = ruleEvaluated.isStripAccents() ? ChatUtil.replaceDiacritic(strippedMessage) : strippedMessage;
 
 				for (final Entry<Pattern, String> entry : rule.getBeforeReplace().entrySet())
-					messageMatched = entry.getKey().matcher(strippedMessage).replaceAll(entry.getValue());
+					messageMatched = entry.getKey().matcher(messageMatched).replaceAll(entry.getValue());
 			}
 
 			// Find group early

@@ -69,6 +69,9 @@ public final class PrivateMessage {
 		final Variables variables = Variables.builder(sender.getAudience());
 		final SimpleComponent messageComponent = variables.replaceMessageVariables(SimpleComponent.fromMiniSection(message));
 
+		// Resolve MESSAGE type placeholders such as "I hold an [item]"
+		message = messageComponent.toMini(null);
+
 		placeholders.put("message", messageComponent);
 		placeholders.putAll(receiverCache.getPlaceholders(PlaceholderPrefix.RECEIVER));
 		placeholders.putAll(SyncedCache.getPlaceholders(sender.getName(), sender.getUniqueId(), PlaceholderPrefix.SENDER));

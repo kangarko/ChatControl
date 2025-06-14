@@ -407,6 +407,11 @@ public final class DeathMessage extends PlayerMessage {
 		private final boolean killerIsDude;
 
 		/**
+		 * If the killer is NPC?
+		 */
+		private final boolean killerIsNPC;
+
+		/**
 		 * The killer type or null
 		 */
 		@Nullable
@@ -459,6 +464,7 @@ public final class DeathMessage extends PlayerMessage {
 			final Player player = wrapped.getPlayer();
 			this.killer = player.getKiller() != null ? player.getKiller() : player.getLastDamageCause() instanceof EntityDamageByEntityEvent ? ((EntityDamageByEntityEvent) player.getLastDamageCause()).getDamager() : null;
 			this.killerIsDude = this.killer instanceof Player;
+			this.killerIsNPC = HookManager.isNPC(this.killer);
 		}
 
 		/**
@@ -582,7 +588,7 @@ public final class DeathMessage extends PlayerMessage {
 			if (operator.isIgnoreNpc() && HookManager.isNPC(this.wrappedSender.getPlayer()))
 				return false;
 
-			if (killer != null) {
+			if (killer != null && !this.killerIsNPC) {
 				final WrappedSender wrappedKiller = WrappedSender.fromPlayer(killer);
 
 				// ----------------------------------------------------------------
@@ -824,7 +830,7 @@ public final class DeathMessage extends PlayerMessage {
 		 */
 		@Override
 		protected WrappedSender getMessagePlayerForVariables() {
-			return this.killer instanceof Player ? WrappedSender.fromPlayer((Player) this.killer) : this.wrappedSender;
+			return this.killer instanceof Player && !this.killerIsNPC ? WrappedSender.fromPlayer((Player) this.killer) : this.wrappedSender;
 		}
 
 		/**

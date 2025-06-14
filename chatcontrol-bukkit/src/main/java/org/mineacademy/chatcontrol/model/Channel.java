@@ -595,7 +595,13 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		// Send to players or the sender himself only if silently canceled
 		if (check.isCancelledSilently()) {
 			if (!formattedComponent.toPlain(sender.getAudience()).trim().isEmpty()) {
-				sender.getAudience().sendMessage(HookManager.replaceRelationPlaceholders(sender.getAudience(), sender.getAudience(), formattedComponent));
+
+				if (sender.isPlayer() && Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS)
+					sender.getAudience().sendMessage(
+							SimpleComponent.fromMiniSection(
+									HookManager.replaceRelationPlaceholders(sender.getPlayer(), sender.getPlayer(), formattedComponent.toMini())));
+				else
+					sender.getAudience().sendMessage(formattedComponent);
 
 				Platform.runTaskAsync(() -> {
 					if (!check.isSpyingIgnored())
@@ -616,12 +622,19 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 
 			for (final Player receiver : receivers) {
 				final FoundationPlayer receiverAudience = Platform.toPlayer(receiver);
-				final SimpleComponent replaced = HookManager.replaceRelationPlaceholders(sender.getAudience(), receiverAudience, formattedComponent);
 
-				if (!replaced.toPlain(receiverAudience).trim().isEmpty()) {
-					receiverAudience.sendMessage(replaced);
+				if (!sender.isPlayer() || !Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS) {
+					receiverAudience.sendMessage(formattedComponent);
 
 					atLeastOneSuccessfulSent = true;
+				} else {
+					final String replacedMini = HookManager.replaceRelationPlaceholders(sender.getPlayer(), receiver, formattedComponent.toMini());
+
+					if (!replacedMini.trim().isEmpty()) {
+						receiverAudience.sendMessage(SimpleComponent.fromMiniSection(replacedMini));
+
+						atLeastOneSuccessfulSent = true;
+					}
 				}
 			}
 

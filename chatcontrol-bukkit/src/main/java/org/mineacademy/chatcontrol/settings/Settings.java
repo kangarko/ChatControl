@@ -1186,6 +1186,7 @@ public final class Settings extends SimpleSettings {
 		public static Boolean SUPPORT_GRADIENTS_IN_HOVER;
 		public static Boolean SUPPORT_VARIABLES_IN_VARIABLES;
 		public static Boolean SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX;
+		public static Boolean SUPPORT_RELATIONAL_PLACEHOLDERS;
 		public static Boolean UPGRADE_HEX_TO_MINI_IN_VARIABLES;
 
 		private static void init() {
@@ -1194,6 +1195,7 @@ public final class Settings extends SimpleSettings {
 			SUPPORT_GRADIENTS_IN_HOVER = getBoolean("Support_Gradients_In_Hover");
 			SUPPORT_VARIABLES_IN_VARIABLES = getBoolean("Support_Variables_In_Variables");
 			SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX = getBoolean("Support_Full_PlaceholderAPI_Syntax");
+			SUPPORT_RELATIONAL_PLACEHOLDERS = getBoolean("Support_Relational_Placeholders");
 			UPGRADE_HEX_TO_MINI_IN_VARIABLES = getBoolean("Upgrade_Hex_To_Mini_In_Variables");
 
 			Variables.setDoubleParse(SUPPORT_VARIABLES_IN_VARIABLES);

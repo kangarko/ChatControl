@@ -1298,6 +1298,11 @@ Performance:
   # false = support {syntax} PlaceholderAPI variables only using our own, optimized method
   Support_Full_PlaceholderAPI_Syntax: true
   
+  # Support PlaceholderAPI {rel_X} variables such as relational faction color? Unfortunately
+  # due to Adventure limits we have to recompile the component for each player, which affects
+  # a lot of performance, so you can disable this option here if you do not use it.
+  Support_Relational_Placeholders: true
+  
   # Upgrade &#123456 color codes to <#123456> format in variables automatically?
   #
   # Starting ChatControl 11, we only recognize the MiniMessage format by default so you can

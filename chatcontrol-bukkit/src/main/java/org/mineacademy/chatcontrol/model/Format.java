@@ -170,6 +170,7 @@ public final class Format extends YamlConfig {
 
 			try {
 				partComponent = part.build(sender, variables);
+
 			} catch (final FoScriptException ex) {
 				ex.printStackTrace();
 			}

@@ -322,11 +322,11 @@ public class Rule extends RuleOperator {
 
 			// Prepare the message before checking, avoid calling compileMatcher in loop to save performance
 			{
-				String strippedMessage = ruleEvaluated.isStripColors() ? SimpleComponent.fromMiniNative(CompChatColor.stripColorCodes(messageMatched, true)).toPlain() : messageMatched;
-				strippedMessage = ruleEvaluated.isStripAccents() ? ChatUtil.replaceDiacritic(strippedMessage) : strippedMessage;
-
-				for (final Entry<Pattern, String> entry : rule.getBeforeReplace().entrySet())
+				for (final Entry<Pattern, String> entry : rule.getBeforeReplace().entrySet()) {
+					String strippedMessage = ruleEvaluated.isStripColors() ? SimpleComponent.fromMiniNative(CompChatColor.stripColorCodes(messageMatched, true)).toPlain() : messageMatched;
+					strippedMessage = ruleEvaluated.isStripAccents() ? ChatUtil.replaceDiacritic(strippedMessage) : strippedMessage;
 					messageMatched = entry.getKey().matcher(strippedMessage).replaceAll(entry.getValue());
+				}
 			}
 
 			// Find group early

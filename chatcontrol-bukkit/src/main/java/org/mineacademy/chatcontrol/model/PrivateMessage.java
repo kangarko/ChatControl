@@ -70,7 +70,7 @@ public final class PrivateMessage {
 		final SimpleComponent messageComponent = variables.replaceMessageVariables(SimpleComponent.fromMiniSection(message));
 
 		// Resolve MESSAGE type placeholders such as "I hold an [item]"
-		message = messageComponent.toMini(null);
+		message = messageComponent.toLegacySection(null);
 
 		placeholders.put("message", messageComponent);
 		placeholders.putAll(receiverCache.getPlaceholders(PlaceholderPrefix.RECEIVER));

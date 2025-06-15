@@ -377,7 +377,7 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 				"Require Sender Worlds", this.requireSenderWorlds,
 				"Require Sender Regions", this.requireSenderRegions,
 				"Require Sender Channels", this.requireSenderChannels,
-
+				
 				"Require Receiver Permission", this.requireReceiverPermission,
 				"Require Receiver Script", this.requireReceiverScript,
 				"Require Receiver Gamemodes", this.requireReceiverGamemodes,
@@ -395,7 +395,7 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 		"Ignore Sender Gamemodes", this.ignoreSenderGamemodes,
 		"Ignore Sender Worlds", this.ignoreSenderWorlds,
 		"Ignore Sender Channels", this.ignoreSenderChannels,
-
+		
 		"Ignore Receiver Permission", this.ignoreReceiverPermission,
 		"Ignore Receiver Regions", this.ignoreReceiverRegions,
 		"Ignore Receiver Script", this.ignoreReceiverScript,
@@ -535,8 +535,8 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 
 			Debugger.debug("operator", "CAN FILTER message " + operator.getUniqueName());
 
-			final String senderServerName = this.audience.isPlayer() ? this.audience.getServer().getName() : "";
-			final String receiverServerName = this.receiverAudience.isPlayer() ? this.receiverAudience.getServer().getName() : "";
+			final String senderServerName = this.audience.isPlayer() && this.audience.getServer() != null ? this.audience.getServer().getName() : "";
+			final String receiverServerName = this.receiverAudience.isPlayer() && this.receiverAudience.getServer() != null ? this.receiverAudience.getServer().getName() : "";
 
 			// ----------------------------------------------------------------
 			// Require

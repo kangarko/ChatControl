@@ -62,7 +62,7 @@ public final class Players {
 		final boolean firstTime = ((System.currentTimeMillis() - player.getFirstPlayed()) / 1000) < 5;
 		final int delayTicks = delay ? Settings.Motd.DELAY.getTimeTicks() : 3;
 
-		Platform.runTask(delayTicks, () -> {
+		Platform.runTaskAsync(delayTicks, () -> {
 			final String motd = firstTime ? Settings.Motd.FORMAT_MOTD_FIRST_TIME : Newcomer.isNewcomer(player) ? Settings.Motd.FORMAT_MOTD_NEWCOMER : Settings.Motd.FORMAT_MOTD.getFor(player);
 
 			if (!motd.isEmpty())

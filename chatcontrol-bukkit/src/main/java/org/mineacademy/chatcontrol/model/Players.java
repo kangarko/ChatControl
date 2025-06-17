@@ -56,25 +56,33 @@ public final class Players {
 	 * @param delay
 	 */
 	public static void showMotd(final WrappedSender wrapped, final boolean delay) {
+		final int delayTicks = delay ? Settings.Motd.DELAY.getTimeTicks() : 3;
+
+		if (Settings.Performance.ASYNC_MOTD)
+			Platform.runTaskAsync(delayTicks, () -> showMotd0(wrapped, delay));
+		else
+			Platform.runTask(delayTicks, () -> showMotd0(wrapped, delay));
+	}
+
+	/*
+	 * Actually perform the message of the day display.
+	 */
+	private static void showMotd0(final WrappedSender wrapped, final boolean delay) {
 		final Player player = wrapped.getPlayer();
 
 		// If player joined less than 5 seconds ago count as newcomer
 		final boolean firstTime = ((System.currentTimeMillis() - player.getFirstPlayed()) / 1000) < 5;
-		final int delayTicks = delay ? Settings.Motd.DELAY.getTimeTicks() : 3;
 
-		Platform.runTaskAsync(delayTicks, () -> {
+		// Do not show to players who already left
+		if (player.isOnline()) {
+			final String motd = firstTime ? Settings.Motd.FORMAT_MOTD_FIRST_TIME : Newcomer.isNewcomer(player) ? Settings.Motd.FORMAT_MOTD_NEWCOMER : Settings.Motd.FORMAT_MOTD.getFor(player);
 
-			// Do not show to players who already left
-			if (player.isOnline()) {
-				final String motd = firstTime ? Settings.Motd.FORMAT_MOTD_FIRST_TIME : Newcomer.isNewcomer(player) ? Settings.Motd.FORMAT_MOTD_NEWCOMER : Settings.Motd.FORMAT_MOTD.getFor(player);
+			if (!motd.isEmpty())
+				wrapped.getAudience().sendMessage(Format.parse(motd).build(wrapped));
 
-				if (!motd.isEmpty())
-					wrapped.getAudience().sendMessage(Format.parse(motd).build(wrapped));
-
-				if (!motd.isEmpty() || Settings.Motd.PLAY_SOUND_IF_NO_MESSAGE)
-					Settings.Motd.SOUND.play(player);
-			}
-		});
+			if (!motd.isEmpty() || Settings.Motd.PLAY_SOUND_IF_NO_MESSAGE)
+				Settings.Motd.SOUND.play(player);
+		}
 	}
 
 	/**

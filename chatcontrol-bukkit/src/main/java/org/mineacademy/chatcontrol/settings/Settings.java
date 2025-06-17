@@ -1188,6 +1188,7 @@ public final class Settings extends SimpleSettings {
 		public static Boolean SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX;
 		public static Boolean SUPPORT_RELATIONAL_PLACEHOLDERS;
 		public static Boolean UPGRADE_HEX_TO_MINI_IN_VARIABLES;
+		public static Boolean ASYNC_MOTD;
 
 		private static void init() {
 			setPathPrefix("Performance");
@@ -1197,6 +1198,7 @@ public final class Settings extends SimpleSettings {
 			SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX = getBoolean("Support_Full_PlaceholderAPI_Syntax");
 			SUPPORT_RELATIONAL_PLACEHOLDERS = getBoolean("Support_Relational_Placeholders");
 			UPGRADE_HEX_TO_MINI_IN_VARIABLES = getBoolean("Upgrade_Hex_To_Mini_In_Variables");
+			ASYNC_MOTD = getBoolean("Async_Motd");
 
 			Variables.setDoubleParse(SUPPORT_VARIABLES_IN_VARIABLES);
 			Variables.setConvertHexToMini(UPGRADE_HEX_TO_MINI_IN_VARIABLES);

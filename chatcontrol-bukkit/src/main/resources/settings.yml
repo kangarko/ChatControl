@@ -1309,6 +1309,12 @@ Performance:
   # enable this option for legacy compatibility. Imposes a minor performance penalty.
   Upgrade_Hex_To_Mini_In_Variables: true
 
+  # Send message of the day on an asynchronous thread? Enable if you display player avatars or
+  # connect to external urls in the motd format. 
+  # WARNING: Running async with custom variables accessing Bukkit APIs can have side effects or
+  # throw a console error, this is outside of our control.
+  Async_Motd: false 
+
 # -------------------------------------------------------------------------------------------------
 # The command aliases for our the main plugin command. There must be at least one in the list.
 # -------------------------------------------------------------------------------------------------

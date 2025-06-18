@@ -36,6 +36,13 @@ public abstract class Party {
 		};
 	};
 
+	public static final Party FACTION_ALLY = new Party("factions-ally") {
+		@Override
+		public boolean isInParty(Player receiver, Player sender) {
+			return HookManager.getOnlineFactionPlayers(sender).contains(receiver) || HookManager.getAlliedFactionPlayers(sender).contains(receiver);
+		}
+	};
+
 	/**
 	 * Chat for PlotSquared - only shown to players inside the plot.
 	 */

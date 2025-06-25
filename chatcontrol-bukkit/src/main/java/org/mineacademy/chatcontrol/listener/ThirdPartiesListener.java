@@ -376,7 +376,7 @@ final class EssentialsListener implements Listener {
 	 */
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
 	public void onNickChange(final NickChangeEvent event) {
-		final IUser player = event.getAffected();
+		final IUser player = event.getController();
 		final String newNick = event.getValue();
 
 		if (Settings.Tag.BACKWARD_COMPATIBLE) {

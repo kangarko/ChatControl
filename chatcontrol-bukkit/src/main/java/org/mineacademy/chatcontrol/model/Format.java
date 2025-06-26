@@ -509,7 +509,9 @@ public final class Format extends YamlConfig {
 					final String text = message.substring(to + 1, end);
 
 					parts.add(beforeGradient + gradient + variables.replaceLegacy(text));
-					start = end + "</gradient>".length();
+
+					// Commented due to causing issues with gradients
+					start = end/* + "</gradient>".length()*/;
 				}
 
 				parts.add(message.substring(start));

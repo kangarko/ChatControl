@@ -620,26 +620,39 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			// Sender/Receiver condition might prevent sending to anyone
 			boolean atLeastOneSuccessfulSent = false;
 
-			for (final Player receiver : receivers) {
-				final FoundationPlayer receiverAudience = Platform.toPlayer(receiver);
+			if (!sender.isDiscord() && this.proxy && Settings.Proxy.ENABLED) {
+				atLeastOneSuccessfulSent = true;
 
-				if (!sender.isPlayer() || !Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS) {
-					receiverAudience.sendMessage(formattedComponent);
+				ProxyUtil.sendPluginMessage(ChatControlProxyMessage.CHANNEL,
+						this.name,
+						sender.getName(),
+						sender.getUniqueId(),
+						ProxyChat.getProxyPrefix().append(formattedComponent),
+						CommonCore.getOrEmpty(consoleFormat),
+						sender.hasPermission(Permissions.Bypass.MUTE),
+						sender.hasPermission(Permissions.Bypass.REACH),
+						sender.hasPermission(Permissions.Bypass.LOG));
+			} else
+				for (final Player receiver : receivers) {
+					final FoundationPlayer receiverAudience = Platform.toPlayer(receiver);
 
-					atLeastOneSuccessfulSent = true;
-				} else {
-					final String replacedMini = HookManager.replaceRelationPlaceholders(sender.getPlayer(), receiver, formattedComponent.toMini(receiverAudience));
-
-					if (!replacedMini.trim().isEmpty()) {
-						receiverAudience.sendMessage(SimpleComponent.fromMiniSection(replacedMini));
+					if (!sender.isPlayer() || !Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS) {
+						receiverAudience.sendMessage(formattedComponent);
 
 						atLeastOneSuccessfulSent = true;
+					} else {
+						final String replacedMini = HookManager.replaceRelationPlaceholders(sender.getPlayer(), receiver, formattedComponent.toMini(receiverAudience));
+
+						if (!replacedMini.trim().isEmpty()) {
+							receiverAudience.sendMessage(SimpleComponent.fromMiniSection(replacedMini));
+
+							atLeastOneSuccessfulSent = true;
+						}
 					}
 				}
-			}
 
 			if (atLeastOneSuccessfulSent) {
-				final String finalConsoleFormat = consoleFormat;
+
 				final SimpleComponent finalFormattedComponent = formattedComponent;
 
 				Platform.runTaskAsync(() -> {
@@ -672,16 +685,6 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 							Discord.getInstance().markReceivedMessage(this.discordChannelId, sender.getDiscordSender(), formatedComponentAsJson);
 					}
 
-					if (!sender.isDiscord() && this.proxy && Settings.Proxy.ENABLED)
-						ProxyUtil.sendPluginMessage(ChatControlProxyMessage.CHANNEL,
-								this.name,
-								sender.getName(),
-								sender.getUniqueId(),
-								ProxyChat.getProxyPrefix().append(finalFormattedComponent),
-								CommonCore.getOrEmpty(finalConsoleFormat),
-								sender.hasPermission(Permissions.Bypass.MUTE),
-								sender.hasPermission(Permissions.Bypass.REACH),
-								sender.hasPermission(Permissions.Bypass.LOG));
 				});
 			}
 		}
@@ -844,9 +847,9 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		}
 
 		// Avoid sending doubled message to sender himself
-		final Predicate<Player> filter = recipient -> recipient.getUniqueId().equals(senderUid);
+		/*final Predicate<Player> filter = recipient -> recipient.getUniqueId().equals(senderUid);
 		receivers.removeIf(filter);
-		hiddenReceivers.removeIf(filter);
+		hiddenReceivers.removeIf(filter);*/
 
 		if (Settings.Mute.ENABLED && (ServerSettings.getInstance().isMuted() || (ServerSettings.isProxyLoaded() && ServerSettings.getProxy().isMuted()) || this.isMuted()) && !muteBypass)
 			return;

@@ -104,6 +104,11 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 			Debugger.debug("proxy", "Received proxy packet " + this.packet + " from server " + this.server);
 
 		if (this.packet == ChatControlProxyMessage.CHANNEL) {
+
+			// Avoids processing proxy messages in the same server it was sent from, to avoid duplicate messages and unnecessary proxy prefix
+			if (input.getServerName().equalsIgnoreCase(Platform.getCustomServerName()))
+				return;
+
 			final String channelName = input.readString();
 			final String senderName = input.readString();
 			final UUID senderUUID = input.readUUID();

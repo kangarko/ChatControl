@@ -1,4 +1,8 @@
 # ---------------------------------------------------------------------------------
+#
+# YOU MUST PUT "timed" TO "Messages.Apply_On" IN SETTINGS.YML FIRST OTHERWISE
+# THIS FILE WILL NOT WORK!
+#
 # Timed messages broadcaster. Uses the same syntax as files in rules/ folder but
 # operators are slightly different. For documentation and a quick tutorial, see:
 # https://docs.mineacademy.org/chatcontrol/messages

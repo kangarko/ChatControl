@@ -1,4 +1,8 @@
 # ---------------------------------------------------------------------------------
+#
+# YOU MUST PUT "join" TO "Messages.Apply_On" IN SETTINGS.YML FIRST OTHERWISE
+# THIS FILE WILL NOT WORK!
+#
 # Join messages. Uses the same syntax as files in rules/ folder but operators
 # are slightly different. For documentation and a quick tutorial, see:
 # https://docs.mineacademy.org/chatcontrol/messages

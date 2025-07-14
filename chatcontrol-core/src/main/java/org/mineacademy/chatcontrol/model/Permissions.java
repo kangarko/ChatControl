@@ -245,6 +245,9 @@ public final class Permissions {
 
 		@Permission("Prevent player actions from being spied upon. Append chat, command, private_message, mail, sígn, book or anvil at the end.")
 		public static final String SPY_TYPE = "chatcontrol.bypass.spy.";
+
+		@Permission("See all network players when tab completing even if Enable_Network_Tab_Completion is disabled.")
+		public static final String NETWORK_TAB_COMPLETING = "chatcontrol.bypass.network.tabcomplete";
 	}
 
 	@PermissionGroup("Permissions for chat channels.")

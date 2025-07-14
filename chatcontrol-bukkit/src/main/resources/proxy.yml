@@ -17,3 +17,7 @@ Prefix: "<dark_gray>[<yellow>{server_name}<dark_gray>] <gray>"
 # **WARNING** If using proxy, this must match the server name you have in velocity.toml or 
 #             BungeeControl's config.yml, NOT your server alias in BungeeControl or VelocityControl.
 Server_Name: ''
+
+# Disable including players from other servers in tab completion
+# for senders who lack chatcontrol.bypass.network.tabcomplete permission?
+Enable_Network_Tab_Completion: true

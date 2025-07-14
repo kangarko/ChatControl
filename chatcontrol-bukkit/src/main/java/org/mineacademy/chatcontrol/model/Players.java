@@ -245,7 +245,7 @@ public final class Players {
 	 * @return
 	 */
 	public static Set<String> getPlayerNamesForTabComplete(final boolean includeVanished) {
-		return compilesPlayers(includeVanished, Settings.TabComplete.USE_NICKNAMES);
+		return compilesPlayers(includeVanished, Proxy.ENABLE_NETWORK_TAB_COMPLETING, Settings.TabComplete.USE_NICKNAMES);
 	}
 
 	/**
@@ -257,22 +257,23 @@ public final class Players {
 	 * @return
 	 */
 	public static Set<String> getPlayerNamesForTabComplete(@NonNull final CommandSender requester) {
-		final boolean includeVanished = requester.hasPermission(Permissions.Bypass.VANISH);
+		final boolean includeVanished = requester.hasPermission(Permissions.Bypass.VANISH),
+				includeNetwork = Proxy.ENABLE_NETWORK_TAB_COMPLETING || requester.hasPermission(Permissions.Bypass.NETWORK_TAB_COMPLETING);
 
-		return compilesPlayers(includeVanished, Settings.TabComplete.USE_NICKNAMES);
+		return compilesPlayers(includeVanished, includeNetwork, Settings.TabComplete.USE_NICKNAMES);
 	}
 
 	/*
 	 * Compile a list of players
 	 */
-	private static Set<String> compilesPlayers(final boolean includeVanished, final boolean preferNicknames) {
+	private static Set<String> compilesPlayers(final boolean includeVanished, final boolean includeNetwork, final boolean preferNicknames) {
 		final Set<String> players = (preferNicknames ? playerNicknames : playerNames).getOrDefault(includeVanished, new TreeSet<>());
 
 		if (!players.isEmpty())
 			return players;
 
 		// Add players from the network
-		if (Proxy.ENABLED)
+		if (Proxy.ENABLED && includeNetwork)
 			for (final SyncedCache cache : SyncedCache.getCaches())
 				if (includeVanished || !cache.isVanished())
 					players.add(preferNicknames ? cache.getNameOrNickColorless() : cache.getPlayerName());

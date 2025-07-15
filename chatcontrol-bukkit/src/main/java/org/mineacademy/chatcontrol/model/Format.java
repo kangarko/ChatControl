@@ -10,10 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.chatcontrol.model.Packets.RemoveMode;
-import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.CommonCore;
@@ -545,17 +543,11 @@ public final class Format extends YamlConfig {
 						.replace("{sender}", sender == null ? "" : sender.getName())
 						.replace("{sender_name}", sender == null ? "" : sender.getName())));
 
-			final boolean gradientSupport = Settings.Performance.SUPPORT_GRADIENTS_IN_HOVER;
-
-			variables.toLegacyMode(gradientSupport ? ToLegacyMode.MINI : ToLegacyMode.LEGACY);
+			variables.toLegacyMode(ToLegacyMode.MINI);
 
 			if (this.hoverText != null && !this.hoverText.isEmpty()) {
 				String replacedHoverText = "<gray>" + variables.replaceLegacy(this.hoverText);
-
-				if (gradientSupport)
-					replacedHoverText = CompChatColor.convertLegacyToMini(replacedHoverText, true);
-				else
-					replacedHoverText = CompChatColor.convertMiniToLegacy(ChatColor.translateAlternateColorCodes('&', replacedHoverText));
+				replacedHoverText = CompChatColor.convertLegacyToMini(replacedHoverText, true);
 
 				final String[] lines = replacedHoverText.split("\n");
 
@@ -573,10 +565,7 @@ public final class Format extends YamlConfig {
 						// Really old, and using CraftBukkit
 					}
 
-					if (gradientSupport)
-						joined = joined.append(SimpleComponent.deserializeMiniToAdventure(line));
-					else
-						joined = joined.append(Component.text(line));
+					joined = joined.append(SimpleComponent.deserializeMiniToAdventure(line));
 
 					if (i < lines.length - 1)
 						joined = joined.append(Component.newline());

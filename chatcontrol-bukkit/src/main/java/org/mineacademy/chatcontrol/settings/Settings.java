@@ -1183,7 +1183,6 @@ public final class Settings extends SimpleSettings {
 	 */
 	public static class Performance {
 
-		public static Boolean SUPPORT_GRADIENTS_IN_HOVER;
 		public static Boolean SUPPORT_VARIABLES_IN_VARIABLES;
 		public static Boolean SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX;
 		public static Boolean SUPPORT_RELATIONAL_PLACEHOLDERS;
@@ -1193,7 +1192,6 @@ public final class Settings extends SimpleSettings {
 		private static void init() {
 			setPathPrefix("Performance");
 
-			SUPPORT_GRADIENTS_IN_HOVER = getBoolean("Support_Gradients_In_Hover");
 			SUPPORT_VARIABLES_IN_VARIABLES = getBoolean("Support_Variables_In_Variables");
 			SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX = getBoolean("Support_Full_PlaceholderAPI_Syntax");
 			SUPPORT_RELATIONAL_PLACEHOLDERS = getBoolean("Support_Relational_Placeholders");

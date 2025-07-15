@@ -1278,10 +1278,7 @@ Dynmap:
 #
 # [TIP] See https://docs.mineacademy.org/chatcontrol/performance for optimization tips.
 # -------------------------------------------------------------------------------------------------
-Performance:
-
-  # false = 1.5x rendering performance increase but no gradient support
-  Support_Gradients_In_Hover: true
+Performance: 
   
   # Support nested variables? For example if your {luckperms_prefix} variable
   # returns an ItemsAdder variable, enable this if no better design is possible.

@@ -77,7 +77,6 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static String PREFIX;
-		public static Boolean ENABLE_NETWORK_TAB_COMPLETING;
 
 		private static void init() {
 			// Handled in the main init() to ensure first priority
@@ -467,6 +466,7 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static Boolean PROXY;
+		public static Boolean ALLOW_CROSS_SERVER_TAB_COMPLETE;
 		public static Boolean TOASTS;
 		public static SimpleSound SOUND;
 		public static Boolean AUTOMODE;
@@ -488,6 +488,7 @@ public final class Settings extends SimpleSettings {
 
 			ENABLED = getBoolean("Enabled");
 			PROXY = getBoolean("Proxy");
+			ALLOW_CROSS_SERVER_TAB_COMPLETE = getBoolean("Allow_Cross_Server_Tab_Complete");
 			TOASTS = getBoolean("Toasts");
 			SOUND = get("Sound", SimpleSound.class);
 			AUTOMODE = getBoolean("Auto_Mode");
@@ -1283,7 +1284,6 @@ public final class Settings extends SimpleSettings {
 
 		Proxy.ENABLED = proxyConfig.getBoolean("Enabled");
 		Proxy.PREFIX = proxyConfig.getString("Prefix");
-		Proxy.ENABLE_NETWORK_TAB_COMPLETING = proxyConfig.getBoolean("Enable_Network_Tab_Completion");
 
 		try {
 			Platform.setCustomServerName(proxyConfig.getString("Server_Name"));

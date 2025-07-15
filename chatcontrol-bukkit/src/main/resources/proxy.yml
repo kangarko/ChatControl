@@ -17,10 +17,3 @@ Prefix: "<dark_gray>[<yellow>{server_name}<dark_gray>] <gray>"
 # **WARNING** If using proxy, this must match the server name you have in velocity.toml or 
 #             BungeeControl's config.yml, NOT your server alias in BungeeControl or VelocityControl.
 Server_Name: ''
-
-# Controls whether player username tab-completion includes players from the entire proxy network.
-#
-# If set to true, all players will be able to tab-complete usernames of players across all servers.
-# If set to false, only players with the 'chatcontrol.bypass.network.tabcomplete' permission
-# will see players from other servers in tab-completion. Others will only see players from their current server.
-Enable_Network_Tab_Completion: true

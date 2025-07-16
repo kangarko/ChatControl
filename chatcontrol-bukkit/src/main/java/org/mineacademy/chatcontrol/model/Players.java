@@ -241,11 +241,15 @@ public final class Players {
 	 * of their names or nicknames according to Tab_Complete.Use_Nicknames setting.
 	 * Vanished players are included only if receiver has bypass reach permission.
 	 *
+	 * includeNetwork parameter is hardcoded to true in the compilePlayers method
+	 * because this was the default behavior before this parameter was added.
+	 * This means this function will return players from all network.
+	 *
 	 * @param includeVanished
 	 * @return
 	 */
 	public static Set<String> getPlayerNamesForTabComplete(final boolean includeVanished) {
-		return compilesPlayers(includeVanished, Settings.TabComplete.USE_NICKNAMES);
+		return compilesPlayers(includeVanished, true, Settings.TabComplete.USE_NICKNAMES);
 	}
 
 	/**
@@ -256,23 +260,33 @@ public final class Players {
 	 * @param requester
 	 * @return
 	 */
-	public static Set<String> getPlayerNamesForTabComplete(@NonNull final CommandSender requester) {
-		final boolean includeVanished = requester.hasPermission(Permissions.Bypass.VANISH);
+	public static Set<String> getPlayerNamesForTabComplete(@NonNull final CommandSender requester, final boolean ignoreNetwork) {
+		final boolean includeVanished = requester.hasPermission(Permissions.Bypass.VANISH),
+				includeNetwork = !ignoreNetwork || requester.hasPermission(Permissions.Bypass.NETWORK_TAB_COMPLETING);
 
-		return compilesPlayers(includeVanished, Settings.TabComplete.USE_NICKNAMES);
+		return compilesPlayers(includeVanished, includeNetwork, Settings.TabComplete.USE_NICKNAMES);
+	}
+
+	/*
+	 * ignoreNetwork parameter is hardcoded to false in the getPlayerNamesForTabComplete
+	 * method because this was the default behavior before this parameter was added.
+	 * This means this function will return players from all network.
+	 */
+	public static Set<String> getPlayerNamesForTabComplete(@NonNull final CommandSender requester) {
+		return getPlayerNamesForTabComplete(requester, false);
 	}
 
 	/*
 	 * Compile a list of players
 	 */
-	private static Set<String> compilesPlayers(final boolean includeVanished, final boolean preferNicknames) {
+	private static Set<String> compilesPlayers(final boolean includeVanished, final boolean includeNetwork, final boolean preferNicknames) {
 		final Set<String> players = (preferNicknames ? playerNicknames : playerNames).getOrDefault(includeVanished, new TreeSet<>());
 
 		if (!players.isEmpty())
 			return players;
 
 		// Add players from the network
-		if (Proxy.ENABLED)
+		if (Proxy.ENABLED && includeNetwork)
 			for (final SyncedCache cache : SyncedCache.getCaches())
 				if (includeVanished || !cache.isVanished())
 					players.add(preferNicknames ? cache.getNameOrNickColorless() : cache.getPlayerName());

@@ -14,6 +14,8 @@ import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.ProxyUtil;
 import org.mineacademy.fo.model.SimpleComponent;
+import org.mineacademy.fo.platform.FoundationPlayer;
+import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.settings.Lang;
 
 public final class SendFormatSubCommand extends MainSubCommand {
@@ -50,8 +52,6 @@ public final class SendFormatSubCommand extends MainSubCommand {
 		final String playerName = this.args[reload ? 2 : 1];
 		String message = this.joinArgs(reload ? 3 : 2);
 
-		final Player target = this.findPlayer(playerName);
-
 		if (playerName == null) {
 			this.checkBoolean(Settings.Database.isRemote(), Lang.component("command-remote-database-required"));
 			this.checkBoolean(SyncedCache.isPlayerNameConnected(playerName), Lang.component("player-not-connected-proxy", "player", playerName));
@@ -68,6 +68,22 @@ public final class SendFormatSubCommand extends MainSubCommand {
 		final Format format = Format.findFormat(formatName);
 		this.checkNotNull(format, "No such format: '" + formatName + "'. Available: " + Format.getFormatNames());
 
+		if("all".equals(playerName)) {
+			for(final FoundationPlayer audience : Platform.getOnlinePlayers()) {
+				final Player target = audience.getPlayer();
+				if(target != null)
+					this.sendFormat(target, format, message, false);
+			}
+			this.tellSuccess("Sent format '" + formatName + "' to all online players.");
+			return;
+		}
+
+		final Player target = this.findPlayer(playerName);
+
+		this.sendFormat(target, format, message, true);
+	}
+
+	private void sendFormat(final Player target, final Format format, String message, final boolean senderFeedback) {
 		final WrappedSender wrappedTarget = WrappedSender.fromSender(target);
 
 		message = Colors.removeColorsNoPermission(target, message, Colors.Type.CHAT);
@@ -76,7 +92,7 @@ public final class SendFormatSubCommand extends MainSubCommand {
 
 		wrappedTarget.getAudience().sendMessage(component);
 
-		if (!target.getName().equals(this.getSender().getName()))
+		if (senderFeedback && !target.getName().equals(this.getSender().getName()))
 			this.tellSuccess(SimpleComponent.fromPlain(target.getName() + " received message: ").append(component));
 	}
 
@@ -96,11 +112,17 @@ public final class SendFormatSubCommand extends MainSubCommand {
 			if (reload) {
 				if (argsLength == 2)
 					return this.completeLastWord(Format.getFormatNames());
-				else
-					return this.completeLastWordPlayerNames();
+				else {
+					final List<String> playerNames = this.completeLastWordPlayerNames();
+					playerNames.add("all");
+					return playerNames;
+				}
 
-			} else if (argsLength == 2)
-				return this.completeLastWordPlayerNames();
+			} else if (argsLength == 2) {
+				final List<String> playerNames = this.completeLastWordWorldNames();
+				playerNames.add("all");
+				return playerNames;
+			}
 		}
 
 		return NO_COMPLETE;

@@ -466,6 +466,7 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static Boolean PROXY;
+		public static Boolean ALLOW_CROSS_SERVER_TAB_COMPLETE;
 		public static Boolean TOASTS;
 		public static SimpleSound SOUND;
 		public static Boolean AUTOMODE;
@@ -487,6 +488,7 @@ public final class Settings extends SimpleSettings {
 
 			ENABLED = getBoolean("Enabled");
 			PROXY = getBoolean("Proxy");
+			ALLOW_CROSS_SERVER_TAB_COMPLETE = getBoolean("Allow_Cross_Server_Tab_Complete");
 			TOASTS = getBoolean("Toasts");
 			SOUND = get("Sound", SimpleSound.class);
 			AUTOMODE = getBoolean("Auto_Mode");

@@ -138,6 +138,10 @@ public final class ChatControlCommands extends SimpleCommandGroup {
 			return CommonCore.tabComplete(this.getLastArg(), Players.getPlayerNamesForTabComplete(this.getSender()));
 		}
 
+		public final List<String> completeLastWordPlayerNames(boolean includeNetwork) {
+			return CommonCore.tabComplete(this.getLastArg(), Players.getPlayerNamesForTabComplete(this.getSender(), !includeNetwork));
+		}
+
 		/**
 		 * @see org.mineacademy.fo.command.SimpleCommand#findPlayerInternal(java.lang.String)
 		 */

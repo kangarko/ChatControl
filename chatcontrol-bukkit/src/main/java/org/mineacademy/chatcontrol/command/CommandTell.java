@@ -111,6 +111,6 @@ public final class CommandTell extends ChatControlCommand {
 	 */
 	@Override
 	protected List<String> tabComplete() {
-		return this.args.length == 1 ? this.completeLastWordPlayerNames() : NO_COMPLETE;
+		return this.args.length == 1 ? this.completeLastWordPlayerNames(Settings.PrivateMessages.ALLOW_CROSS_SERVER_TAB_COMPLETE) : NO_COMPLETE;
 	}
 }

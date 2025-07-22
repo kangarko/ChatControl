@@ -495,7 +495,14 @@ Private_Messages:
   
   # Should we send private messages to players on another server? Enable proxy in proxy.yml first.
   Proxy: true
-  
+
+  # Controls whether player username tab-completion includes players from the entire proxy network.
+  #
+  # If set to true, all players will be able to tab-complete usernames of players across all servers.
+  # If set to false, only players with the 'chatcontrol.bypass.network.tabcomplete' permission
+  # will see players from other servers in tab-completion. Others will only see players from their current server.
+  Allow_Cross_Server_Tab_Complete: true
+
   # Send message as an advancement? Requires Minecraft 1.12+. Imposes a performance penaulty.
   Toasts: false
   

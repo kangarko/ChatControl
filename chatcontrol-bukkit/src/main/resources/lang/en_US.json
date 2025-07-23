@@ -490,7 +490,7 @@
   "command-mail-send-fail-ignore": "Cannot send mail to {player} because the player is ignoring you.",
   "command-mail-send-fail-toggle": "Cannot send mail to {player} because the player has toggled mails off.",
   "command-mail-send-success": "Email successfully sent!",
-  "command-mail-usage": "<new/send/inbox/sent>",
+  "command-mail-usage": "<new/send/autor/inbox/sent>",
   "command-mail-usages": [
     "/{label} new <gray>- Draft a new mail.",
     "/{label} send <player/anotherPlayer> <gray>- Send a mail.",
@@ -521,7 +521,7 @@
   "command-message-reloaded": "Reloaded all messages from the messages/ folder.",
   "command-message-toggle-off": "{type} message {group} has been <red>disabled<gray>.",
   "command-message-toggle-on": "{type} message {group} has been <green>enabled<gray>.",
-  "command-message-usage": "<list/toggle/info/reload> <type> [group]",
+  "command-message-usage": "<list/toggle/run/info/reload> <type> [group]",
   "command-message-usages": [
     "/{label} {sublabel} list <type> <gray>- Print all messages.",
     "/{label} {sublabel} list <type> <group> <gray>- Print messages from a group.",
@@ -755,12 +755,13 @@
   "command-spy-type-private-message": "private messages",
   "command-spy-type-sign": "signs",
   "command-spy-type-sound-notify": "sound notifications",
-  "command-spy-usage": "<status/menu/off/toggle/list> [player] [type] [channel]",
+  "command-spy-usage": "<status/menu/on/off/toggle/list> [player] [type] [channel]",
   "command-spy-usages-1": [
     "/{label} status [player] <gray>- Print if player is spying.",
     "/{label} menu [player] <gray>- Open main spying selection menu.",
     "/{label} on/off [player] <gray>- Toggle all spying on/off for player.",
     "/{label} toggle <type> [player] <gray>- Toggle spying for section on/off."
+    "/{label} list <gray>- Print a list of all spying players"
   ],
   "command-spy-usages-2": [
     "/{label} toggle chat <channel> [player] <gray>- Toggle spying for channel."

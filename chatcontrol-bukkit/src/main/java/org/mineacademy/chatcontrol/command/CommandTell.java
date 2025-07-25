@@ -99,7 +99,7 @@ public final class CommandTell extends ChatControlCommand {
 				syncedReceiverCache != null // Original offline player check, reversed to match new verification method
 				// Prevents cross-server PMs when disabled. Previously, the message wasn't delivered,
 				// but the sender still saw it as if it was — this fixes that inconsistency.
-				&& (Settings.PrivateMessages.PROXY || syncedReceiverCache.getServerName().equals(syncedSenderCache.getServerName())),
+				&& (Settings.PrivateMessages.PROXY || syncedSenderCache == null || syncedReceiverCache.getServerName().equals(syncedSenderCache.getServerName())),
 				Lang.component("command-tell-receiver-offline", "receiver_name", this.args[0])
 		);
 

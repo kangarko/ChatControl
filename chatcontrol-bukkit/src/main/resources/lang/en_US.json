@@ -760,7 +760,7 @@
     "/{label} status [player] <gray>- Print if player is spying.",
     "/{label} menu [player] <gray>- Open main spying selection menu.",
     "/{label} on/off [player] <gray>- Toggle all spying on/off for player.",
-    "/{label} toggle <type> [player] <gray>- Toggle spying for section on/off."
+    "/{label} toggle <type> [player] <gray>- Toggle spying for section on/off.",
     "/{label} list <gray>- Print a list of all spying players"
   ],
   "command-spy-usages-2": [

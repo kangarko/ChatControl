@@ -31,7 +31,7 @@ public final class AnnounceSubCommand extends MainSubCommand {
 	/**
 	 * The pattern to match key:value pairs in the message
 	 */
-	private static final Pattern ANNOUNCE_PARAM_PATTERN = Pattern.compile("\\b[a-zA-Z]+:[a-zA-Z0-9_]+\\b(?!(?=[^<]*>))");
+	private static final Pattern ANNOUNCE_PARAM_PATTERN = Pattern.compile("\\b[a-zA-Z]+:[a-zA-Z0-9_]+\\b(?!(?:[^\"<]*(?:\"[^\"]*\"|<[^>]*>))*[^\"<]*>)");
 
 	public AnnounceSubCommand() {
 		super("announce/a/broadcast/bc");

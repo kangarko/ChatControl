@@ -258,6 +258,7 @@ public final class Players {
 	 * Vanished players are included only if receiver has bypass reach permission.
 	 *
 	 * @param requester
+	 * @param ignoreNetwork 
 	 * @return
 	 */
 	public static Set<String> getPlayerNamesForTabComplete(@NonNull final CommandSender requester, final boolean ignoreNetwork) {

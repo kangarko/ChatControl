@@ -46,6 +46,12 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
 
+		if (!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) {
+			event.setCancelled(true);
+
+			this.returnTell(Lang.component("data-loading"));
+		}
+
 		String message = event.getMessage();
 
 		final String[] args = event.getMessage().split(" ");
@@ -60,12 +66,6 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 
 				return;
 			}
-		}
-
-		if (!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) {
-			event.setCancelled(true);
-
-			this.returnTell(Lang.component("data-loading"));
 		}
 
 		final WrappedSender wrapped = WrappedSender.fromPlayer(player);

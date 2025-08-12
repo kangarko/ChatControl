@@ -357,7 +357,8 @@ final class AuthMeListener implements Listener {
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
 
-		Database.getInstance().loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache));
+		if (Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED)
+			Database.getInstance().loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache));
 	}
 }
 

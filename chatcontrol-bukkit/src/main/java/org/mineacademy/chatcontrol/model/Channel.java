@@ -627,7 +627,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 					receiverAudience.sendMessage(formattedComponent);
 
 					atLeastOneSuccessfulSent = true;
-				} else if(!formattedComponent.isEmpty(receiverAudience)) {
+				} else if (!formattedComponent.isEmpty(receiverAudience)) {
 					final String replacedMini = HookManager.replaceRelationPlaceholders(sender.getPlayer(), receiver, formattedComponent.toMini(receiverAudience));
 
 					receiverAudience.sendMessage(SimpleComponent.fromMiniSection(replacedMini));

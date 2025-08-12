@@ -211,7 +211,7 @@ public final class ProxyEvents {
 	 * @param args
 	 */
 	public static void handleTabComplete(final String cursor, final List<String> args) {
-		final String label = cursor.charAt(0) == '/' ? cursor.substring(1) : cursor;
+		final String label = !cursor.trim().isEmpty() && cursor.charAt(0) == '/' ? cursor.substring(1) : cursor;
 		final IsInList<String> filterArgs = ProxySettings.TabComplete.FILTER_ARGUMENTS.get(label);
 
 		if (filterArgs != null)

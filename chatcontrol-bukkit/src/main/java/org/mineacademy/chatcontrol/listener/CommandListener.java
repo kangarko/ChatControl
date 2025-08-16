@@ -61,7 +61,7 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 			if (!allowed.startsWith("/"))
 				allowed = "/" + allowed;
 
-			if (message.startsWith(allowed)) {
+			if (message.startsWith(allowed + " ")) {
 				Debugger.debug("player-message", "[Authy/Allow Commands] Bypassing checks in " + message + " for " + player.getName());
 
 				return;

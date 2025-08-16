@@ -57,7 +57,6 @@ import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleBook;
 import org.mineacademy.fo.model.Variable;
-import org.mineacademy.fo.model.Variables;
 import org.mineacademy.fo.platform.BukkitPlugin;
 import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.region.DiskRegion;
@@ -303,8 +302,6 @@ public final class ChatControl extends BukkitPlugin {
 
 	@Override
 	protected void onPluginReload() {
-		Variables.setDoubleParse(Settings.Performance.SUPPORT_VARIABLES_IN_VARIABLES);
-
 		this.loadData();
 
 		for (final Player online : Remain.getOnlinePlayers()) {
@@ -388,10 +385,5 @@ public final class ChatControl extends BukkitPlugin {
 	@Override
 	public int getBuiltByBitId() {
 		return 18217;
-	}
-
-	@Override
-	protected boolean useFullPlaceholderAPIParser() {
-		return Settings.Performance.SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX;
 	}
 }

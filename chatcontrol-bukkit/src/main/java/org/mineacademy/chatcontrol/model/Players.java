@@ -77,11 +77,10 @@ public final class Players {
 		if (player.isOnline()) {
 			final String motd = firstTime ? Settings.Motd.FORMAT_MOTD_FIRST_TIME : Newcomer.isNewcomer(player) ? Settings.Motd.FORMAT_MOTD_NEWCOMER : Settings.Motd.FORMAT_MOTD.getFor(player);
 
-			if (!motd.isEmpty())
+			if (!motd.isEmpty()) {
 				wrapped.getAudience().sendMessage(Format.parse(motd).build(wrapped));
-
-			if (!motd.isEmpty() || Settings.Motd.PLAY_SOUND_IF_NO_MESSAGE)
 				Settings.Motd.SOUND.play(player);
+			}
 		}
 	}
 

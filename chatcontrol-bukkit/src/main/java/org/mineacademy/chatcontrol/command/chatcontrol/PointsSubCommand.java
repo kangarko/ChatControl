@@ -141,7 +141,7 @@ public final class PointsSubCommand extends MainSubCommand {
 				this.checkUsage(this.args.length <= 4);
 				this.checkBoolean(points.isSetLoaded(setName), Lang.component("command-invalid-type", "type", "warning set", "value", setName, "available", points.getSetNames()));
 
-				final int pointsToSet = this.findNumber(3, Lang.component("command-points-no-amount"));
+				final int pointsToSet = this.findInt(3, Lang.component("command-points-no-amount"));
 
 				if (pointsToSet == 0 && cache.getWarnPoints(setName) == 0)
 					this.returnTell(Lang.component("command-points-no-stored", "player", cache.getPlayerName(), "warning_set", setName));

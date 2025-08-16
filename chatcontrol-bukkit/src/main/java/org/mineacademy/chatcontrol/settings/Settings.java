@@ -189,7 +189,6 @@ public final class Settings extends SimpleSettings {
 		public static List<String> COMMAND_ALIASES;
 		public static PlayerGroup<Integer> MAX_READ_CHANNELS;
 		public static Boolean JOIN_READ_OLD;
-		public static Boolean IGNORE_AUTOJOIN_IF_LEFT;
 		public static SimpleTime ANTISPAM_BROADCAST_THRESHOLD;
 		public static SimpleTime RANGED_CHANNEL_NO_NEAR_PLAYER_DELAY;
 		public static String FORMAT_CONSOLE;
@@ -203,7 +202,6 @@ public final class Settings extends SimpleSettings {
 			COMMAND_ALIASES = getCommandList("Command_Aliases");
 			MAX_READ_CHANNELS = new PlayerGroup<>(PlayerGroup.Type.MAX_READ_CHANNELS, getInteger("Max_Read_Channels"));
 			JOIN_READ_OLD = getBoolean("Join_Read_Old");
-			IGNORE_AUTOJOIN_IF_LEFT = getBoolean("Ignore_Autojoin_If_Left");
 			ANTISPAM_BROADCAST_THRESHOLD = getTime("Antispam_Broadcast_Threshold");
 			RANGED_CHANNEL_NO_NEAR_PLAYER_DELAY = getTime("Ranged_Channel_No_Near_Player_Delay");
 			FORMAT_CONSOLE = getString("Format_Console");
@@ -727,7 +725,6 @@ public final class Settings extends SimpleSettings {
 		public static String FORMAT_MOTD_FIRST_TIME;
 		public static String FORMAT_MOTD_NEWCOMER;
 		public static SimpleSound SOUND;
-		public static Boolean PLAY_SOUND_IF_NO_MESSAGE;
 		public static List<String> CONSOLE_COMMANDS;
 		public static List<String> PLAYER_COMMANDS;
 
@@ -741,7 +738,6 @@ public final class Settings extends SimpleSettings {
 			FORMAT_MOTD_FIRST_TIME = getString("Format_Motd_First_Time");
 			FORMAT_MOTD_NEWCOMER = getString("Format_Motd_Newcomer");
 			SOUND = get("Sound", SimpleSound.class);
-			PLAY_SOUND_IF_NO_MESSAGE = getBoolean("Play_Sound_If_No_Message");
 			CONSOLE_COMMANDS = getStringList("Commands.Console");
 			PLAYER_COMMANDS = getStringList("Commands.Player");
 		}
@@ -1090,13 +1086,11 @@ public final class Settings extends SimpleSettings {
 	 */
 	public static class CoreArena {
 
-		public static Boolean IGNORE_DEATH_MESSAGES;
 		public static Boolean SEND_CHANNEL_MESSAGES;
 
 		private static void init() {
 			setPathPrefix("CoreArena");
 
-			IGNORE_DEATH_MESSAGES = getBoolean("Ignore_Death_Messages");
 			SEND_CHANNEL_MESSAGES = getBoolean("Send_Channel_Messages");
 		}
 	}
@@ -1185,29 +1179,17 @@ public final class Settings extends SimpleSettings {
 	 */
 	public static class Performance {
 
-		public static Boolean SUPPORT_VARIABLES_IN_VARIABLES;
-		public static Boolean SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX;
-		public static Boolean SUPPORT_RELATIONAL_PLACEHOLDERS;
-		public static Boolean UPGRADE_HEX_TO_MINI_IN_VARIABLES;
 		public static Boolean ASYNC_MOTD;
 
 		private static void init() {
 			setPathPrefix("Performance");
 
-			SUPPORT_VARIABLES_IN_VARIABLES = getBoolean("Support_Variables_In_Variables");
-			SUPPORT_FULL_PLACEHOLDERAPI_SYNTAX = getBoolean("Support_Full_PlaceholderAPI_Syntax");
-			SUPPORT_RELATIONAL_PLACEHOLDERS = getBoolean("Support_Relational_Placeholders");
-			UPGRADE_HEX_TO_MINI_IN_VARIABLES = getBoolean("Upgrade_Hex_To_Mini_In_Variables");
 			ASYNC_MOTD = getBoolean("Async_Motd");
-
-			Variables.setDoubleParse(SUPPORT_VARIABLES_IN_VARIABLES);
-			Variables.setConvertHexToMini(UPGRADE_HEX_TO_MINI_IN_VARIABLES);
 		}
 	}
 
 	public static Boolean RULES_CASE_INSENSITIVE;
 	public static Boolean RULES_UNICODE;
-	public static Boolean MAKE_CHAT_LINKS_CLICKABLE;
 	public static Boolean FILTER_UNKNOWN_MINI_TAGS;
 	public static Boolean UUID_LOOKUP;
 	public static Tuple<EventPriority, Boolean> CHAT_LISTENER_PRIORITY;
@@ -1225,7 +1207,6 @@ public final class Settings extends SimpleSettings {
 		RULES_CASE_INSENSITIVE = getBoolean("Rules.Case_Insensitive");
 		RULES_UNICODE = getBoolean("Rules.Unicode");
 
-		MAKE_CHAT_LINKS_CLICKABLE = getBoolean("Make_Chat_Links_Clickable");
 		FILTER_UNKNOWN_MINI_TAGS = getBoolean("Filter_Unknown_Mini_Tags");
 		UUID_LOOKUP = getBoolean("UUID_Lookup");
 

@@ -263,7 +263,7 @@ public final class PlayerListener implements Listener {
 
 		// Custom message
 		if (Settings.Messages.APPLY_ON.contains(PlayerMessageType.DEATH)) {
-			if (Settings.CoreArena.IGNORE_DEATH_MESSAGES && player.hasMetadata("CoreArena_Arena")) {
+			if (player.hasMetadata("CoreArena_Arena")) {
 				event.setDeathMessage(null);
 
 				return;

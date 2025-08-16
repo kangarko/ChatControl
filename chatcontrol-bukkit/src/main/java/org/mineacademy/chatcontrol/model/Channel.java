@@ -527,7 +527,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		state.setMessage(SoundNotify.addTagAndSound(sender, state.getMessage()));
 		state.setPlaceholder("message_is_denied_silently", check.isCancelledSilently());
 
-		if (Settings.MAKE_CHAT_LINKS_CLICKABLE && sender.hasPermission(Permissions.Chat.LINKS))
+		if (sender.hasPermission(Permissions.Chat.LINKS))
 			state.setMessage(ChatUtil.addMiniMessageUrlTags(state.getMessage()));
 
 		// Resolve MESSAGE type placeholders such as "I hold an [item]"
@@ -596,7 +596,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		if (check.isCancelledSilently()) {
 			if (!formattedComponent.toPlain(sender.getAudience()).trim().isEmpty()) {
 
-				if (sender.isPlayer() && Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS)
+				if (sender.isPlayer())
 					sender.getAudience().sendMessage(
 							SimpleComponent.fromMiniSection(
 									HookManager.replaceRelationPlaceholders(sender.getPlayer(), sender.getPlayer(), formattedComponent.toMini())));
@@ -623,7 +623,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			for (final Player receiver : receivers) {
 				final FoundationPlayer receiverAudience = Platform.toPlayer(receiver);
 
-				if (!sender.isPlayer() || !Settings.Performance.SUPPORT_RELATIONAL_PLACEHOLDERS) {
+				if (!sender.isPlayer()) {
 					receiverAudience.sendMessage(formattedComponent);
 
 					atLeastOneSuccessfulSent = true;
@@ -1013,7 +1013,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		for (final Channel channel : Channel.getChannels()) {
 			final ChannelMode oldMode = channel.getChannelMode(player);
 
-			if (cache.hasLeftChannel(channel) && Settings.Channels.IGNORE_AUTOJOIN_IF_LEFT) {
+			if (cache.hasLeftChannel(channel)) {
 				LogUtil.logTip("TIP: Not joining " + player.getName() + " to channel " + channel.getName() + " because he left it manually");
 
 				continue;
@@ -1052,7 +1052,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 					}
 
 					LogUtil.logTip("TIP: Joining " + player.getName() + " to channel " + channel.getName() + " in mode " + mode + " due to '"
-							+ autoJoinPermission + "' permission." + (Settings.Channels.IGNORE_AUTOJOIN_IF_LEFT ? " We won't join him again when he leaves channel manually." : ""));
+							+ autoJoinPermission + "' permission.  We won't join him again when he leaves channel manually.");
 
 					channel.joinPlayer(player, mode, false);
 					save = true;

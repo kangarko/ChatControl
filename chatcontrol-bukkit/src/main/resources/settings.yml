@@ -1276,6 +1276,32 @@ Dynmap:
 # [TIP] See https://docs.mineacademy.org/chatcontrol/performance for optimization tips.
 # -------------------------------------------------------------------------------------------------
 Performance: 
+  
+  # Support nested variables? For example if your {luckperms_prefix} variable
+  # returns an ItemsAdder variable, enable this if no better design is possible.
+  # 
+  # Must be on true if you want to use variables in variables/ folder in the Value key.
+  #
+  # [WARNING] Imposes a 2x performance loss since we need to parse every variable twice.
+  # In some cases, you might also need to enable Support_Full_PlaceholderAPI_Syntax.
+  Support_Variables_In_Variables: true
+  
+  # true = support both {syntax} and %syntax% placeholders, essentially /2X performance
+  #        This also improves compatibility with plugins like ItemsAdder and TAB where 
+  #        %% syntax is required to keep both plugins compatible, among other minor things.
+  # false = support {syntax} PlaceholderAPI variables only using our own, optimized method
+  Support_Full_PlaceholderAPI_Syntax: true
+  
+  # Support PlaceholderAPI {rel_X} variables such as relational faction color? Unfortunately
+  # due to Adventure limits we have to recompile the component for each player, which affects
+  # a lot of performance, so you can disable this option here if you do not use it.
+  Support_Relational_Placeholders: true
+  
+  # Upgrade &#123456 color codes to <#123456> format in variables automatically?
+  #
+  # Starting ChatControl 11, we only recognize the MiniMessage format by default so you can
+  # enable this option for legacy compatibility. Imposes a minor performance penalty.
+  Upgrade_Hex_To_Mini_In_Variables: true
 
   # Send message of the day on an asynchronous thread? Enable if you display player avatars or
   # connect to external urls in the motd format. 
@@ -1295,6 +1321,13 @@ Command_Aliases: [chc, chatcontrol]
 # Available: en_US (English) 
 # -------------------------------------------------------------------------------------------------
 Locale: en_US
+
+# -------------------------------------------------------------------------------------------------
+# Automatically make domains clickable in chat, channels and private messages.
+#
+# Requires the "chatcontrol.chat.links" permission (given by default to all players).
+# -------------------------------------------------------------------------------------------------
+Make_Chat_Links_Clickable: true
 
 # -------------------------------------------------------------------------------------------------
 # We filter out unknown MiniMessage tags by default for security reasons. If this causes

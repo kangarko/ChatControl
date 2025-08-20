@@ -636,6 +636,7 @@ Sound_Notify:
   # Send the mentioned player a sound? For all sounds, see https://mineacademy.org/sounds
   # Format: sound_name, volume (float, from 0.0F to 1.0F), pitch (float, from 0.0F to 1.0F)
   # Set to "none" to disable.
+  # For custom sounds, fill the sound_name with 'custom:' followed by the custom sound name (example: custom:minecraft:your_sound).
   Sound: ENTITY_CHICKEN_EGG 1F 1.5F
   
   # Highlight the name of the notified player. If MiniMessage tags are used, use the end tag.

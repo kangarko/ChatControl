@@ -46,7 +46,7 @@ public final class CommandSay extends ChatControlCommand {
 	protected void onCommand() {
 		String message = Colors.removeColorsNoPermission(this.getSender(), this.joinArgs(0), Colors.Type.SAY);
 
-		if (Settings.MAKE_CHAT_LINKS_CLICKABLE && this.getSender().hasPermission(Permissions.Chat.LINKS))
+		if (this.getSender().hasPermission(Permissions.Chat.LINKS))
 			message = ChatUtil.addMiniMessageUrlTags(message);
 
 		final WrappedSender wrappedSender = WrappedSender.fromAudience(this.audience);

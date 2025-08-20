@@ -53,7 +53,7 @@ public final class CommandMe extends ChatControlCommand {
 
 		message = Colors.removeColorsNoPermission(this.getSender(), message, Colors.Type.ME);
 
-		if (Settings.MAKE_CHAT_LINKS_CLICKABLE && this.getSender().hasPermission(Permissions.Chat.LINKS))
+		if (this.getSender().hasPermission(Permissions.Chat.LINKS))
 			message = ChatUtil.addMiniMessageUrlTags(message);
 
 		final WrappedSender wrappedSender = WrappedSender.fromAudience(this.audience);

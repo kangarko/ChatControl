@@ -104,7 +104,7 @@ public final class AnnounceSubCommand extends MainSubCommand {
 		final Matcher matcher = ANNOUNCE_PARAM_PATTERN.matcher(line);
 
 		if (type == AnnounceType.IMAGE) {
-			final int height = this.findNumber(2, Lang.component("command-announce-image-lines"));
+			final int height = this.findInt(2, Lang.component("command-announce-image-lines"));
 			this.checkBoolean(height >= 2 && height <= 35, Lang.component("command-announce-invalid-image-height", "min", 2, "max", 35));
 
 			final File imageFile = FileUtil.getFile("images/" + this.args[1]);

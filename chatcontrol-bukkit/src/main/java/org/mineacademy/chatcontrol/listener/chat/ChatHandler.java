@@ -208,7 +208,7 @@ final class ChatHandler {
 			// Log to file and db
 			Log.logChat(player, state.getChatMessage());
 
-			if (Settings.MAKE_CHAT_LINKS_CLICKABLE && wrapped.hasPermission(Permissions.Chat.LINKS))
+			if (wrapped.hasPermission(Permissions.Chat.LINKS))
 				state.setChatMessage(ChatUtil.addMiniMessageUrlTags(state.getChatMessage()));
 
 		} else {

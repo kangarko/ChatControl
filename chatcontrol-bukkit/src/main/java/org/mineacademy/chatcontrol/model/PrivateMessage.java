@@ -63,7 +63,7 @@ public final class PrivateMessage {
 
 		message = Colors.removeColorsNoPermission(sender.getSender(), message, Colors.Type.PRIVATE_MESSAGE);
 
-		if (Settings.MAKE_CHAT_LINKS_CLICKABLE && sender.hasPermission(Permissions.Chat.LINKS))
+		if (sender.hasPermission(Permissions.Chat.LINKS))
 			message = ChatUtil.addMiniMessageUrlTags(message);
 
 		final Variables variables = Variables.builder(sender.getAudience());

@@ -33,6 +33,7 @@ import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.FoException;
+import org.mineacademy.fo.model.ChatImage;
 import org.mineacademy.fo.model.DatabaseType;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.IsInList;
@@ -1196,6 +1197,7 @@ public final class Settings extends SimpleSettings {
 	public static Boolean SHOW_TIPS;
 	public static Boolean CLEAR_CACHE_ON_EXIT;
 	public static SimpleTime CLEAR_DATA_IF_INACTIVE;
+	public static String AVATAR_API_URL;
 
 	private static void init() {
 		// Need to be init first since server name stored there is required by remote db
@@ -1232,6 +1234,9 @@ public final class Settings extends SimpleSettings {
 
 		// Force register tools if regions are enabled
 		REGISTER_TOOLS = REGISTER_REGIONS;
+
+		AVATAR_API_URL = getString("Avatar_Api_Url");
+		ChatImage.setAvatarApiUrl(AVATAR_API_URL);
 	}
 
 	private static void loadProxySettings() {

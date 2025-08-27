@@ -1354,6 +1354,12 @@ Clear_Cache_On_Exit: false
 Clear_Data_If_Inactive: 60 days
 
 # -------------------------------------------------------------------------------------------------
+# The URL of the Avatar API we should use to fetch player heads for Image_Head feature.
+# Do not change this if you don't know what you're doing :)
+# -------------------------------------------------------------------------------------------------
+Avatar_Api_Url: 'https://minotar.net/avatar/{player_name}/{image_height}.png'
+
+# -------------------------------------------------------------------------------------------------
 # Notify players with chatcontrol.update.notify permission about new versions of the plugin?
 # -------------------------------------------------------------------------------------------------
 Notify_New_Versions: true

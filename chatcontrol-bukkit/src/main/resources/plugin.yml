@@ -3,7 +3,7 @@ main: ${main.class}
 version: ${project.version}
 author: kangarko
 api-version: 1.13
-softdepend: [AuthMe, BanManager, CMI, DiscordSRV, Essentials, Factions, Feudal, GriefPrevention, ItemsAdder, LibraryHelper, LegacyFactions, Lands, LiteBans, LuckPerms, mcMMO, Multiverse-Core, MVdWPlaceholderAPI, MythicMobs, NashornPlus, Nicky, PartyAndFriends, PlaceholderAPI, ProtocolLib, PvPManager, SimpleClans, Towny, TownyChat, Vault, WorldEdit]
+softdepend: [AuthMe, BanManager, CMI, DiscordSRV, Essentials, Factions, FactionsUUID, Feudal, GriefPrevention, ItemsAdder, LibraryHelper, LegacyFactions, Lands, LiteBans, LuckPerms, mcMMO, Multiverse-Core, MVdWPlaceholderAPI, MythicMobs, NashornPlus, Nicky, PartyAndFriends, PlaceholderAPI, ProtocolLib, PvPManager, SimpleClans, Towny, TownyChat, Vault, WorldEdit]
 folia-supported: true
 # 
 # The commands are built at runtime so you can change them easily within the settings.

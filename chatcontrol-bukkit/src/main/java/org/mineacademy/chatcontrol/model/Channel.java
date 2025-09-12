@@ -539,7 +539,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		state.setMessage(chatComponent.toMini(null));
 		state.setComponent(chatComponent);
 
-		final String chatMessageAsLegacy = chatComponent.toLegacySection(null);
+		final String chatMessageAsLegacy = chatComponent.toLegacySection(null, false);
 
 		// Inject variables
 		state.setPlaceholder("channel", this.name);

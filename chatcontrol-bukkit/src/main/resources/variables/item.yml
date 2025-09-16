@@ -11,6 +11,12 @@ Value: |-
       return "None";
   
     var item = player.getItemInHand();
+    
+    // Remove this if you're experiencing custom items unable to be rendered at your own risk,
+    // potentially letting players send maliciously crafted items in chat and crash clients.
+    if (item.toString().length > 256)
+      throw "event handled: {prefix_error} &cThe item you're holding has too long NBT data.";
+    
     var air = Java.type("org.bukkit.Material").AIR;
     var amount = item.getAmount();
 

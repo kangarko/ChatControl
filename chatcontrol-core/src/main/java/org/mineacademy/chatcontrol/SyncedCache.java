@@ -127,6 +127,21 @@ public final class SyncedCache {
 	@Setter
 	private boolean loggedIn;
 
+	/**
+	 * Get last reply player
+	 */
+	@Getter
+	@Setter
+	private String replyPlayerName;
+
+	/**
+	 * If conversation mode is enabled this holds the player the
+	 * sender is conversing with, otherwise null as bull
+	 */
+	@Getter
+	@Setter
+	private String conversingPlayerName;
+
 	/*
 	 * Create a synced cache from the given data map
 	 */
@@ -219,6 +234,12 @@ public final class SyncedCache {
 
 		else if (syncType == SyncType.MUTE_BYPASS)
 			this.hasMuteBypass = value.equals("1");
+
+		else if (syncType == SyncType.MSG_REPLY)
+			this.replyPlayerName = value;
+
+		else if (syncType == SyncType.CONVERSING)
+			this.conversingPlayerName = value;
 	}
 
 	/**
@@ -280,6 +301,12 @@ public final class SyncedCache {
 
 			else if (type == SyncType.MUTE_BYPASS)
 				value = this.hasMuteBypass ? "1" : "0";
+
+			else if (type == SyncType.MSG_REPLY)
+				value = this.replyPlayerName;
+
+			else if (type == SyncType.CONVERSING)
+				value = this.conversingPlayerName;
 
 			else
 				throw new FoException("Unknown SyncType: " + type);
@@ -386,6 +413,15 @@ public final class SyncedCache {
 	 */
 	public boolean hasMuteBypass() {
 		return this.hasMuteBypass;
+	}
+
+	/**
+	 * Return if the sender is conversing with another player
+	 *
+	 * @return
+	 */
+	public boolean hasConversingPlayer() {
+		return this.conversingPlayerName != null;
 	}
 
 	/**

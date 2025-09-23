@@ -104,7 +104,8 @@ public final class Placeholders extends SimpleExpansion {
 		final Player player = sender instanceof Player ? (Player) sender : null;
 		final SenderCache senderCache = player != null ? SenderCache.from(player) : null;
 		final PlayerCache playerCache = senderCache != null && senderCache.isDatabaseLoaded() ? PlayerCache.fromCached(player) : null;
-		final SyncedCache syncedCache = audience != null ? SyncedCache.fromUniqueId(audience.getUniqueId()) : null;
+		final SyncedCache syncedSenderCache = player != null ? SyncedCache.fromUniqueId(player.getUniqueId()) : null,
+				syncedCache = audience != null ? SyncedCache.fromUniqueId(audience.getUniqueId()) : null;
 
 		if (player != null && !player.isOnline())
 			return null;
@@ -159,7 +160,7 @@ public final class Placeholders extends SimpleExpansion {
 			return player != null && Newcomer.isNewcomer(player) ? "true" : "false";
 
 		else if ("player_reply_target".equals(identifier))
-			return senderCache == null ? "" : CommonCore.getOrDefault(senderCache.getReplyPlayerName(), Lang.plain("part-none").toLowerCase());
+			return syncedSenderCache == null ? "" : CommonCore.getOrDefault(syncedSenderCache.getReplyPlayerName(), Lang.plain("part-none").toLowerCase());
 
 		else if ("player_last_active".equals(identifier) || "player_last_active_elapsed".equals(identifier) || "player_last_active_elapsed_seconds".equals(identifier)) {
 			final long lastActive = player == null ? 0 : player.getLastPlayed();

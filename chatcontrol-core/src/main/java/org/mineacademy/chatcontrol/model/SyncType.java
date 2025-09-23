@@ -16,5 +16,7 @@ public enum SyncType {
 	SERVER,
 	SUFFIX,
 	VANISH,
-	MUTE_BYPASS;
+	MUTE_BYPASS,
+	MSG_REPLY,
+	CONVERSING;
 }

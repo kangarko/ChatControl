@@ -266,6 +266,7 @@ public final class ProxyChat {
 
 				return "0";
 			}
+
 		else
 			throw new FoException("Sync type: " + syncType + " not implemented!");
 	}

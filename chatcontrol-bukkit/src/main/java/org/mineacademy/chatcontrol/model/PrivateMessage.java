@@ -52,6 +52,8 @@ public final class PrivateMessage {
 		boolean playSound = true;
 		final PrePrivateMessageEvent event = new PrePrivateMessageEvent(sender, receiverCache, receiver, message, playSound);
 
+		final SyncedCache syncedSenderCache = SyncedCache.fromUniqueId(sender.getUniqueId());
+
 		// API
 		if (!Platform.callEvent(event))
 			throw new EventHandledException(true);
@@ -96,7 +98,7 @@ public final class PrivateMessage {
 			throw new EventHandledException(true, Lang.component("command-tell-empty-message"));
 
 		if (sender.isPlayer())
-			sender.getSenderCache().setReplyPlayerName(receiverCache.getPlayerName());
+			syncedSenderCache.setReplyPlayerName(receiverCache.getPlayerName());
 
 		if (receiverCache.isAfk())
 			Common.tellLater(1, sender.getSender(), variables.replaceComponent(Lang.component("command-tell-afk-warning", "player", receiverCache.getPlayerName())));
@@ -154,7 +156,7 @@ public final class PrivateMessage {
 					ProxyUtil.sendPluginMessage(ChatControlProxyMessage.REPLY_UPDATE, receiverCache.getUniqueId(), sender.getName(), sender.getUniqueId());
 
 			} else
-				SenderCache.from(receiverPlayer).setReplyPlayerName(sender.getName());
+				syncedSenderCache.setReplyPlayerName(sender.getName());
 		}
 
 		// Update last conv time

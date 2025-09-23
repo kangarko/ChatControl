@@ -32,7 +32,10 @@ public final class CommandReply extends ChatControlCommand {
 		final String message = this.joinArgs(0);
 
 		final WrappedSender wrapped = WrappedSender.fromAudience(this.audience);
-		final String replyPlayer = wrapped.getSenderCache().getReplyPlayerName();
+
+		final SyncedCache syncedSenderCache = SyncedCache.fromUniqueId(wrapped.getUniqueId());
+
+		final String replyPlayer = syncedSenderCache.getReplyPlayerName();
 
 		this.checkNotNull(replyPlayer, Lang.component("command-reply-alone"));
 

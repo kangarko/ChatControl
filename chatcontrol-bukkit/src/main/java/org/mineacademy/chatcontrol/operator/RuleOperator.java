@@ -135,6 +135,11 @@ public abstract class RuleOperator extends Operator {
 	private final Set<String> ignoreRegions = new HashSet<>();
 
 	/**
+	 * Filter messages that match any player's online name?
+	 */
+	private boolean ignorePlayers = false;
+
+	/**
 	 * List of channels and their modes to ignore matching from
 	 */
 	private final Map<String, String> ignoreChannels = new HashMap<>();
@@ -266,6 +271,9 @@ public abstract class RuleOperator extends Operator {
 				this.ignoreChannels.put(channelName, mode);
 			}
 
+		else if ("ignore players".equalsIgnoreCase(param))
+			this.ignorePlayers = true;
+
 		else if ("then replace".equals(param))
 			this.replacements.addAll(theRestSplit);
 
@@ -315,6 +323,7 @@ public abstract class RuleOperator extends Operator {
 				"Ignore Worlds", this.ignoreWorlds,
 				"Ignore Regions", this.ignoreRegions,
 				"Ignore Channels", this.ignoreChannels,
+				"Ignore Players", this.ignorePlayers,
 				"Replacements", this.replacements,
 				"Rewrites", this.rewrites,
 				"World Rewrites", this.worldRewrites));

@@ -239,7 +239,7 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 			final Player target = Remain.getPlayerByUUID(targetUid);
 
 			if (target != null && Settings.PrivateMessages.PROXY)
-				SyncedCache.fromUniqueId(target.getUniqueId()).setReplyPlayerName(replyPlayer);
+				SenderCache.from(target).setReplyPlayerName(replyPlayer);
 		}
 
 		else if (this.packet == ChatControlProxyMessage.ANNOUNCEMENT) {

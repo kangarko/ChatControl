@@ -156,17 +156,17 @@ public final class SenderCache {
 	/**
 	 * Get last reply player
 	 */
-	/*@Getter
+	@Getter
 	@Setter
-	private String replyPlayerName;*/
+	private String replyPlayerName;
 
 	/**
 	 * If conversation mode is enabled this holds the player the
 	 * sender is conversing with, otherwise null as bull
 	 */
-	/*@Getter
+	@Getter
 	@Setter
-	private String conversingPlayerName;*/
+	private String conversingPlayerName;
 
 	/**
 	 * When did the player chat in automode last time?
@@ -363,9 +363,9 @@ public final class SenderCache {
 	 *
 	 * @return
 	 */
-	/*public boolean hasConversingPlayer() {
+	public boolean hasConversingPlayer() {
 		return this.conversingPlayerName != null;
-	}*/
+	}
 
 	/**
 	 * Convert the sender name to a player is online

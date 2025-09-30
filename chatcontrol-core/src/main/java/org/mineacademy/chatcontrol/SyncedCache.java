@@ -236,10 +236,10 @@ public final class SyncedCache {
 			this.hasMuteBypass = value.equals("1");
 
 		else if (syncType == SyncType.MSG_REPLY)
-			this.replyPlayerName = value;
+			this.replyPlayerName = value.isEmpty() ? null : value;
 
 		else if (syncType == SyncType.CONVERSING)
-			this.conversingPlayerName = value;
+			this.conversingPlayerName = value.isEmpty() ? null : value;
 	}
 
 	/**

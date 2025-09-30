@@ -70,7 +70,6 @@ final class ChatHandler {
 	static void handle0(final State state) {
 		final Player player = state.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
-		final SyncedCache syncedCache = SyncedCache.fromUniqueId(player.getUniqueId());
 
 		// Check pending database load, this must come first
 		if (!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) {
@@ -99,17 +98,17 @@ final class ChatHandler {
 			return;
 		}
 
-		if (Settings.PrivateMessages.AUTOMODE && syncedCache.hasConversingPlayer()) {
+		if (Settings.PrivateMessages.AUTOMODE && senderCache.hasConversingPlayer()) {
 			final long thresholdMs = Settings.PrivateMessages.AUTOMODE_LEAVE_THRESHOLD.getTimeSeconds() * 1000;
 
 			// Disable if last message is too old
 			if (thresholdMs != 0 && senderCache.getLastAutoModeChat() != 0 && System.currentTimeMillis() - senderCache.getLastAutoModeChat() > thresholdMs) {
-				syncedCache.setConversingPlayerName(null);
+				senderCache.setConversingPlayerName(null);
 
 				senderCache.setLastAutoModeChat(0);
 
 			} else {
-				final String targetName = syncedCache.getConversingPlayerName();
+				final String targetName = senderCache.getConversingPlayerName();
 
 				if (SyncedCache.isPlayerNameConnected(targetName)) {
 					senderCache.setLastAutoModeChat(System.currentTimeMillis());
@@ -119,7 +118,7 @@ final class ChatHandler {
 				} else {
 					Messenger.warn(player, Lang.component("command-tell-conversation-offline", "receiver_name", targetName));
 
-					syncedCache.setConversingPlayerName(null);
+					senderCache.setConversingPlayerName(null);
 					senderCache.setLastAutoModeChat(0);
 				}
 

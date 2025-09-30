@@ -54,14 +54,14 @@ public final class CommandTell extends ChatControlCommand {
 			this.checkBoolean(Settings.PrivateMessages.AUTOMODE, Lang.component("command-rule-conversation-disabled"));
 			this.checkConsole();
 
-			final String conversingPlayer = syncedSenderCache.getConversingPlayerName();
+			final String conversingPlayer = senderCache.getConversingPlayerName();
 
 			if (isOff) {
 				this.checkNotNull(conversingPlayer, Lang.component("command-tell-conversation-mode-not-conversing"));
 				final SyncedCache conversingCache = SyncedCache.fromPlayerName(conversingPlayer);
 
 				this.tellSuccess(Lang.component("command-tell-conversation-mode-off", conversingCache == null ? new HashMap<>() : conversingCache.getPlaceholders(PlaceholderPrefix.RECEIVER)));
-				syncedSenderCache.setConversingPlayerName(null);
+				senderCache.setConversingPlayerName(null);
 				senderCache.setLastAutoModeChat(0);
 
 			} else {
@@ -87,9 +87,10 @@ public final class CommandTell extends ChatControlCommand {
 						this.returnTell(Lang.component("command-toggle-cannot-pm", placeholders));
 				}
 
-				syncedSenderCache.setConversingPlayerName(isConversing ? null : receiverName);
+				senderCache.setConversingPlayerName(isConversing ? null : receiverName);
 				senderCache.setLastAutoModeChat(0);
 				this.tellSuccess(Lang.component("command-tell-conversation-mode-" + (isConversing ? "off" : "on"), placeholders));
+				this.updateProxyData(wrapped.getPlayerCache());
 			}
 
 			return;

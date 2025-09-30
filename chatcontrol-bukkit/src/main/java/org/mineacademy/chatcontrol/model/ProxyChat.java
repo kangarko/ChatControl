@@ -267,6 +267,16 @@ public final class ProxyChat {
 				return "0";
 			}
 
+		else if (syncType == SyncType.MSG_REPLY) {
+			final String reply = wrapped.getSenderCache().getReplyPlayerName();
+			return reply == null ? "" : reply;
+		}
+
+		else if (syncType == SyncType.CONVERSING) {
+			final String conversing = wrapped.getSenderCache().getConversingPlayerName();
+			return conversing == null ? "" : conversing;
+		}
+
 		else
 			throw new FoException("Sync type: " + syncType + " not implemented!");
 	}

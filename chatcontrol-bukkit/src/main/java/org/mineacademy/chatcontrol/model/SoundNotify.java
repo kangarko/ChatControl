@@ -66,7 +66,7 @@ public final class SoundNotify {
 				final PlayerPreMentionEvent event = new PlayerPreMentionEvent(networkPlayer, Settings.SoundNotify.REQUIRE_PREFIX);
 
 				if (Platform.callEvent(event)) {
-					final Pattern pattern = Pattern.compile("(?i)(^|\\s)(" + Pattern.quote(event.getPrefix() + networkPlayer.getNameOrNickColorless()) + "|" + Pattern.quote(event.getPrefix() + networkPlayer.getPlayerName()) + ")(?=\\s|$)");
+					final Pattern pattern = Pattern.compile("(?i)(?<!\\S)(" + Pattern.quote(event.getPrefix() + networkPlayer.getNameOrNickColorless()) + "|" + Pattern.quote(event.getPrefix() + networkPlayer.getPlayerName()) + ")(?!\\S)");
 					final Component replacedMessage = LegacyComponentSerializer.legacySection().deserialize(message).replaceText(b -> b.match(pattern).replacement((matchResult, builder) -> {
 
 						// Ignore if ignoring

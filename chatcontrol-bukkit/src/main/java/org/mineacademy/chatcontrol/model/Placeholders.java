@@ -314,18 +314,18 @@ public final class Placeholders extends SimpleExpansion {
 
 		// Replace player-only variables on discord/console with empty
 		else if (identifier.startsWith("player_is_spying_") ||
-				 identifier.startsWith("player_in_channel_") ||
-				 identifier.startsWith("player_channel_mode_") ||
-				 "player_channel".equals(identifier) ||
-				 "player_reply_target".equals(identifier) ||
-				 "player_last_active".equals(identifier) ||
-				 "player_last_active_elapsed".equals(identifier) ||
-				 "player_last_active_elapsed_seconds".equals(identifier) ||
-				 "player_chat_color_name".equals(identifier) ||
-				 "player_chat_color".equals(identifier) ||
-				 "player_chat_decoration_name".equals(identifier) ||
-				 "player_chat_decoration".equals(identifier) ||
-				 identifier.startsWith("player_data_"))
+				identifier.startsWith("player_in_channel_") ||
+				identifier.startsWith("player_channel_mode_") ||
+				"player_channel".equals(identifier) ||
+				"player_reply_target".equals(identifier) ||
+				"player_last_active".equals(identifier) ||
+				"player_last_active_elapsed".equals(identifier) ||
+				"player_last_active_elapsed_seconds".equals(identifier) ||
+				"player_chat_color_name".equals(identifier) ||
+				"player_chat_color".equals(identifier) ||
+				"player_chat_decoration_name".equals(identifier) ||
+				"player_chat_decoration".equals(identifier) ||
+				identifier.startsWith("player_data_"))
 
 			return "";
 

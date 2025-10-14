@@ -7,10 +7,10 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.mineacademy.chatcontrol.SenderCache;
 import org.mineacademy.chatcontrol.SyncedCache;
 import org.mineacademy.chatcontrol.api.PrePrivateMessageEvent;
 import org.mineacademy.chatcontrol.model.db.Log;
+import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.chatcontrol.settings.Settings.Proxy;
 import org.mineacademy.fo.ChatUtil;
@@ -96,7 +96,7 @@ public final class PrivateMessage {
 			throw new EventHandledException(true, Lang.component("command-tell-empty-message"));
 
 		if (sender.isPlayer())
-			sender.getSenderCache().setReplyPlayerName(receiverCache.getPlayerName());
+			sender.getPlayerCache().setReplyPlayerName(receiverCache.getPlayerName());
 
 		if (receiverCache.isAfk())
 			Common.tellLater(1, sender.getSender(), variables.replaceComponent(Lang.component("command-tell-afk-warning", "player", receiverCache.getPlayerName())));
@@ -154,7 +154,7 @@ public final class PrivateMessage {
 					ProxyUtil.sendPluginMessage(ChatControlProxyMessage.REPLY_UPDATE, receiverCache.getUniqueId(), sender.getName(), sender.getUniqueId());
 
 			} else
-				SenderCache.from(receiverPlayer).setReplyPlayerName(sender.getName());
+				PlayerCache.fromCached(receiverPlayer).setReplyPlayerName(sender.getName());
 		}
 
 		// Update last conv time

@@ -154,21 +154,6 @@ public final class SenderCache {
 	private String joinMessage;
 
 	/**
-	 * Get last reply player
-	 */
-	@Getter
-	@Setter
-	private String replyPlayerName;
-
-	/**
-	 * If conversation mode is enabled this holds the player the
-	 * sender is conversing with, otherwise null as bull
-	 */
-	@Getter
-	@Setter
-	private String conversingPlayerName;
-
-	/**
 	 * When did the player chat in automode last time?
 	 */
 	@Getter
@@ -356,15 +341,6 @@ public final class SenderCache {
 	 */
 	public boolean hasJoinLocation() {
 		return this.joinLocation != null;
-	}
-
-	/**
-	 * Return if the sender is conversing with another player
-	 *
-	 * @return
-	 */
-	public boolean hasConversingPlayer() {
-		return this.conversingPlayerName != null;
 	}
 
 	/**

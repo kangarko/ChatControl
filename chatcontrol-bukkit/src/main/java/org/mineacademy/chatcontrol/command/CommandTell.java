@@ -12,6 +12,7 @@ import org.mineacademy.chatcontrol.model.PlaceholderPrefix;
 import org.mineacademy.chatcontrol.model.PrivateMessage;
 import org.mineacademy.chatcontrol.model.ToggleType;
 import org.mineacademy.chatcontrol.model.WrappedSender;
+import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.settings.Lang;
@@ -49,19 +50,20 @@ public final class CommandTell extends ChatControlCommand {
 		final SyncedCache syncedReceiverCache = SyncedCache.fromNickColorless(this.args[0]);
 
 		final SenderCache senderCache = wrapped.getSenderCache();
+		final PlayerCache playerCache = wrapped.getPlayerCache();
 
 		if (isOff || message.isEmpty()) {
 			this.checkBoolean(Settings.PrivateMessages.AUTOMODE, Lang.component("command-rule-conversation-disabled"));
 			this.checkConsole();
 
-			final String conversingPlayer = senderCache.getConversingPlayerName();
+			final String conversingPlayer = wrapped.getPlayerCache().getConversingPlayerName();
 
 			if (isOff) {
 				this.checkNotNull(conversingPlayer, Lang.component("command-tell-conversation-mode-not-conversing"));
 				final SyncedCache conversingCache = SyncedCache.fromPlayerName(conversingPlayer);
 
 				this.tellSuccess(Lang.component("command-tell-conversation-mode-off", conversingCache == null ? new HashMap<>() : conversingCache.getPlaceholders(PlaceholderPrefix.RECEIVER)));
-				senderCache.setConversingPlayerName(null);
+				playerCache.setConversingPlayerName(null);
 				senderCache.setLastAutoModeChat(0);
 
 			} else {
@@ -87,7 +89,7 @@ public final class CommandTell extends ChatControlCommand {
 						this.returnTell(Lang.component("command-toggle-cannot-pm", placeholders));
 				}
 
-				senderCache.setConversingPlayerName(isConversing ? null : receiverName);
+				playerCache.setConversingPlayerName(isConversing ? null : receiverName);
 				senderCache.setLastAutoModeChat(0);
 				this.tellSuccess(Lang.component("command-tell-conversation-mode-" + (isConversing ? "off" : "on"), placeholders));
 			}
@@ -97,11 +99,10 @@ public final class CommandTell extends ChatControlCommand {
 
 		this.checkBoolean(
 				syncedReceiverCache != null // Original offline player check, reversed to match new verification method
-				// Prevents cross-server PMs when disabled. Previously, the message wasn't delivered,
-				// but the sender still saw it as if it was — this fixes that inconsistency.
-				&& (Settings.PrivateMessages.PROXY || syncedSenderCache == null || syncedReceiverCache.getServerName().equals(syncedSenderCache.getServerName())),
-				Lang.component("command-tell-receiver-offline", "receiver_name", this.args[0])
-		);
+						// Prevents cross-server PMs when disabled. Previously, the message wasn't delivered,
+						// but the sender still saw it as if it was — this fixes that inconsistency.
+						&& (Settings.PrivateMessages.PROXY || syncedSenderCache == null || syncedReceiverCache.getServerName().equals(syncedSenderCache.getServerName())),
+				Lang.component("command-tell-receiver-offline", "receiver_name", this.args[0]));
 
 		PrivateMessage.send(wrapped, syncedReceiverCache, message);
 	}

@@ -238,8 +238,8 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 			// Update the /reply recipient for the player if he is online
 			final Player target = Remain.getPlayerByUUID(targetUid);
 
-			if (target != null && Settings.PrivateMessages.PROXY)
-				SenderCache.from(target).setReplyPlayerName(replyPlayer);
+			if (target != null && Settings.PrivateMessages.PROXY && PlayerCache.isCached(target))
+				PlayerCache.fromCached(target).setReplyPlayerName(replyPlayer);
 		}
 
 		else if (this.packet == ChatControlProxyMessage.ANNOUNCEMENT) {

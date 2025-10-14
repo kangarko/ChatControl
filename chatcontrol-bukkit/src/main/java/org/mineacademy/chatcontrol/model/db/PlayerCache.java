@@ -163,6 +163,17 @@ public final class PlayerCache extends Row {
 	private Tuple<SimpleBook, Long> autoResponder;
 
 	/**
+	 * Get last reply player
+	 */
+	private String replyPlayerName;
+
+	/**
+	 * If conversation mode is enabled this holds the player the
+	 * sender is conversing with, otherwise null as bull
+	 */
+	private String conversingPlayerName;
+
+	/**
 	 * Indicates when the cache was last manipulated with
 	 */
 	private long lastActive;
@@ -216,6 +227,8 @@ public final class PlayerCache extends Row {
 		this.spyingSectors = map.getSet("Spying_Sectors", Spy.Type.class);
 		this.spyingChannels = map.getSet("Spying_Channels", String.class);
 		this.autoResponder = map.containsKey("Auto_Responder") ? Tuple.deserialize(map.getMap("Auto_Responder"), SimpleBook.class, Long.class) : null;
+		this.conversingPlayerName = map.getString("Conversing_Player_Name");
+		this.replyPlayerName = map.getString("Reply_Player_Name");
 
 		for (final Entry<Tag.Type, String> entry : this.tags.entrySet()) {
 			final Tag.Type type = entry.getKey();
@@ -271,6 +284,8 @@ public final class PlayerCache extends Row {
 		data.putIfNotEmpty("Spying_Sectors", this.spyingSectors);
 		data.putIfNotEmpty("Spying_Channels", this.spyingChannels);
 		data.putIfExists("Auto_Responder", this.autoResponder);
+		data.putIfExists("Conversing_Player_Name", this.conversingPlayerName);
+		data.putIfExists("Reply_Player_Name", this.replyPlayerName);
 
 		return data;
 	}
@@ -298,6 +313,8 @@ public final class PlayerCache extends Row {
 		this.spyingSectors = map.getSet("Spying_Sectors", Spy.Type.class);
 		this.spyingChannels = map.getSet("Spying_Channels", String.class);
 		this.autoResponder = map.containsKey("Auto_Responder") ? Tuple.deserialize(map.getMap("Auto_Responder"), SimpleBook.class, Long.class) : null;
+		this.conversingPlayerName = map.getString("Conversing_Player_Name");
+		this.replyPlayerName = map.getString("Reply_Player_Name");
 
 		this.tagsColorless.clear();
 
@@ -1144,6 +1161,15 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
+	 * Return if the sender is conversing with another player
+	 *
+	 * @return
+	 */
+	public boolean hasConversingPlayer() {
+		return this.conversingPlayerName != null;
+	}
+
+	/**
 	 * Updates an autoresponder's date if {@link #hasAutoResponder()} is true
 	 *
 	 * @param futureExpirationDate
@@ -1162,6 +1188,28 @@ public final class PlayerCache extends Row {
 	 */
 	public void setAutoResponder(final SimpleBook book, final long futureExpirationDate) {
 		this.autoResponder = new Tuple<>(book, futureExpirationDate);
+
+		this.upsert();
+	}
+
+	/**
+	 * Set reply player name
+	 * 
+	 * @param replyPlayerName
+	 */
+	public void setReplyPlayerName(String replyPlayerName) {
+		this.replyPlayerName = replyPlayerName;
+
+		this.upsert();
+	}
+
+	/**
+	 * Set conversing player name
+	 * 
+	 * @param conversingPlayerName
+	 */
+	public void setConversingPlayerName(String conversingPlayerName) {
+		this.conversingPlayerName = conversingPlayerName;
 
 		this.upsert();
 	}

@@ -98,17 +98,17 @@ final class ChatHandler {
 			return;
 		}
 
-		if (Settings.PrivateMessages.AUTOMODE && senderCache.hasConversingPlayer()) {
+		if (Settings.PrivateMessages.AUTOMODE && cache.hasConversingPlayer()) {
 			final long thresholdMs = Settings.PrivateMessages.AUTOMODE_LEAVE_THRESHOLD.getTimeSeconds() * 1000;
 
 			// Disable if last message is too old
 			if (thresholdMs != 0 && senderCache.getLastAutoModeChat() != 0 && System.currentTimeMillis() - senderCache.getLastAutoModeChat() > thresholdMs) {
-				senderCache.setConversingPlayerName(null);
+				cache.setConversingPlayerName(null);
 
 				senderCache.setLastAutoModeChat(0);
 
 			} else {
-				final String targetName = senderCache.getConversingPlayerName();
+				final String targetName = cache.getConversingPlayerName();
 
 				if (SyncedCache.isPlayerNameConnected(targetName)) {
 					senderCache.setLastAutoModeChat(System.currentTimeMillis());
@@ -118,7 +118,7 @@ final class ChatHandler {
 				} else {
 					Messenger.warn(player, Lang.component("command-tell-conversation-offline", "receiver_name", targetName));
 
-					senderCache.setConversingPlayerName(null);
+					cache.setConversingPlayerName(null);
 					senderCache.setLastAutoModeChat(0);
 				}
 

@@ -159,7 +159,7 @@ public final class Placeholders extends SimpleExpansion {
 			return player != null && Newcomer.isNewcomer(player) ? "true" : "false";
 
 		else if ("player_reply_target".equals(identifier))
-			return senderCache == null ? "" : CommonCore.getOrDefault(senderCache.getReplyPlayerName(), Lang.plain("part-none").toLowerCase());
+			return playerCache == null ? "" : CommonCore.getOrDefault(playerCache.getReplyPlayerName(), Lang.plain("part-none").toLowerCase());
 
 		else if ("player_last_active".equals(identifier) || "player_last_active_elapsed".equals(identifier) || "player_last_active_elapsed_seconds".equals(identifier)) {
 			final long lastActive = player == null ? 0 : player.getLastPlayed();

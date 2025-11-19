@@ -228,6 +228,7 @@ public final class Colors {
 			return sender.hasPermission(Permissions.Color.COLOR + tag);
 
 		if ("hover".equals(tag)
+				|| "head".equals(tag)
 				|| "click".equals(tag)
 				|| "insertion".equals(tag)
 				|| "rainbow".equals(tag)

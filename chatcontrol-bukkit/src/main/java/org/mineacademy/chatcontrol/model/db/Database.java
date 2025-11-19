@@ -435,8 +435,12 @@ public final class Database extends SimpleDatabase {
 				PlayerCache cache = this.getPlayerCacheWhereStrict(player, where);
 
 				// Not stored previously
-				if (cache == null)
+				if (cache == null) {
 					cache = new PlayerCache(playerName, uniqueId);
+
+					// TODO test this
+					cache.upsert();
+				}
 
 				if (System.currentTimeMillis() - now > 100 && Settings.Proxy.ENABLED)
 					CommonCore.warning("Your database connection is too slow (" + MathUtil.formatTwoDigits(((System.currentTimeMillis() - now) / 1000.0)) + " seconds). "

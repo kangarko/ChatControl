@@ -110,7 +110,11 @@ public final class Discord extends DiscordListener {
 			offlinePlayer = Remain.getOfflinePlayerByUniqueId(linkedId);
 
 		if (offlinePlayer == null)
-			offlinePlayer = Bukkit.getOfflinePlayer(minecraftName);
+			try {
+				offlinePlayer = Bukkit.getOfflinePlayer(minecraftName);
+			} catch (final Throwable t) {
+				// Ignore
+			}
 
 		if (offlinePlayer != null && offlinePlayer.getName() != null)
 			minecraftName = offlinePlayer.getName();

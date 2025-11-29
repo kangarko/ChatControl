@@ -11,7 +11,7 @@
 	<artifactId>chatcontrol-velocity</artifactId>
 	<name>VelocityControl</name>
 	<version>2.4.1</version>
-	
+
 	<properties>
 		<main.class>org.mineacademy.chatcontrol.velocity.VelocityControl</main.class>
 	</properties>
@@ -53,12 +53,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.2</version>
+				<version>3.5.0</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.14.0</version>
+				<version>3.14.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

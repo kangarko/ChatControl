@@ -14,6 +14,7 @@ import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.event.SimpleListener;
+import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.settings.SimpleSettings;
@@ -46,7 +47,7 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
 
-		if (!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) {
+		if ((!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) && (!HookManager.isAuthMeLoaded() || !Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED)) {
 			event.setCancelled(true);
 
 			this.returnTell(Lang.component("data-loading"));

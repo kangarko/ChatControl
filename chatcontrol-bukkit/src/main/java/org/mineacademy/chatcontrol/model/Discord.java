@@ -146,7 +146,7 @@ public final class Discord extends DiscordListener {
 					this.editMessageById(discordChannel, discordMessage.getIdLong(), replacedMessage);
 				}
 
-				Debugger.debug("discord", "[Discord > Minecraft] From Discord '" + discordChannel.getName() + "' to Minecraft '" + chatControlChannel.getName() + "' message: " + finalMessage);
+				Debugger.debug("discord", "[Discord > Minecraft] From Discord '" + discordChannel.getName() + "' to Minecraft '" + chatControlChannel.getName() + "' player: " + sender.getName() + " message: " + finalMessage);
 
 			} catch (final EventHandledException ex) {
 				for (final SimpleComponent component : ex.getComponents())

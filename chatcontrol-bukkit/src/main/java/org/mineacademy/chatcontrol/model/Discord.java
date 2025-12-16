@@ -90,7 +90,7 @@ public final class Discord extends DiscordListener {
 			return;
 		}
 
-		if (Settings.Discord.REMOVE_EMOJIS_V2)
+		if (Settings.Discord.REMOVE_EMOJIS)
 			message = EmojiParser.removeAllEmojis(message);
 		else
 			message = EmojiParser.parseToAliases(message);

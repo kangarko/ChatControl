@@ -1103,7 +1103,7 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static Boolean FILTER_CHAT;
-		public static Boolean REMOVE_EMOJIS_V2;
+		public static Boolean REMOVE_EMOJIS;
 		public static Boolean WEBHOOK;
 		public static Boolean SEND_MESSAGES_AS_BOT;
 
@@ -1112,7 +1112,7 @@ public final class Settings extends SimpleSettings {
 
 			ENABLED = getBoolean("Enabled");
 			FILTER_CHAT = getBoolean("Filter_Chat");
-			REMOVE_EMOJIS_V2 = getBoolean("Remove_Emojis");
+			REMOVE_EMOJIS = getBoolean("Remove_Emojis");
 			WEBHOOK = getBoolean("Webhook");
 			SEND_MESSAGES_AS_BOT = getBoolean("Send_Messages_As_Bot");
 		}

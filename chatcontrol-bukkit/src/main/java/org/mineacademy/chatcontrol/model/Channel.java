@@ -712,7 +712,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		if (!wrapped.hasPermission(Permissions.Color.COLOR + "." + TextDecoration.ITALIC.name().toLowerCase()))
 			chatMessage = chatMessage.replaceLiteral("_", "\\_");
 
-		if (Settings.Discord.REMOVE_EMOJIS_V2)
+		if (Settings.Discord.REMOVE_EMOJIS)
 			chatMessage = chatMessage.replaceLiteral(":", "\\:");
 
 		final Format format = Format.parse(formatName);

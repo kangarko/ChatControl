@@ -14,6 +14,7 @@ import org.mineacademy.fo.SerializeUtilCore;
 import org.mineacademy.fo.SerializeUtilCore.Language;
 import org.mineacademy.fo.TimeUtil;
 import org.mineacademy.fo.annotation.AutoRegister;
+import org.mineacademy.fo.model.DiscordSender;
 import org.mineacademy.fo.model.DynmapSender;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleComponent;
@@ -102,8 +103,17 @@ public final class Placeholders extends SimpleExpansion {
 			return Settings.Proxy.ENABLED && ServerSettings.isProxyLoaded() ? String.valueOf(TimeUtil.formatTimeShort(ServerSettings.getProxy().getUnmuteTimeRemaining() / 1000)) : "";
 
 		final Player player = sender instanceof Player ? (Player) sender : null;
+		final DiscordSender discordSender = sender instanceof DiscordSender ? (DiscordSender) sender : null;
 		final SenderCache senderCache = player != null ? SenderCache.from(player) : null;
-		final PlayerCache playerCache = senderCache != null && senderCache.isDatabaseLoaded() ? PlayerCache.fromCached(player) : null;
+		final PlayerCache playerCache;
+
+		if (discordSender != null && discordSender.getCache() instanceof PlayerCache)
+			playerCache = (PlayerCache) discordSender.getCache();
+		else if (senderCache != null && senderCache.isDatabaseLoaded())
+			playerCache = PlayerCache.fromCached(player);
+		else
+			playerCache = null;
+
 		final SyncedCache syncedCache = audience != null ? SyncedCache.fromUniqueId(audience.getUniqueId()) : null;
 
 		if (player != null && !player.isOnline())
@@ -233,31 +243,40 @@ public final class Placeholders extends SimpleExpansion {
 
 				final Channel writeChannel = playerCache.getWriteChannel();
 
-				return writeChannel != null && !Settings.Channels.IGNORE_WORLDS.contains(((Player) sender).getWorld().getName()) ? writeChannel.getName() : Lang.plain("part-none").toLowerCase();
+				if (writeChannel == null)
+					return Lang.plain("part-none").toLowerCase();
+
+				if (player != null && Settings.Channels.IGNORE_WORLDS.contains(player.getWorld().getName()))
+					return Lang.plain("part-none").toLowerCase();
+
+				return writeChannel.getName();
 			}
 
 			else if ("player_nick".equals(identifier)) {
-				final String nick = Players.getNickOrNullColored(player);
+				final String nick = player != null ? Players.getNickOrNullColored(player) : (playerCache.hasTag(Tag.Type.NICK) ? playerCache.getTag(Tag.Type.NICK) : null);
+				final String fallbackName = player != null ? player.getName() : playerCache.getPlayerName();
 
-				return nick != null ? Settings.Tag.NICK_PREFIX + nick : player.getName();
+				return nick != null ? Settings.Tag.NICK_PREFIX + nick : fallbackName;
 			}
 
 			else if ("player_nick_section".equals(identifier)) {
-				final String nick = Players.getNickOrNullColored(player);
+				final String nick = player != null ? Players.getNickOrNullColored(player) : (playerCache.hasTag(Tag.Type.NICK) ? playerCache.getTag(Tag.Type.NICK) : null);
+				final String fallbackName = player != null ? player.getName() : playerCache.getPlayerName();
 
 				if (nick != null)
 					return SimpleComponent.fromMiniAmpersand(Settings.Tag.NICK_PREFIX + nick).toLegacySection();
 
-				return player.getName();
+				return fallbackName;
 			}
 
 			else if ("player_nick_mini".equals(identifier)) {
-				final String nick = Players.getNickOrNullColored(player);
+				final String nick = player != null ? Players.getNickOrNullColored(player) : (playerCache.hasTag(Tag.Type.NICK) ? playerCache.getTag(Tag.Type.NICK) : null);
+				final String fallbackName = player != null ? player.getName() : playerCache.getPlayerName();
 
 				if (nick != null)
 					return SimpleComponent.fromMiniAmpersand(Settings.Tag.NICK_PREFIX + nick).toMini();
 
-				return player.getName();
+				return fallbackName;
 			}
 
 			else if ("player_prefix".equals(identifier) && Settings.Tag.APPLY_ON.contains(Tag.Type.PREFIX))

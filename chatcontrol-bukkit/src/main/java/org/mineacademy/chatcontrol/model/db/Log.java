@@ -28,6 +28,7 @@ import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.database.RowDate;
 import org.mineacademy.fo.database.SimpleResultSet;
 import org.mineacademy.fo.database.Table;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleBook;
@@ -229,15 +230,23 @@ public final class Log extends RowDate {
 	 * @return true if log was saved successfully
 	 */
 	public boolean write(@Nullable final CommandSender sender) {
-		if (!Settings.Log.APPLY_ON.contains(this.type))
-			return false;
+		if (!Settings.Log.APPLY_ON.contains(this.type)) {
+			Debugger.debug("log", "Skipping logging of type " + this.type + " because it is not enabled in settings.yml under Log.Apply_On: " + Settings.Log.APPLY_ON);
 
-		if (this.type == LogType.COMMAND && !Settings.Log.COMMAND_LIST.isInList(this.content.split(" ")[0]))
 			return false;
+		}
+
+		if (this.type == LogType.COMMAND && !Settings.Log.COMMAND_LIST.isInList(this.content.split(" ")[0])) {
+			Debugger.debug("log", "Skipping logging of command '" + this.content + "' because it is not in settings.yml under Log.Command_List: " + Settings.Log.COMMAND_LIST);
+
+			return false;
+		}
 
 		if (sender != null && sender.hasPermission(Permissions.Bypass.LOG)) {
 			LogUtil.logOnce("log-bypass", "Note: Not logging " + sender.getName() + "'s " + this.type + " because he has '" + Permissions.Bypass.LOG + "' permission." +
 					" Players with these permission do not get their content logged. To disable that, negate this permission (a false value if using LuckPerms).");
+
+			Debugger.debug("log", "Skipping logging of " + this.type + " by " + sender.getName() + " because they have bypass permission " + Permissions.Bypass.LOG);
 
 			return false;
 		}

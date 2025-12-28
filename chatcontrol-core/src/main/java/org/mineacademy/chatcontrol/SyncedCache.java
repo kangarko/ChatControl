@@ -1,5 +1,6 @@
 package org.mineacademy.chatcontrol;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -570,7 +571,7 @@ public final class SyncedCache {
 	 */
 	public static Collection<SyncedCache> getCaches() {
 		synchronized (uniqueCacheMap) {
-			return Collections.unmodifiableCollection(uniqueCacheMap.values());
+			return new ArrayList<>(uniqueCacheMap.values());
 		}
 	}
 

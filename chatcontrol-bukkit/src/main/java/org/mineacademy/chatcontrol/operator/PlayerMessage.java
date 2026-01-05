@@ -786,6 +786,23 @@ public abstract class PlayerMessage extends Operator {
 				message.setLastExecuted(now);
 			}
 
+			// Player Delay
+			if (message.getPlayerDelay() != null && !this.isDebugRun() && this.wrappedSender != null && this.wrappedSender.isPlayer()) {
+				final SimpleTime time = message.getPlayerDelay().getKey();
+				final long now = System.currentTimeMillis();
+
+				// Round the number due to Bukkit scheduler lags
+				final long delay = Math.round((now - message.getLastExecuted(this.wrappedSender.getSender())) / 1000D);
+
+				if (delay < time.getTimeSeconds()) {
+					Debugger.debug("operator", "\tbefore player delay: " + delay + " threshold: " + time.getTimeSeconds());
+
+					return;
+				}
+
+				message.setLastExecuted(this.wrappedSender.getSender());
+			}
+
 			boolean pickedMessage = false;
 
 			for (final Player player : Players.getOnlinePlayersWithLoadedDb()) {

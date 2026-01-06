@@ -251,6 +251,8 @@ public final class Log extends RowDate {
 			return false;
 		}
 
+		Debugger.debug("log", "Saving log of type " + this.type + (sender == null ? "" : " by " + sender.getName()) + " with content " + this.content);
+
 		this.insertToQueue();
 
 		return true;

@@ -78,6 +78,7 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static String PREFIX;
+		public static Boolean ALLOW_CONSOLE_FORWARD_COMMAND;
 
 		private static void init() {
 			// Handled in the main init() to ensure first priority
@@ -1268,6 +1269,7 @@ public final class Settings extends SimpleSettings {
 
 		Proxy.ENABLED = proxyConfig.getBoolean("Enabled");
 		Proxy.PREFIX = proxyConfig.getString("Prefix");
+		Proxy.ALLOW_CONSOLE_FORWARD_COMMAND = proxyConfig.getBoolean("Allow_Console_Forward_Command", false);
 
 		try {
 			Platform.setCustomServerName(proxyConfig.getString("Server_Name"));

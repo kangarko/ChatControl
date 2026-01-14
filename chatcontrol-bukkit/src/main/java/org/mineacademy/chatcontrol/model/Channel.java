@@ -725,14 +725,14 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	}
 
 	/**
-	 * Prepare the message to be sent from Discord
+	 * Prepare the message to be re-posted to Discord (when Send_Messages_As_Bot is enabled)
 	 *
 	 * @param sender
 	 * @param discordMessage
 	 * @return
 	 */
-	String prepareFromDiscordMessage(final CommandSender sender, final String discordMessage) {
-		final String formatName = CommonCore.getOrDefault(this.fromDiscordFormat, Settings.Channels.FORMAT_DISCORD);
+	String prepareRepostToDiscordMessage(final CommandSender sender, final String discordMessage) {
+		final String formatName = CommonCore.getOrDefault(this.toDiscordFormat, Settings.Channels.FORMAT_DISCORD);
 
 		if (formatName == null)
 			return null;

@@ -36,7 +36,7 @@ public final class ForwardSubCommand extends MainSubCommand {
 	 */
 	@Override
 	protected void onCommand() {
-		this.checkBoolean(this.isPlayer(), "Due to security, you need to send this command as a player.");
+		this.checkBoolean(this.isPlayer() || Settings.Proxy.ALLOW_CONSOLE_FORWARD_COMMAND, "Due to security, you need to send this command as a player. Set 'Allow_Console_Forward_Command' to true in proxy.yml to allow console execution.");
 		this.checkBoolean(Settings.Proxy.ENABLED, Lang.component("command-no-proxy"));
 
 		final String server = this.args[0];
@@ -46,7 +46,11 @@ public final class ForwardSubCommand extends MainSubCommand {
 				Lang.component("command-forward-unknown-server", "available", SyncedCache.getServers()));
 
 		this.tellInfo(Lang.component("command-forward-success"));
-		ProxyUtil.sendPluginMessageAs(this.getPlayer(), ChatControlProxyMessage.FORWARD_COMMAND, server, Variables.builder(this.audience).replaceLegacy(command));
+
+		if (this.isPlayer())
+			ProxyUtil.sendPluginMessageAs(this.getPlayer(), ChatControlProxyMessage.FORWARD_COMMAND, server, Variables.builder(this.audience).replaceLegacy(command));
+		else
+			ProxyUtil.sendPluginMessage(ChatControlProxyMessage.FORWARD_COMMAND, server, command);
 	}
 
 	/**

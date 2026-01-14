@@ -17,3 +17,9 @@ Prefix: "<dark_gray>[<yellow>{server_name}<dark_gray>] <gray>"
 # **WARNING** If using proxy, this must match the server name you have in velocity.toml or 
 #             BungeeControl's config.yml, NOT your server alias in BungeeControl or VelocityControl.
 Server_Name: ''
+
+# Allow the /chc forward command to be executed from console?
+# 
+# NB: This only works when at least one player is online on the server,
+# as Bukkit requires a player connection to send plugin messages to the proxy.
+Allow_Console_Forward_Command: false

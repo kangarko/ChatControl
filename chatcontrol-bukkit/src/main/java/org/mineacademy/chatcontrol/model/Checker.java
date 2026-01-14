@@ -2,11 +2,13 @@ package org.mineacademy.chatcontrol.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -45,6 +47,19 @@ import lombok.Setter;
  * Represents a singular check for antispam
  */
 public final class Checker {
+
+	/**
+	 * Lock object for synchronized parrot detection to prevent TOCTOU race conditions
+	 * when multiple async chat threads process messages simultaneously.
+	 */
+	private static final Object PARROT_LOCK = new Object();
+
+	/**
+	 * Global buffer storing recent messages for parrot detection.
+	 * This ensures visibility across concurrent async chat threads.
+	 * Only accessed within synchronized(PARROT_LOCK) blocks.
+	 */
+	private static final List<ParrotEntry> globalParrotBuffer = new ArrayList<>();
 
 	/**
 	 * The type of the check
@@ -177,46 +192,40 @@ public final class Checker {
 			final Player player = this.wrapped.getPlayer();
 
 			if (this.type == LogType.CHAT) {
-				final Map<String, Set<Player>> playerMessages = new LinkedHashMap<>();
-
-				final long joinFloodDelay = AntiBot.JOIN_FLOOD_THRESHOLD.getTimeSeconds() * 1000;
 				final long parrotDelay = AntiSpam.Chat.PARROT_DELAY.getTimeSeconds() * 1000;
 				final boolean parrotToggled = !player.hasPermission(Permissions.Bypass.PARROT) && AntiSpam.Chat.PARROT && !AntiSpam.Chat.PARROT_WHITELIST.isInListRegex(this.message);
 
 				boolean parrotTriggered = false;
 				int similarityRounded = 0;
 
-				for (final Player online : Remain.getOnlinePlayers()) {
-					final SenderCache onlineCache = SenderCache.from(online);
+				// Thread-safe parrot detection using synchronized global buffer.
+				// This prevents TOCTOU race conditions when multiple async chat threads
+				// process messages simultaneously (e.g., bot attacks sending identical messages).
+				if (parrotToggled) {
+					synchronized (PARROT_LOCK) {
+						final long cutoffTime = System.currentTimeMillis() - parrotDelay;
 
-					final String lastMessage = online.equals(player) ? this.message : onlineCache.getLastChatMessage();
+						// Clean expired entries from the buffer
+						globalParrotBuffer.removeIf(entry -> entry.timestamp < cutoffTime);
 
-					if (lastMessage == null)
-						continue;
+						// Check if any other player sent a similar message within the delay window
+						for (final ParrotEntry entry : globalParrotBuffer) {
+							if (entry.playerUuid.equals(player.getUniqueId()))
+								continue;
 
-					final Set<Player> playersWhoTypedTheSame = playerMessages.getOrDefault(lastMessage, new HashSet<>());
+							final double similarity = ChatUtil.getSimilarityPercentage(entry.message, this.message);
 
-					if (!online.equals(player) && parrotToggled) {
-						final Output otherLastOutput = onlineCache.getLastChat();
-						final double similarity = ChatUtil.getSimilarityPercentage(lastMessage, this.message);
+							if (similarity >= AntiSpam.Chat.PARROT_SIMILARITY) {
+								parrotTriggered = true;
+								similarityRounded = (int) Math.round(similarity * 100);
 
-						if (similarity >= AntiSpam.Chat.PARROT_SIMILARITY && (System.currentTimeMillis() - otherLastOutput.getTime()) < parrotDelay) {
-							parrotTriggered = true;
-							similarityRounded = (int) Math.round(similarity * 100);
-
-							break;
+								break;
+							}
 						}
-					}
 
-					if (AntiBot.JOIN_FLOOD_ENABLED) {
-						if (onlineCache.isJoinFloodActivated())
-							continue;
-
-						if ((System.currentTimeMillis() - onlineCache.getLastLogin()) < joinFloodDelay) {
-							playersWhoTypedTheSame.add(online);
-
-							playerMessages.put(lastMessage, playersWhoTypedTheSame);
-						}
+						// Register this message in the buffer if not blocked (first message wins)
+						if (!parrotTriggered)
+							globalParrotBuffer.add(new ParrotEntry(player.getUniqueId(), this.message, System.currentTimeMillis()));
 					}
 				}
 
@@ -226,38 +235,58 @@ public final class Checker {
 							"similarity", similarityRounded,
 							"delay", AntiSpam.Chat.PARROT_DELAY.getRaw()));
 
-				final List<Map.Entry<String, Set<Player>>> sortedPlayerMessages = new ArrayList<>(playerMessages.entrySet());
-				Collections.sort(sortedPlayerMessages, (first, second) -> Integer.compare(first.getValue().size(), second.getValue().size()));
+				// Join flood detection (separate from parrot check)
+				if (AntiBot.JOIN_FLOOD_ENABLED) {
+					final Map<String, Set<Player>> playerMessages = new LinkedHashMap<>();
+					final long joinFloodDelay = AntiBot.JOIN_FLOOD_THRESHOLD.getTimeSeconds() * 1000;
 
-				// A given amount of players typed the same
-				if (AntiBot.JOIN_FLOOD_ENABLED)
+					for (final Player online : Remain.getOnlinePlayers()) {
+						final SenderCache onlineCache = SenderCache.from(online);
+
+						if (onlineCache.isJoinFloodActivated())
+							continue;
+
+						final String lastMessage = online.equals(player) ? this.message : onlineCache.getLastChatMessage();
+
+						if (lastMessage == null)
+							continue;
+
+						if ((System.currentTimeMillis() - onlineCache.getLastLogin()) < joinFloodDelay) {
+							final Set<Player> playersWhoTypedTheSame = playerMessages.getOrDefault(lastMessage, new HashSet<>());
+
+							playersWhoTypedTheSame.add(online);
+							playerMessages.put(lastMessage, playersWhoTypedTheSame);
+						}
+					}
+
+					final List<Map.Entry<String, Set<Player>>> sortedPlayerMessages = new ArrayList<>(playerMessages.entrySet());
+
+					sortedPlayerMessages.sort(Comparator.comparingInt(stringSetEntry -> stringSetEntry.getValue().size()));
+
 					for (final Map.Entry<String, Set<Player>> entry : sortedPlayerMessages) {
-
 						final Set<Player> triggerPlayers = entry.getValue();
 						final String message = entry.getKey();
 						final int playerCount = triggerPlayers.size();
 
-						if (AntiBot.JOIN_FLOOD_ENABLED) {
-							if (playerCount < AntiBot.JOIN_FLOOD_MIN_PLAYERS)
+						if (playerCount < AntiBot.JOIN_FLOOD_MIN_PLAYERS)
+							continue;
+
+						for (final Player triggerPlayer : triggerPlayers) {
+							final SenderCache triggerCache = SenderCache.from(triggerPlayer);
+
+							if (!triggerPlayer.isOnline() || triggerCache.isJoinFloodActivated())
 								continue;
 
-							// Then execute some nice commands for the players
-							for (final Player triggerPlayer : triggerPlayers) {
-								final SenderCache triggerCache = SenderCache.from(triggerPlayer);
+							for (final String command : AntiBot.JOIN_FLOOD_COMMANDS)
+								Platform.dispatchConsoleCommand(Platform.toPlayer(triggerPlayer), command
+										.replace("{player_amount}", String.valueOf(playerCount))
+										.replace("{threshold}", AntiBot.JOIN_FLOOD_THRESHOLD.getRaw())
+										.replace("{message}", message));
 
-								if (!triggerPlayer.isOnline() || triggerCache.isJoinFloodActivated())
-									continue;
-
-								for (final String command : AntiBot.JOIN_FLOOD_COMMANDS)
-									Platform.dispatchConsoleCommand(Platform.toPlayer(triggerPlayer), command
-											.replace("{player_amount}", String.valueOf(playerCount))
-											.replace("{threshold}", AntiBot.JOIN_FLOOD_THRESHOLD.getRaw())
-											.replace("{message}", message));
-
-								triggerCache.setJoinFloodActivated(true);
-							}
+							triggerCache.setJoinFloodActivated(true);
 						}
 					}
+				}
 			}
 
 			if (senderCache.hasJoinLocation() && !senderCache.isMovedFromJoin()) {
@@ -507,5 +536,22 @@ public final class Checker {
 	 */
 	private <T> T get(final T returnThisIfChat, final T returnThisIfCommand) {
 		return this.type == LogType.CHAT ? returnThisIfChat : returnThisIfCommand;
+	}
+
+	/**
+	 * Represents a single entry in the global parrot detection buffer.
+	 * Used for thread-safe parrot detection across concurrent async chat events.
+	 */
+	private static final class ParrotEntry {
+
+		private final UUID playerUuid;
+		private final String message;
+		private final long timestamp;
+
+		ParrotEntry(final UUID playerUuid, final String message, final long timestamp) {
+			this.playerUuid = playerUuid;
+			this.message = message;
+			this.timestamp = timestamp;
+		}
 	}
 }

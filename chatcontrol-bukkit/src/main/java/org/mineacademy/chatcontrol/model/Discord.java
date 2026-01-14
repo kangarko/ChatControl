@@ -141,7 +141,7 @@ public final class Discord extends DiscordListener {
 
 				// Rewrite the message - applying antispam, rules etc.
 				if (Settings.Discord.SEND_MESSAGES_AS_BOT) {
-					final String replacedMessage = chatControlChannel.prepareFromDiscordMessage(sender, state.getMessage());
+					final String replacedMessage = chatControlChannel.prepareRepostToDiscordMessage(sender, state.getMessage());
 
 					this.editMessageById(discordChannel, discordMessage.getIdLong(), replacedMessage);
 				}

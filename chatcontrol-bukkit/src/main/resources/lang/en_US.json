@@ -1001,5 +1001,5 @@
   "decoration-italic": "italic",
   "decoration-magic": "magic",
   "decoration-strikethrough": "strikethrough",
-  "decoration-underline": "underline"
+  "decoration-underlined": "underlined"
 }

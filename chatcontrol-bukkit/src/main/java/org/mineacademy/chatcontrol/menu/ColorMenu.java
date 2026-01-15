@@ -83,7 +83,7 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 		for (final CompChatColor decoration : Colors.getGuiDecorationsForPermission(player))
 			this.decorationButtons.add(Button.makeSimple(ItemCreator.fromMaterial(
 					CompMaterial.WHITE_CARPET)
-					.name(ChatUtil.capitalizeFully(Lang.legacy("decoration-" + decoration)) + Lang.legacy("menu-color-button-decoration-title"))
+					.name(ChatUtil.capitalizeFully(Lang.legacy("decoration-" + decoration.getName().toLowerCase())) + Lang.legacy("menu-color-button-decoration-title"))
 					.lore(Lang.legacy("menu-color-button-decoration-lore", "decoration", decoration.toString()))
 					.color(CompColor.values()[index++])
 					.glow(this.cache.getChatDecoration() == decoration),
@@ -104,7 +104,7 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 	protected ItemStack convertToItemStack(final CompChatColor color) {
 		return ItemCreator
 				.fromMaterial(CompMaterial.WHITE_WOOL)
-				.name(ChatUtil.capitalizeFully(Lang.legacy("color-" + color.getName().replace("_", "-"))) + Lang.legacy("menu-color-button-color-title"))
+				.name(ChatUtil.capitalizeFully(Lang.legacy("color-" + color.getName().toLowerCase().replace("_", "-"))) + Lang.legacy("menu-color-button-color-title"))
 				.lore(Lang.legacy("menu-color-button-color-lore", "color", color.toString()))
 				.color(CompColor.fromChatColor(color))
 				.glow(this.cache.getChatColor() == color)

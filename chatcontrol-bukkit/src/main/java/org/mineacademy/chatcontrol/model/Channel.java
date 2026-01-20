@@ -612,6 +612,9 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 				});
 			}
 
+			if (sender.isDiscord())
+				throw new EventHandledException(true);
+
 		} else {
 
 			// Include hidden receivers

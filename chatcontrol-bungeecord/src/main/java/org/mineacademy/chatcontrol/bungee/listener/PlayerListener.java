@@ -3,6 +3,7 @@ package org.mineacademy.chatcontrol.bungee.listener;
 import org.mineacademy.chatcontrol.model.PlayerMessageType;
 import org.mineacademy.chatcontrol.proxy.ProxyEvents;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.platform.Platform;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -76,8 +77,17 @@ public final class PlayerListener implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onChatEvent(final ChatEvent event) {
-		if (!ProxySettings.ChatForwarding.ENABLED || event.isCancelled() || !(event.getSender() instanceof ProxiedPlayer))
+		if (!ProxySettings.ChatForwarding.ENABLED || event.isCancelled()) {
+			Debugger.debug("chat-forwarding", "Ignoring chat event bc chat forwarding is disabled, event cancelled");
+
 			return;
+		}
+
+		if (!(event.getSender() instanceof ProxiedPlayer)) {
+			Debugger.debug("chat-forwarding", "Ignoring chat event because we need a ProxiedPlayer, got: " + event.getSender().getClass());
+
+			return;
+		}
 
 		ProxyEvents.handleChatForwarding(Platform.toPlayer(event.getSender()), event.getMessage());
 	}

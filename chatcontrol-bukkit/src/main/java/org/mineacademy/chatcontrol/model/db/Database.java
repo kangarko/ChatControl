@@ -434,17 +434,17 @@ public final class Database extends SimpleDatabase {
 
 				PlayerCache cache = this.getPlayerCacheWhereStrict(player, where);
 
+				if (System.currentTimeMillis() - now > 100 && Settings.Proxy.ENABLED)
+					CommonCore.warning("Your database connection is too slow (" + MathUtil.formatTwoDigits(((System.currentTimeMillis() - now) / 1000.0)) + " seconds). "
+							+ "This will cause issues on your proxy on player server switch. We recommend having the database server on the same machine as the proxy.");
+
 				// Not stored previously
 				if (cache == null) {
 					cache = new PlayerCache(playerName, uniqueId);
 
-					// TODO test this
+					// Solves database not loaded when player switches servers without being saved
 					cache.upsert();
 				}
-
-				if (System.currentTimeMillis() - now > 100 && Settings.Proxy.ENABLED)
-					CommonCore.warning("Your database connection is too slow (" + MathUtil.formatTwoDigits(((System.currentTimeMillis() - now) / 1000.0)) + " seconds). "
-							+ "This will cause issues on your proxy on player server switch. We recommend having the database server on the same machine as the proxy.");
 
 				final PlayerCache finalCache = cache;
 

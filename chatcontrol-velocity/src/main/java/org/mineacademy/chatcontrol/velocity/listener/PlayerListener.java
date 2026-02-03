@@ -3,6 +3,7 @@ package org.mineacademy.chatcontrol.velocity.listener;
 import org.mineacademy.chatcontrol.model.PlayerMessageType;
 import org.mineacademy.chatcontrol.proxy.ProxyEvents;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.platform.Platform;
 
 import com.velocitypowered.api.event.PostOrder;
@@ -85,8 +86,11 @@ public final class PlayerListener {
 	 */
 	@Subscribe(order = PostOrder.LATE)
 	public void onChatEvent(final PlayerChatEvent event) {
-		if (!ProxySettings.ChatForwarding.ENABLED || event.getResult() == ChatResult.denied())
+		if (!ProxySettings.ChatForwarding.ENABLED || event.getResult() == ChatResult.denied()) {
+			Debugger.debug("chat-forwarding", "Ignoring chat event bc chat forwarding is disabled, event cancelled");
+
 			return;
+		}
 
 		ProxyEvents.handleChatForwarding(Platform.toPlayer(event.getPlayer()), event.getMessage());
 	}

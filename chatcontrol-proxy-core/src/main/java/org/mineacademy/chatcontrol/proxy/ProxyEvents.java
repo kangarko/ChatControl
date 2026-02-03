@@ -1,5 +1,6 @@
 package org.mineacademy.chatcontrol.proxy;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -230,27 +231,50 @@ public final class ProxyEvents {
 	 * @param message
 	 */
 	public static void handleChatForwarding(final FoundationPlayer player, String message) {
-		if (message.length() == 0 || message.charAt(0) == '/')
+		if (message.length() == 0 || message.charAt(0) == '/') {
+			Debugger.debug("chat-forwarding", "Ignoring chat forwarding because message is empty or command: " + message);
+
 			return;
+		}
 
 		if (player.getServer() == null) {
-			CommonCore.log("Unexpected error: unknown server for " + player.getName());
+			CommonCore.log("Unexpected chat forwarding error: unknown server for " + player.getName());
 
 			return;
 		}
 
 		final FoundationServer server = player.getServer();
 
-		if (!ProxySettings.ChatForwarding.FROM_SERVERS.contains(server.getName()))
+		if (!ProxySettings.ChatForwarding.FROM_SERVERS.contains(server.getName())) {
+			Debugger.debug("chat-forwarding", "Ignoring chat forwarding because from servers option does not contain '" + server.getName() + "'. Message: " + message);
+
 			return;
+		}
 
 		message = String.format("<%s> %s", player.getName(), message);
 
-		for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
+		final Collection<FoundationPlayer> players = Platform.getOnlinePlayers();
+
+		Debugger.debug("chat-forwarding", "Forwarding chat to " + players.size() + " players. Message: " + message);
+
+		for (final FoundationPlayer online : players) {
 			final FoundationServer onlineServer = online.getServer();
 
-			if (onlineServer != null && !onlineServer.equals(server) && ProxySettings.ChatForwarding.TO_SERVERS.contains(onlineServer.getName()))
-				online.sendMessage(SimpleComponent.fromAmpersand(message));
+			if (onlineServer == null || onlineServer.equals(server)) {
+				Debugger.debug("chat-forwarding", "Not forwarding to " + online.getName() + " because his server is empty or same as sending server");
+
+				continue;
+			}
+
+			if (!ProxySettings.ChatForwarding.TO_SERVERS.contains(onlineServer.getName())) {
+				Debugger.debug("chat-forwarding", "Not forwarding to " + online.getName() + " because to servers settings option does not contain: "
+						+ onlineServer.getName() + " + but only: " + ProxySettings.ChatForwarding.TO_SERVERS);
+
+				continue;
+			}
+
+			Debugger.debug("chat-forwarding", "Forwarded to " + online.getName() + " on server " + onlineServer.getName());
+			online.sendMessage(SimpleComponent.fromAmpersand(message));
 		}
 	}
 

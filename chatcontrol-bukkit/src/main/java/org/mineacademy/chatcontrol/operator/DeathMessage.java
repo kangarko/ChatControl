@@ -781,7 +781,9 @@ public final class DeathMessage extends PlayerMessage {
 		@Override
 		protected Map<String, Object> prepareVariables(final WrappedSender wrapped, final DeathMessage operator) {
 			final Map<String, Object> map = super.prepareVariables(wrapped, operator);
-			final Component killerItemLabel = this.killerItemStack != null ? Component.text(ChatUtil.capitalizeFully(this.killerItemMaterial.toString())).hoverEvent(Remain.convertItemStackToHoverEvent(this.killerItemStack)) : null;
+			final String killerItemFormatted = this.killerItemMaterial != null ? ChatUtil.capitalizeFully(this.killerItemMaterial.toString()) : "Air";
+			final Component killerItemLabel = this.killerItemStack != null ? Component.text(killerItemFormatted).hoverEvent(Remain.convertItemStackToHoverEvent(this.killerItemStack)) : null;
+			final String killerItemName = this.killerItemStack != null && this.killerItemStack.hasItemMeta() && this.killerItemStack.getItemMeta().hasDisplayName() ? this.killerItemStack.getItemMeta().getDisplayName() : killerItemFormatted;
 
 			if (this.killer instanceof Player)
 				map.putAll(SyncedCache.getPlaceholders(((Player) this.killer).getName(), ((Player) this.killer).getUniqueId(), PlaceholderPrefix.KILLER));
@@ -793,6 +795,7 @@ public final class DeathMessage extends PlayerMessage {
 
 					"killer_type", this.killerType == null ? "" : ChatUtil.capitalizeFully(this.killerType),
 					"killer_item", killerItemLabel == null ? "Air" : SimpleComponent.serializeAdventureToMini(killerItemLabel),
+					"killer_item_name", killerItemName,
 					"block_type", this.blockType == null ? "" : this.blockType.name(),
 					"block_type_formatted", this.blockType == null ? "" : ChatUtil.capitalizeFully(this.blockType),
 					"cause", this.damageCause.name(),

@@ -97,7 +97,14 @@ public final class Redis {
 
 final class Hook {
 
-	private static final AbstractRedisBungeeAPI redisAPI = AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI();
+	/*
+	 * Always fetch the current RedisBungee API instance to avoid stale references.
+	 * Previously this was a static final field that could go stale if RedisBungee
+	 * reconnected internally, causing all Redis operations to silently fail.
+	 */
+	private static AbstractRedisBungeeAPI getRedisAPI() {
+		return AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI();
+	}
 
 	public static void handlePubSubMessage(final IPubSubMessageEvent event) {
 		if (event.getChannel().equals(ProxyConstants.REDIS_CHANNEL)) {
@@ -111,15 +118,24 @@ final class Hook {
 					final FoundationPlayer player = Platform.getPlayer(playerId);
 
 					if (player != null && player.getServer() != null) {
+						Debugger.debug("redis", "SEND_SB: forwarding to server " + player.getServer().getName() + " for player " + playerId);
+
 						final byte[] byteOutput = decapsulate(data[3]);
 						player.getServer().sendData(ProxyConstants.REDIS_CHANNEL, byteOutput);
-					}
+					} else
+						Debugger.debug("redis", "SEND_SB: player " + playerId + " not found or has no server, dropping message");
 
 				} else if (data.length == 4 && data[0].equals("SEND_OB")) {
 					// send to servers that player is not on
 					final UUID playerId = UUID.fromString(data[1]);
+					final Collection<FoundationServer> servers = Platform.getServers();
 
-					for (final FoundationServer otherServer : Platform.getServers()) {
+					Debugger.debug("redis", "SEND_OB: forwarding for player " + playerId + ", found " + servers.size() + " servers: " + CommonCore.simplify(servers));
+
+					if (servers.isEmpty())
+						Debugger.debug("redis", "SEND_OB: WARNING server list is empty! Messages will not be forwarded to any server.");
+
+					for (final FoundationServer otherServer : servers) {
 						// Check if the player is on this server
 						boolean playerOnServer = false;
 
@@ -133,11 +149,11 @@ final class Hook {
 
 						// Only send to servers where the player is NOT present
 						if (!playerOnServer) {
-							Debugger.debug("redis", "Sending data to " + otherServer.getName());
+							Debugger.debug("redis", "\tSending data to " + otherServer.getName() + " (player not present)");
 							final byte[] byteOutput = decapsulate(data[3]);
 							otherServer.sendData(ProxyConstants.BUNGEECORD_CHANNEL, byteOutput);
 						} else {
-							Debugger.debug("redis", "Not sending to " + otherServer.getName() + " as player is present");
+							Debugger.debug("redis", "\tNot sending to " + otherServer.getName() + " as player is present");
 						}
 					}
 
@@ -148,7 +164,11 @@ final class Hook {
 					final String json = new String(byteOutput, StandardCharsets.UTF_8);
 					final SerializedMap playerUniqueIdsAndValues = SerializedMap.fromObject(Language.JSON, json);
 
+					final AbstractRedisBungeeAPI redisAPI = getRedisAPI();
+
 					if (!redisProxyId.equals(redisAPI.getProxyId())) {
+						Debugger.debug("redis", "SEND_CACHE: syncing " + type + " from proxy " + redisProxyId + " (our proxy: " + redisAPI.getProxyId() + ")");
+
 						final OutgoingMessage message = new OutgoingMessage(ChatControlProxyMessage.SYNCED_CACHE_BY_UUID);
 
 						message.writeString(type.toString());
@@ -156,14 +176,18 @@ final class Hook {
 						message.broadcast();
 
 						SyncedCache.uploadClusterFromUids(type, playerUniqueIdsAndValues);
-					}
+					} else
+						Debugger.debug("redis", "SEND_CACHE: ignoring own cache sync for " + type + " from proxy " + redisProxyId);
 
 				} else if (data.length == 4 && data[0].equals("SEND_M")) {
 					final UUID playerId = UUID.fromString(data[1]);
 					final FoundationPlayer player = Platform.getPlayer(playerId);
 
-					if (player != null)
+					if (player != null) {
+						Debugger.debug("redis", "SEND_M: delivering message to player " + playerId);
 						player.sendMessage(SimpleComponent.fromSection(data[3]));
+					} else
+						Debugger.debug("redis", "SEND_M: player " + playerId + " not found on this proxy, dropping message");
 
 				} else
 					CommonCore.log("Received invalid Redis message: " + event.getMessage());
@@ -177,26 +201,64 @@ final class Hook {
 	public static Collection<String> getServers() {
 		final Set<String> servers = new HashSet<>();
 
-		for (final UUID playerId : redisAPI.getPlayersOnline()) {
-			final String serverName = redisAPI.getServerNameFor(playerId);
+		try {
+			final AbstractRedisBungeeAPI redisAPI = getRedisAPI();
+			final Set<UUID> playersOnline = redisAPI.getPlayersOnline();
 
-			if (serverName != null)
-				servers.add(serverName);
+			Debugger.debug("redis", "getServers: Redis reports " + playersOnline.size() + " players online");
+
+			for (final UUID playerId : playersOnline) {
+				final String serverName = redisAPI.getServerNameFor(playerId);
+
+				if (serverName != null)
+					servers.add(serverName);
+			}
+
+			Debugger.debug("redis", "getServers: found " + servers.size() + " servers from online players: " + servers);
+
+		} catch (final Throwable throwable) {
+			CommonCore.error(throwable,
+					"Failed to get server list from RedisBungee",
+					"Returning empty server list, forwarding may be affected.");
 		}
 
 		return servers;
 	}
 
 	public static void sendDataToOtherServers(final UUID uuid, final String channel, final byte[] data) {
-		redisAPI.sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_OB:" + uuid.toString() + ":" + channel.replace("\\", "\\\\").replace(":", " \\;") + ":" + encapsulate(data));
+		try {
+			Debugger.debug("redis", "sendDataToOtherServers: publishing SEND_OB for player " + uuid + " on channel " + channel + " (" + data.length + " bytes)");
+
+			getRedisAPI().sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_OB:" + uuid.toString() + ":" + channel.replace("\\", "\\\\").replace(":", " \\;") + ":" + encapsulate(data));
+		} catch (final Throwable throwable) {
+			CommonCore.error(throwable,
+					"Failed to send plugin data via Redis",
+					"Player UUID: " + uuid,
+					"Channel: " + channel,
+					"Data length: " + data.length + " bytes");
+		}
 	}
 
 	public static void sendPlayerCacheData(final SyncType type, SerializedMap data) {
-		redisAPI.sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_CACHE:" + type.toString() + ":" + redisAPI.getProxyId() + ":" + encapsulate(data.toJson().getBytes(StandardCharsets.UTF_8)));
+		try {
+			final AbstractRedisBungeeAPI redisAPI = getRedisAPI();
+
+			redisAPI.sendChannelMessage(ProxyConstants.REDIS_CHANNEL, "SEND_CACHE:" + type.toString() + ":" + redisAPI.getProxyId() + ":" + encapsulate(data.toJson().getBytes(StandardCharsets.UTF_8)));
+		} catch (final Throwable throwable) {
+			CommonCore.error(throwable,
+					"Failed to send player cache data via Redis",
+					"Sync type: " + type);
+		}
 	}
 
 	static void dispatchCommand(final String command) {
-		redisAPI.sendProxyCommand(command);
+		try {
+			getRedisAPI().sendProxyCommand(command);
+		} catch (final Throwable throwable) {
+			CommonCore.error(throwable,
+					"Failed to dispatch command via Redis",
+					"Command: " + command);
+		}
 	}
 
 	/*

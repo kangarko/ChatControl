@@ -13,6 +13,7 @@ import org.mineacademy.chatcontrol.proxy.operator.ProxyPlayerMessages;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
 import org.mineacademy.chatcontrol.velocity.listener.PlayerListener;
 import org.mineacademy.chatcontrol.velocity.listener.RedisListener;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.command.ReloadCommand;
@@ -61,6 +62,17 @@ public final class VelocityControl extends VelocityPlugin {
 
 					if (server != null)
 						servers.add(server);
+				}
+
+				// Fall back to Velocity's native server list when Redis returns no servers.
+				// This prevents message forwarding from silently breaking when RedisBungee
+				// temporarily cannot see online players (e.g. during Redis reconnection).
+				if (servers.isEmpty()) {
+					final List<RegisteredServer> fallback = new ArrayList<>(this.getProxy().getAllServers());
+
+					Common.warning("Redis returned 0 servers from online players, falling back to " + fallback.size() + " Velocity-registered servers");
+
+					return fallback;
 				}
 
 				return servers;

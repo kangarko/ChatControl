@@ -106,8 +106,11 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 		if (this.packet == ChatControlProxyMessage.CHANNEL) {
 
 			// Avoids processing proxy messages in the same server it was sent from, to avoid duplicate messages and unnecessary proxy prefix
-			if (input.getServerName().equalsIgnoreCase(Platform.getCustomServerName()))
+			if (input.getServerName().equalsIgnoreCase(Platform.getCustomServerName())) {
+				Debugger.debug("proxy", "Ignoring CHANNEL packet from own server " + input.getServerName());
+
 				return;
+			}
 
 			final String channelName = input.readString();
 			final String senderName = input.readString();
@@ -120,8 +123,23 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 
 			final Channel channel = Channel.findChannel(channelName);
 
-			if (Settings.Channels.ENABLED && channel != null && channel.isProxy() && this.canSendMessage(channelName + senderName + formattedMessage.toPlain(null)))
+			if (!Settings.Channels.ENABLED) {
+				Debugger.debug("proxy", "Ignoring CHANNEL packet from " + senderName + " because channels are disabled");
+
+			} else if (channel == null) {
+				Debugger.debug("proxy", "Ignoring CHANNEL packet from " + senderName + " because channel '" + channelName + "' was not found on this server");
+
+			} else if (!channel.isProxy()) {
+				Debugger.debug("proxy", "Ignoring CHANNEL packet from " + senderName + " because channel '" + channelName + "' does not have Proxy enabled");
+
+			} else if (!this.canSendMessage(channelName + senderName + formattedMessage.toPlain(null))) {
+				Debugger.debug("proxy", "Ignoring CHANNEL packet from " + senderName + " in channel '" + channelName + "' because a duplicate message was received within 500ms (deduplication)");
+
+			} else {
+				Debugger.debug("proxy", "Processing CHANNEL packet from " + senderName + " in channel '" + channelName + "' from server " + this.server);
+
 				channel.processProxyMessage(senderName, senderUUID, formattedMessage, consoleLog, hasMuteBypass, hasIgnoreBypass, hasLogBypass);
+			}
 		}
 
 		else if (this.packet == ChatControlProxyMessage.REMOVE_MESSAGE) {
@@ -310,8 +328,17 @@ public final class ChatControlProxyListenerBukkit extends org.mineacademy.fo.pro
 
 			final Player online = Remain.getPlayerByUUID(receiverUniqueId);
 
-			if (online != null && this.canSendMessage(this.senderUid + receiverUniqueId.toString() + message.toPlain(null)))
+			if (online == null) {
+				Debugger.debug("proxy", "Ignoring MESSAGE packet for receiver " + receiverUniqueId + " from server " + this.server + " because receiver is not online on this server");
+
+			} else if (!this.canSendMessage(this.senderUid + receiverUniqueId.toString() + message.toPlain(null))) {
+				Debugger.debug("proxy", "Ignoring MESSAGE packet for receiver " + receiverUniqueId + " from sender " + this.senderUid + " because a duplicate message was received within 500ms (deduplication)");
+
+			} else {
+				Debugger.debug("proxy", "Delivering MESSAGE packet to " + online.getName() + " from sender " + this.senderUid + " via server " + this.server);
+
 				Common.tell(online, message);
+			}
 		}
 
 		else if (this.packet == ChatControlProxyMessage.MUTE) {

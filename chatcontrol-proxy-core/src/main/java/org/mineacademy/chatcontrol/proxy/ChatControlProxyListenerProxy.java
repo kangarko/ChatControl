@@ -246,10 +246,12 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 
 		final String fromCluster = ProxySettings.Clusters.getFromServerName(this.serverNameRaw, this.serverAlias);
 
-		if (Redis.isEnabled())
+		if (Redis.isEnabled()) {
+			Debugger.debug("proxy", "Forwarding " + message + " via Redis for sender " + this.senderUid + " from " + this.serverAlias + " (" + data.length + " bytes)");
+
 			Redis.sendDataToOtherServers(this.senderUid, ProxyConstants.CHATCONTROL_CHANNEL, data);
 
-		else {
+		} else {
 			Debugger.debug("proxy", "About to forward " + message + " to servers: " + CommonCore.simplify(Platform.getServers()));
 
 			for (final FoundationServer iteratedServer : Platform.getServers()) {

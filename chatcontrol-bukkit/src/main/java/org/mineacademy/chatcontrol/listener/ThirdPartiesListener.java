@@ -1,5 +1,6 @@
 package org.mineacademy.chatcontrol.listener;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +61,8 @@ public final class ThirdPartiesListener {
 
 	private static McMMOListener mcMMOHook;
 
+	private static BedWars1058Hook bedWars1058Hook;
+
 	/**
 	 * Register all compatible hooks
 	 */
@@ -87,6 +90,12 @@ public final class ThirdPartiesListener {
 				CommonCore.log("Note: Hooked into mcMMO to spy channels");
 			} else
 				CommonCore.warning("Could not hook into mcMMO. Version 2.x is required, you have " + version);
+		}
+
+		if (Platform.isPluginInstalled("BedWars1058")) {
+			bedWars1058Hook = new BedWars1058Hook();
+
+			CommonCore.log("Note: Hooked into BedWars1058 for party channels");
 		}
 
 		if (HookManager.isAuthMeLoaded()) {
@@ -140,6 +149,32 @@ public final class ThirdPartiesListener {
 	 */
 	public static List<Player> getMcMMOPartyRecipients(final Player player) {
 		return isMcMMOLoaded() ? mcMMOHook.getPartyRecipients(player) : new ArrayList<>();
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// BedWars1058
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Return true if the receiver and sender are in the same BedWars1058 arena.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isBedWars1058InSameArena(final Player receiver, final Player sender) {
+		return bedWars1058Hook != null && bedWars1058Hook.isInSameArena(receiver, sender);
+	}
+
+	/**
+	 * Return true if the receiver and sender are on the same BedWars1058 team.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isBedWars1058InSameTeam(final Player receiver, final Player sender) {
+		return bedWars1058Hook != null && bedWars1058Hook.isInSameTeam(receiver, sender);
 	}
 }
 
@@ -476,6 +511,94 @@ final class DynmapListener implements Listener {
 
 			// Send back since it's handled and dynmap wont
 			sender.sendPlainMessage(component.toPlain());
+		}
+	}
+}
+
+/**
+ * BedWars1058 handle — uses reflection to avoid compile-time dependency
+ */
+final class BedWars1058Hook {
+
+	private boolean errorLogged = false;
+
+	boolean isInSameArena(final Player receiver, final Player sender) {
+		try {
+			final Object arenaUtil = getArenaUtil();
+
+			if (arenaUtil == null)
+				return false;
+
+			final Method getArenaByPlayer = ReflectionUtil.getMethod(arenaUtil.getClass(), "getArenaByPlayer", Player.class);
+			final Object senderArena = ReflectionUtil.invoke(getArenaByPlayer, arenaUtil, sender);
+
+			if (senderArena == null)
+				return false;
+
+			final Object receiverArena = ReflectionUtil.invoke(getArenaByPlayer, arenaUtil, receiver);
+
+			return senderArena.equals(receiverArena);
+
+		} catch (final Throwable t) {
+			logError(t);
+
+			return false;
+		}
+	}
+
+	boolean isInSameTeam(final Player receiver, final Player sender) {
+		try {
+			final Object arenaUtil = getArenaUtil();
+
+			if (arenaUtil == null)
+				return false;
+
+			final Method getArenaByPlayer = ReflectionUtil.getMethod(arenaUtil.getClass(), "getArenaByPlayer", Player.class);
+			final Object senderArena = ReflectionUtil.invoke(getArenaByPlayer, arenaUtil, sender);
+
+			if (senderArena == null)
+				return false;
+
+			final Method getTeam = ReflectionUtil.getMethod(senderArena.getClass(), "getTeam", Player.class);
+			final Object senderTeam = ReflectionUtil.invoke(getTeam, senderArena, sender);
+
+			if (senderTeam == null)
+				return false;
+
+			final Method isMember = ReflectionUtil.getMethod(senderTeam.getClass(), "isMember", Player.class);
+
+			return ReflectionUtil.invoke(isMember, senderTeam, receiver);
+
+		} catch (final Throwable t) {
+			logError(t);
+
+			return false;
+		}
+	}
+
+	private Object getArenaUtil() {
+		try {
+			final Class<?> bedWarsClass = Class.forName("com.andrei1058.bedwars.api.BedWars");
+			final org.bukkit.plugin.RegisteredServiceProvider<?> provider = Bukkit.getServicesManager().getRegistration(bedWarsClass);
+
+			if (provider == null)
+				return null;
+
+			return ReflectionUtil.invoke("getArenaUtil", provider.getProvider());
+
+		} catch (final Throwable t) {
+			logError(t);
+
+			return null;
+		}
+	}
+
+	private void logError(final Throwable t) {
+		if (!this.errorLogged) {
+			CommonCore.warning("Failed to check BedWars1058 arena/team membership: " + t
+					+ ". Ensure you have the latest BedWars1058 version.");
+
+			this.errorLogged = true;
 		}
 	}
 }

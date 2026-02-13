@@ -204,6 +204,26 @@ public abstract class Party {
 	};
 
 	/**
+	 * Only chat with players in the same BedWars1058 arena (game).
+	 */
+	public static final Party BEDWARS_ARENA = new Party("bedwars1058-arena") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return ThirdPartiesListener.isBedWars1058InSameArena(receiver, sender);
+		}
+	};
+
+	/**
+	 * Only chat with players on the same BedWars1058 team.
+	 */
+	public static final Party BEDWARS_TEAM = new Party("bedwars1058-team") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return ThirdPartiesListener.isBedWars1058InSameTeam(receiver, sender);
+		}
+	};
+
+	/**
 	 * The unique party name
 	 */
 	@Getter

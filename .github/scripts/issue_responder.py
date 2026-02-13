@@ -306,25 +306,43 @@ def extract_text(value):
     return "\n".join(parts).strip()
 
 
-def extract_assistant_message_text(messages):
-    assistant_texts = []
+def extract_last_response(messages):
+    msg_list = list(messages)
 
-    for message in messages:
-        role = normalize_role(read_field(message, "role"))
+    for i, msg in enumerate(msg_list):
+        msg_type   = read_field(msg, "type")
+        type_value = read_field(msg_type, "value") if msg_type is not None else None
+        print(f"  msg[{i}]: type={type_value}")
+
+    for msg in reversed(msg_list):
+        msg_type   = read_field(msg, "type")
+        type_value = str(read_field(msg_type, "value") or "") if msg_type is not None else ""
+
+        if type_value.lower() != "assistant.message":
+            continue
+
+        data = read_field(msg, "data")
+
+        if data is None:
+            continue
+
+        text = extract_text(read_field(data, "content"))
+
+        if text and len(text) > 10:
+            return text
+
+    for msg in reversed(msg_list):
+        role = normalize_role(read_field(msg, "role"))
 
         if role != "assistant":
             continue
 
-        content = read_field(message, "content")
-        text    = extract_text(content)
+        text = extract_text(read_field(msg, "content"))
 
-        if text:
-            assistant_texts.append(text)
+        if text and len(text) > 10:
+            return text
 
-    if not assistant_texts:
-        return ""
-
-    return assistant_texts[-1]
+    return ""
 
 
 def resolve_cli_path():
@@ -554,11 +572,13 @@ async def run_agent_session(client, model, system_prompt, user_prompt, tools, ti
         await asyncio.wait_for(done.wait(), timeout=timeout)
 
         messages  = await session.get_messages()
-        candidate = extract_assistant_message_text(messages)
+        msg_list  = list(messages)
+        print(f"  got {len(msg_list)} messages from session history")
+        candidate = extract_last_response(msg_list)
 
         if not candidate:
             raise RuntimeError(
-                f"Empty output. event_errors={event_errors[:3]}, messages={len(messages)}"
+                f"Empty output. event_errors={event_errors[:3]}, messages={len(msg_list)}"
             )
 
         return candidate

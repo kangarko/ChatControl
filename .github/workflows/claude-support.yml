@@ -3,14 +3,46 @@ name: AI Issue Support
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   issues: write
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
+  gate:
+    if: >-
+      (github.event_name == 'issues' && github.event.issue.user.type != 'Bot') ||
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.type != 'Bot' &&
+       !github.event.issue.pull_request)
+    runs-on: ubuntu-latest
+    outputs:
+      should_respond: ${{ steps.check.outputs.should_respond }}
+    steps:
+      - name: Check if bot should respond
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            echo "should_respond=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          BOT_COMMENTED=$(gh api "/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
+            --jq '[.[] | select(.user.login == "github-actions[bot]")] | length')
+          if [ "$BOT_COMMENTED" -gt "0" ]; then
+            echo "should_respond=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Bot has not previously commented — skipping"
+            echo "should_respond=false" >> "$GITHUB_OUTPUT"
+          fi
+
   respond:
-    if: github.event.issue.user.type != 'Bot'
+    needs: gate
+    if: needs.gate.outputs.should_respond == 'true'
     runs-on: ubuntu-latest
     environment: copilot
     steps:
@@ -24,6 +56,14 @@ jobs:
         with:
           repository: kangarko/foundation
           path: foundation
+
+      - name: Fetch conversation history
+        if: github.event_name == 'issue_comment'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
+            --paginate > conversation.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,10 +91,52 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
+          COMMENT_BODY: ${{ github.event.comment.body || '' }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login || '' }}
         run: python chatcontrol/.github/scripts/issue_responder.py
 
+      - name: Create fix PR if changes were proposed
+        id: fix_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          cd chatcontrol
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No code changes proposed"
+            exit 0
+          fi
+
+          BRANCH="fix/issue-${ISSUE_NUM}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git commit -m "Proposed fix for #${ISSUE_NUM}"
+          git push -f origin "$BRANCH"
+
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --json url --jq '.[0].url' 2>/dev/null || true)
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "pr_url=$EXISTING_PR" >> "$GITHUB_OUTPUT"
+          else
+            PR_URL=$(gh pr create \
+              --draft \
+              --title "Fix #${ISSUE_NUM}: ${ISSUE_TITLE}" \
+              --body-file ../pr_description.md \
+              --head "$BRANCH")
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Append PR link to response
+        if: steps.fix_pr.outputs.pr_url && hashFiles('response.md') != ''
+        run: |
+          printf '\n\n---\n:memo: **A draft fix has been proposed:** %s\n*Please review before merging.*' "${{ steps.fix_pr.outputs.pr_url }}" >> response.md
+
       - name: Post response comment
-        if: success()
+        if: success() && hashFiles('response.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

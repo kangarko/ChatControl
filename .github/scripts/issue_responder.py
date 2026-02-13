@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import asyncio
+import json
 import os
 import re
 import shutil
@@ -15,7 +16,10 @@ FOUNDATION_DIR = "foundation"
 MAX_FILE_SIZE = 50_000
 MAX_SEARCH_FILES = 20
 MAX_SEARCH_RESULTS = 50
+MAX_DIFF_SIZE = 30_000
 RESPONSE_FILE = "response.md"
+CONVERSATION_FILE = "conversation.json"
+MAX_CONVERSATION_SIZE = 50_000
 
 STOP_WORDS = frozenset({
     "the", "is", "at", "which", "on", "a", "an", "in", "to", "for",
@@ -45,6 +49,20 @@ KEY_FILES = [
     f"{CHATCONTROL_DIR}/chatcontrol-bukkit/src/main/resources/proxy.yml",
 ]
 
+WRITABLE_PREFIXES = (
+    "chatcontrol-bukkit/src/main/",
+    "chatcontrol-core/src/main/",
+    "chatcontrol-proxy-core/src/main/",
+    "chatcontrol-bungeecord/src/main/",
+    "chatcontrol-velocity/src/main/",
+)
+
+WRITABLE_EXTENSIONS = frozenset({".java", ".yml", ".yaml", ".rs", ".json"})
+
+BLOCKED_FILENAMES = frozenset({"pom.xml", "build.xml"})
+
+written_files = []
+
 SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plugin for Spigot/Paper/BungeeCord/Velocity.
 
 ## Project Layout
@@ -54,12 +72,45 @@ SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plu
 - chatcontrol-proxy-core/, chatcontrol-bungeecord/, chatcontrol-velocity/ — Proxy code
 - Foundation library (org.mineacademy.fo.*) — Separate framework, NOT ChatControl code
 
+## Knowledge Base
+Topic-specific skill files with architecture, config keys, common issues, and file paths:
+- chatcontrol/.github/skills/chat-formatting/SKILL.md — Format files, parts, placeholders, hover/click, gradients, images, MiniMessage
+- chatcontrol/.github/skills/channels/SKILL.md — Channel creation, types, ranged, party, permissions, auto-join, modes, proxy
+- chatcontrol/.github/skills/rules-engine/SKILL.md — .rs rule files, regex, operators, conditions, actions, groups, imports
+- chatcontrol/.github/skills/chat-filter/SKILL.md — Anti-spam, anti-caps, anti-bot, similarity, delay, grammar, newcomer
+- chatcontrol/.github/skills/groups/SKILL.md — Permission groups, rule groups, overrides, chatcontrol.group.{name}
+- chatcontrol/.github/skills/proxy-sync/SKILL.md — BungeeCord, Velocity, proxy.yml, cross-server sync, plugin messaging
+- chatcontrol/.github/skills/database/SKILL.md — SQLite, MySQL, database.yml, player cache, mail, logs, UUID mapping
+- chatcontrol/.github/skills/commands/SKILL.md — /chc subcommands, /channel, /tell, /reply, all commands, permissions
+- chatcontrol/.github/skills/variables/SKILL.md — PlaceholderAPI, JavaScript variables, {variable} syntax, variable files
+- chatcontrol/.github/skills/messages/SKILL.md — Join/quit/kick/death/timed messages, .rs files, conditions, message groups
+- chatcontrol/.github/skills/private-messaging/SKILL.md — /tell, /reply, /ignore, PM formatting, social spy, vanish, mail
+- chatcontrol/.github/skills/books-announcements/SKILL.md — Books, timed announcements, broadcast, MOTD, announcement types
+- chatcontrol/.github/skills/mute-warn/SKILL.md — Mute hierarchy, warning points, /mute, temp mute, point decay
+- chatcontrol/.github/skills/tags-nicks/SKILL.md — Player tags, nick, prefix/suffix, /tag command, tag rules
+- chatcontrol/.github/skills/menus/SKILL.md — Color picker, spy toggle, channel GUI, Foundation Menu system
+Read the 1-3 most relevant skill files FIRST before answering — they contain detailed troubleshooting guides.
+
+## Purchase Links — CRITICAL
+ChatControl is a premium plugin sold on BuiltByBit. The GitHub source code is provided as-is for reference only.
+- **Never** help users compile, build, or run the source code. Do NOT provide Maven/Gradle commands, build instructions, or troubleshoot compilation errors
+- **Never** suggest "dropping a jar", "building from source", "compiling", or imply the user can produce their own jars
+- If someone asks how to compile or build, tell them this is a premium plugin and they should purchase it from BuiltByBit
+- When referring to the proxy modules, tell users to get them separately (don't use the word "purchase"):
+  - ChatControl (Bukkit/Spigot/Paper): https://builtbybit.com/resources/chatcontrol-format-filter-chat.18217/
+  - BungeeControl (BungeeCord proxy add-on): https://builtbybit.com/resources/bungeecontrol-cross-network-chat.24248/
+  - VelocityControl (Velocity proxy add-on): https://builtbybit.com/resources/velocitycontrol-cross-network-chat.43226/
+- When explaining proxy setup, say "install the VelocityControl/BungeeControl plugin" and link to the relevant purchase page
+- If someone asks where to get the plugin or proxy module, link them to the BuiltByBit pages above
+- **Bukkit limitation:** Proxy sync requires at least one online player on the sending backend server to work. This is a Bukkit/Spigot platform limitation (plugin messaging channels only function when a player is connected). Always mention this when explaining proxy setup
+
 ## Your Behavior
 - Use tools to explore the codebase — never guess at code behavior or hallucinate paths
 - For config questions, reference the exact YAML file and key path
 - For stacktraces, trace through the relevant source files
 - If the issue lacks info, ask for: server version, ChatControl version, config snippets, error logs, `/chc debug` ZIP
 - NEVER suggest downgrading the plugin or Java version
+- NEVER tell users to write code, create plugins, or implement things themselves — your users are server owners, not developers. If a feature needs code, implement it yourself via `write_codebase_file` and propose a PR
 
 ## Response Style
 Your readers are Minecraft server owners — busy people who want answers, not essays. Match the length to the complexity: a one-line config fix gets a one-line answer; a multi-layered bug gets a thorough walkthrough. Never pad, never ramble.
@@ -67,11 +118,58 @@ Your readers are Minecraft server owners — busy people who want answers, not e
 - **Lead with the fix.** Solution first, context second. If someone can solve their problem by reading only your first sentence, you did it right.
 - **Show only what they need to change** — the relevant config key or code snippet, not the entire file.
 - **No greetings, no filler, no sign-offs.** Jump straight in.
-- **Don't explain internals** unless the issue specifically asks how something works.
+- **Never expose code internals.** Users are server owners, not developers. Don't mention polling intervals, messaging channel names, internal data structures, class names, or how the code works under the hood. Even if someone asks "how does X work?", explain only what they need to *do* (setup steps, config keys, what features it enables) — not the implementation.
+- **Never tell users to write code.** Don't suggest creating Java plugins, using APIs, registering classes, or calling methods. If a feature needs code changes, implement it yourself and propose a PR. If you can't implement it confidently, say it needs to be implemented by the development team — never ask the user to do it.
 - **Bold the key action:** e.g. **set `X: true` in settings.yml**
 - If you need more info, ask a few specific questions in a bullet list at the end.
 - Use GitHub Markdown with `yaml` or `java` language tags for code blocks.
-- Skip headers (##) unless you're genuinely covering multiple distinct topics."""
+- Skip headers (##) unless you're genuinely covering multiple distinct topics.
+
+## Fix & Feature Capability
+When you can fix a bug or implement a requested feature, use `write_codebase_file` to propose the changes. You can modify existing files AND create new ones. Changes are submitted as a draft PR for human review — you are NOT deploying to production.
+
+**When to propose changes:**
+- Config fixes (YAML corrections, missing keys, new config options)
+- Bug fixes (single-file or multi-file Java fixes)
+- New integrations (third-party plugin hooks, party providers, placeholder expansions)
+- Small-to-medium feature additions that fit naturally into the existing architecture
+
+**Do NOT:**
+- Modify Foundation code (separate repository)
+- Rewrite large unrelated sections of code
+- Make speculative or uncertain changes
+- Touch build files (pom.xml, build.xml)
+
+Always explain what you changed and why in your response, so the reviewer can verify.
+
+## Follow-Up Conversations
+When responding to a follow-up comment on a thread you already answered:
+- Read the full conversation to understand what was discussed
+- Don't repeat your previous answer — build on it, clarify, or address new information
+- If the user provided logs, config, or errors, analyze them specifically
+- If a maintainer already resolved the issue in a previous comment, respond with exactly SKIP and nothing else
+- If the comment is just a thank-you, acknowledgment, or confirmation with no further question, respond with exactly SKIP and nothing else
+- SKIP means no comment will be posted — use it to avoid unnecessary bot noise"""
+
+REVIEW_SYSTEM_PROMPT = """You are a senior engineer performing a thorough code review of proposed changes to ChatControl, a Minecraft plugin.
+
+Think deeply and exhaustively before approving. You are the last line of defense before these changes go into a draft PR.
+
+## What to check
+- **DRY violations**: Is there duplicated logic? Multiple functions or components doing the same thing? Does the change copy-paste something that already exists elsewhere?
+- **Broken code**: Will this compile? Are all imports present? Are types compatible? Are method signatures correct?
+- **Hidden bugs**: Null pointers, off-by-one errors, encoding issues, race conditions, resource leaks, unclosed streams?
+- **Edge cases**: What happens with empty input? Null values? Very large values? Special characters?
+- **Overengineering**: Is the change the minimum needed to fix the issue? Does it add unnecessary abstraction?
+- **Missed consistency**: Should similar changes be applied to other files or methods? Are there parallel implementations that need the same fix?
+- **Error handling**: If the code handles API responses or user input, does it log/surface unexpected values instead of swallowing them silently?
+
+## How to review
+1. Read each changed file in full to understand context
+2. Search the codebase for similar patterns that might need the same change
+3. If you find problems, fix them using write_codebase_file
+4. If you get an unexpected response from any tool, include the raw response in your output
+5. If everything looks correct, respond with "LGTM" and nothing else"""
 
 
 def extract_keywords(title, body):
@@ -167,6 +265,7 @@ def search_repos_by_keywords(keywords):
                 ["grep", "-rli",
                  "--include=*.java", "--include=*.yml",
                  "--include=*.yaml", "--include=*.rs",
+                 "--include=*.json",
                  f"--exclude-dir=target",
                  keyword, CHATCONTROL_DIR, FOUNDATION_DIR],
                 capture_output=True, text=True, timeout=10,
@@ -180,6 +279,54 @@ def search_repos_by_keywords(keywords):
 
     sorted_files = sorted(file_hits.items(), key=lambda x: -x[1])
     return [f for f, _ in sorted_files[:MAX_SEARCH_FILES]]
+
+
+def load_conversation():
+    path = Path(CONVERSATION_FILE)
+
+    if not path.exists():
+        return []
+
+    try:
+        data = json.loads(path.read_text())
+
+        return [
+            {
+                "author": c["user"]["login"],
+                "body":   c["body"],
+                "is_bot": c["user"]["type"] == "Bot",
+            }
+            for c in data
+        ]
+    except Exception as e:
+        print(f"Warning: Failed to load conversation: {e}")
+        return []
+
+
+def format_conversation(issue_body, comments):
+    parts     = [f"**Original issue:**\n{issue_body}"]
+    last_user = None
+
+    for i, c in enumerate(comments):
+        if not c["is_bot"]:
+            last_user = i
+
+    for i, c in enumerate(comments):
+        if c["is_bot"]:
+            label = "Bot response"
+        elif i == last_user:
+            label = f"Latest comment by @{c['author']} (respond to this)"
+        else:
+            label = f"Comment by @{c['author']}"
+
+        parts.append(f"**{label}:**\n{c['body']}")
+
+    text = "\n\n---\n\n".join(parts)
+
+    if len(text) > MAX_CONVERSATION_SIZE:
+        text = "... (earlier conversation truncated)\n\n" + text[-MAX_CONVERSATION_SIZE:]
+
+    return text
 
 
 def read_field(value, field):
@@ -239,25 +386,43 @@ def extract_text(value):
     return "\n".join(parts).strip()
 
 
-def extract_assistant_message_text(messages):
-    assistant_texts = []
+def extract_last_response(messages):
+    msg_list = list(messages)
 
-    for message in messages:
-        role = normalize_role(read_field(message, "role"))
+    for i, msg in enumerate(msg_list):
+        msg_type   = read_field(msg, "type")
+        type_value = read_field(msg_type, "value") if msg_type is not None else None
+        print(f"  msg[{i}]: type={type_value}")
+
+    for msg in reversed(msg_list):
+        msg_type   = read_field(msg, "type")
+        type_value = str(read_field(msg_type, "value") or "") if msg_type is not None else ""
+
+        if type_value.lower() != "assistant.message":
+            continue
+
+        data = read_field(msg, "data")
+
+        if data is None:
+            continue
+
+        text = extract_text(read_field(data, "content"))
+
+        if text and len(text) > 10:
+            return text
+
+    for msg in reversed(msg_list):
+        role = normalize_role(read_field(msg, "role"))
 
         if role != "assistant":
             continue
 
-        content = read_field(message, "content")
-        text    = extract_text(content)
+        text = extract_text(read_field(msg, "content"))
 
-        if text:
-            assistant_texts.append(text)
+        if text and len(text) > 10:
+            return text
 
-    if not assistant_texts:
-        return ""
-
-    return assistant_texts[-1]
+    return ""
 
 
 def resolve_cli_path():
@@ -396,11 +561,140 @@ def list_directory(params: ListDirParams) -> str:
         return f"Error: {e}"
 
 
+class WriteFileParams(BaseModel):
+    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/java/org/mineacademy/chatcontrol/MyClass.java'. Can be a new or existing file.")
+    content: str = Field(description="The complete new content for the file")
+    reason: str = Field(description="Brief explanation of why this change fixes the issue or implements the feature")
+
+
+@define_tool(description="Write or create a source/config file to propose a fix or feature. Works for files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. Changes are submitted as a draft PR for human review.")
+def write_codebase_file(params: WriteFileParams) -> str:
+    if not params.path.startswith(CHATCONTROL_DIR + "/"):
+        return "Error: Can only write files in the chatcontrol/ repository, not foundation/."
+
+    relative = params.path[len(CHATCONTROL_DIR) + 1:]
+
+    if not any(relative.startswith(prefix) for prefix in WRITABLE_PREFIXES):
+        return f"Error: Can only write to source/resource directories under src/main/. Got: {relative}"
+
+    filename = Path(params.path).name
+
+    if filename in BLOCKED_FILENAMES:
+        return f"Error: Cannot modify build file: {filename}"
+
+    ext = Path(params.path).suffix.lower()
+
+    if ext not in WRITABLE_EXTENSIONS:
+        return f"Error: Cannot write {ext} files. Allowed: {', '.join(sorted(WRITABLE_EXTENSIONS))}"
+
+    if "/target/" in params.path:
+        return "Error: Cannot write to target/ (build output) directories."
+
+    resolved = validate_path(params.path)
+
+    if not resolved:
+        return "Error: Invalid path."
+
+    if resolved.exists() and not resolved.is_file():
+        return f"Error: Not a file: {params.path}"
+
+    is_new = not resolved.exists()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+
+    if len(params.content) > MAX_FILE_SIZE:
+        return f"Error: Content too large ({len(params.content):,} chars). Max: {MAX_FILE_SIZE:,}."
+
+    try:
+        resolved.write_text(params.content)
+        written_files.append({"path": params.path, "reason": params.reason, "new": is_new})
+        action = "Created" if is_new else "Updated"
+        return f"{action} {params.path} ({len(params.content):,} chars)"
+    except Exception as e:
+        return f"Error writing file: {e}"
+
+
+async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=600):
+    session = await client.create_session({
+        "model": model,
+        "streaming": False,
+        "system_message": {"content": system_prompt},
+        "tools": tools,
+        "infinite_sessions": {
+            "enabled": True,
+            "background_compaction_threshold": 0.80,
+            "buffer_exhaustion_threshold": 0.95,
+        },
+    })
+
+    try:
+        done         = asyncio.Event()
+        event_errors = []
+
+        def on_event(event):
+            try:
+                event_type = normalize_role(read_field(event, "type"))
+                event_data = read_field(event, "data")
+
+                if event_type in ("error", "session.error", "assistant.error"):
+                    error_text = extract_text(event_data)
+
+                    if error_text:
+                        event_errors.append(f"{event_type}: {error_text}")
+                    else:
+                        event_errors.append(event_type)
+
+                elif event_type == "session.idle":
+                    done.set()
+            except Exception:
+                done.set()
+
+        session.on(on_event)
+        await session.send({"prompt": user_prompt})
+        await asyncio.wait_for(done.wait(), timeout=timeout)
+
+        messages  = await session.get_messages()
+        msg_list  = list(messages)
+        print(f"  got {len(msg_list)} messages from session history")
+        candidate = extract_last_response(msg_list)
+
+        if not candidate:
+            raise RuntimeError(
+                f"Empty output. event_errors={event_errors[:3]}, messages={len(msg_list)}"
+            )
+
+        return candidate
+    finally:
+        await session.destroy()
+
+
+def get_git_diff():
+    try:
+        subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "add", "-A"],
+            capture_output=True, timeout=10,
+        )
+        result = subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "diff", "--cached"],
+            capture_output=True, text=True, timeout=30,
+        )
+        subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "reset", "--quiet"],
+            capture_output=True, timeout=10,
+        )
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"Warning: git diff failed: {e}")
+        return ""
+
+
 async def run():
-    title  = os.environ["ISSUE_TITLE"]
-    body   = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
-    labels = os.environ.get("ISSUE_LABELS", "")
-    token  = os.environ.get("COPILOT_GITHUB_TOKEN")
+    title          = os.environ["ISSUE_TITLE"]
+    body           = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
+    labels         = os.environ.get("ISSUE_LABELS", "")
+    comment_body   = os.environ.get("COMMENT_BODY", "")
+    comment_author = os.environ.get("COMMENT_AUTHOR", "")
+    is_reply       = bool(comment_body)
+    token          = os.environ.get("COPILOT_GITHUB_TOKEN")
 
     if not token:
         raise RuntimeError("Missing required environment variable: COPILOT_GITHUB_TOKEN")
@@ -408,16 +702,18 @@ async def run():
     if len(body) > 100_000:
         body = body[:100_000] + "\n... (truncated)"
 
-    print(f"Issue: {title}")
+    if is_reply:
+        print(f"Reply on issue: {title} (by @{comment_author})")
+    else:
+        print(f"New issue: {title}")
 
-    keywords = extract_keywords(title, body)
-    print(f"Extracted {len(keywords)} keywords")
-
+    all_text           = f"{body}\n{comment_body}" if is_reply else body
+    keywords           = extract_keywords(title, all_text)
     stacktrace_classes = extract_stacktrace_classes(body)
     class_files        = find_class_files(stacktrace_classes) if stacktrace_classes else []
     mentioned_files    = extract_mentioned_files(body)
     search_files       = search_repos_by_keywords(keywords)
-    print(f"Pre-analysis: {len(class_files)} stacktrace files, {len(mentioned_files)} mentioned files, {len(search_files)} keyword matches")
+    print(f"Pre-analysis: {len(keywords)} keywords, {len(class_files)} stacktrace files, {len(mentioned_files)} mentioned files, {len(search_files)} keyword matches")
 
     hints = []
 
@@ -443,7 +739,24 @@ async def run():
     key_files_text = "\n".join(f"- {f}" for f in KEY_FILES)
     label_line     = f"\n**Labels:** {labels}" if labels else ""
 
-    user_prompt = f"""Help with this GitHub issue. Keep your response short and actionable.
+    if is_reply:
+        conversation = load_conversation()
+        thread       = format_conversation(body, conversation)
+
+        user_prompt = f"""A user posted a follow-up comment on this issue. Respond to their latest comment.
+
+**Issue Title:** {title}{label_line}
+
+## Conversation Thread
+{thread}
+
+## Possibly Relevant Files
+{key_files_text}
+{hints_text}
+
+Respond to the latest comment. If it's just a thank-you with no question, respond with exactly SKIP and nothing else."""
+    else:
+        user_prompt = f"""Help with this GitHub issue. Keep your response short and actionable.
 
 **Title:** {title}{label_line}
 
@@ -455,7 +768,8 @@ async def run():
 
 Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
-    models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
+    all_tools = [read_codebase_file, search_codebase, list_directory, write_codebase_file]
+    models    = ["claude-opus-4.6"]
 
     cli_path = resolve_cli_path()
     print(f"Using Copilot CLI: {cli_path}")
@@ -471,96 +785,83 @@ Read the most relevant files above, then give a short, direct answer. Lead with 
         model_failures = []
 
         for model in models:
-            print(f"Trying model: {model}")
+            print(f"Phase 1 — trying model: {model}")
 
             try:
-                session = await client.create_session({
-                    "model": model,
-                    "streaming": True,
-                    "system_message": {"content": SYSTEM_PROMPT},
-                    "tools": [read_codebase_file, search_codebase, list_directory],
-                    "infinite_sessions": {
-                        "enabled": True,
-                        "background_compaction_threshold": 0.80,
-                        "buffer_exhaustion_threshold": 0.95,
-                    },
-                })
-
-                try:
-                    done            = asyncio.Event()
-                    response_chunks = []
-                    event_errors    = []
-                    callback_errors = []
-
-                    def on_event(event):
-                        try:
-                            event_type = normalize_role(read_field(event, "type"))
-                            event_data = read_field(event, "data")
-
-                            if event_type == "assistant.message":
-                                chunk = extract_text(read_field(event_data, "content"))
-
-                                if chunk:
-                                    response_chunks.append(chunk)
-
-                            elif event_type == "assistant.message_delta":
-                                chunk = extract_text(read_field(event_data, "delta_content"))
-
-                                if chunk:
-                                    response_chunks.append(chunk)
-
-                            elif event_type in ("error", "session.error", "assistant.error"):
-                                error_text = extract_text(event_data)
-
-                                if error_text:
-                                    event_errors.append(f"{event_type}: {error_text}")
-                                else:
-                                    event_errors.append(event_type)
-
-                            elif event_type == "session.idle":
-                                done.set()
-                        except Exception as callback_error:
-                            callback_errors.append(repr(callback_error))
-                            done.set()
-
-                    session.on(on_event)
-                    await session.send({"prompt": user_prompt})
-                    await asyncio.wait_for(done.wait(), timeout=600)
-
-                    messages      = await session.get_messages()
-                    history_text  = extract_assistant_message_text(messages)
-                    streamed_text = "".join(response_chunks).strip()
-                    candidate     = history_text if history_text else streamed_text
-
-                    if candidate:
-                        text = candidate
-                        print(f"Success with model: {model}")
-                        break
-
-                    diagnostic = (
-                        f"Model '{model}' returned empty assistant output. "
-                        f"response_chunks={len(response_chunks)}, "
-                        f"event_errors={event_errors[:3]}, "
-                        f"callback_errors={callback_errors[:3]}, "
-                        f"message_count={len(messages)}"
-                    )
-                    raise RuntimeError(diagnostic)
-                finally:
-                    await session.destroy()
+                text = await run_agent_session(client, model, SYSTEM_PROMPT, user_prompt, all_tools)
+                print(f"Phase 1 — success with {model}")
+                break
             except Exception as e:
-                failure = f"{model}: {e}"
-                model_failures.append(failure)
-                print(f"Model {model} failed: {e}")
-                continue
+                model_failures.append(f"{model}: {e}")
+                print(f"Phase 1 — {model} failed: {e}")
 
         if not text:
-            joined_failures = " | ".join(model_failures)
-            raise RuntimeError(f"All models failed or returned empty output. Details: {joined_failures}")
+            raise RuntimeError(f"All models failed. Details: {' | '.join(model_failures)}")
+
+        if written_files:
+            print(f"Phase 2 — self-reviewing {len(written_files)} changed file(s)")
+            diff_output = get_git_diff()
+
+            if diff_output:
+                if len(diff_output) > MAX_DIFF_SIZE:
+                    diff_output = diff_output[:MAX_DIFF_SIZE] + "\n... (diff truncated)"
+
+                changed_summary = "\n".join(f"- `{wf['path']}`: {wf['reason']}" for wf in written_files)
+
+                review_prompt = f"""Review these proposed changes for a ChatControl GitHub issue.
+
+## Changed Files
+{changed_summary}
+
+## Diff
+```diff
+{diff_output}
+```
+
+Read each changed file and its surrounding code. Verify correctness, then check:
+1. DRY violations — duplicated logic that already exists elsewhere in the codebase
+2. Broken code — syntax errors, missing imports, wrong method signatures, type mismatches
+3. Hidden bugs — null handling, edge cases, off-by-one, encoding, resource leaks
+4. Overengineering — is the change the minimum needed to fix the issue?
+5. Consistency — does it match patterns and style in the surrounding code?
+6. Missed spots — should the same change be applied to other files or methods?
+7. Error handling — are unexpected responses logged, not silently swallowed?
+
+If you find problems, fix them with write_codebase_file. If everything looks correct, respond with "LGTM"."""
+
+                for model in models:
+                    print(f"Phase 2 — trying model: {model}")
+
+                    try:
+                        review_text = await run_agent_session(client, model, REVIEW_SYSTEM_PROMPT, review_prompt, all_tools)
+                        print(f"Phase 2 — complete: {review_text[:200]}")
+                        break
+                    except Exception as e:
+                        print(f"Phase 2 — {model} failed: {e}")
+                else:
+                    print("Warning: Phase 2 self-review failed for all models — skipping review")
+
+        if written_files:
+            pr_lines = [
+                "Automated fix proposed by AI analysis of the linked issue.\n",
+                "## Changes\n",
+            ]
+
+            for wf in written_files:
+                prefix = "**New:** " if wf.get("new") else ""
+                pr_lines.append(f"- {prefix}`{wf['path']}`: {wf['reason']}")
+
+            pr_lines.append("\n**This is a draft PR — human review required before merging.**")
+            Path("pr_description.md").write_text("\n".join(pr_lines))
+            print("PR description written")
+
+        if is_reply and text.strip().upper().startswith("SKIP"):
+            print("Bot decided to skip — no response needed")
+        else:
+            Path(RESPONSE_FILE).write_text(text)
+            print("Response written to response.md")
     finally:
         await client.stop()
-
-    Path(RESPONSE_FILE).write_text(text)
-    print("Response written to response.md")
 
 
 if __name__ == "__main__":
@@ -572,9 +873,7 @@ if __name__ == "__main__":
         failure_body = (
             "The AI analysis was unable to generate a response for this issue.\n\n"
             f"**Error:** `{fatal}`\n\n"
-            "A human maintainer will follow up.\n\n"
-            "---\n"
-            "*Automated diagnostic from the AI Issue Support workflow.*"
+            "A human maintainer will follow up."
         )
 
         Path("failure.md").write_text(failure_body)

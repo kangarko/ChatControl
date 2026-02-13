@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -20,6 +21,9 @@ MAX_DIFF_SIZE = 30_000
 RESPONSE_FILE = "response.md"
 CONVERSATION_FILE = "conversation.json"
 MAX_CONVERSATION_SIZE = 50_000
+INSIGHTS_FILE = f"{CHATCONTROL_DIR}/.github/insights/learned_insights.json"
+INSIGHT_EXPIRY_DAYS = 90
+MAX_INSIGHTS = 50
 
 STOP_WORDS = frozenset({
     "the", "is", "at", "which", "on", "a", "an", "in", "to", "for",
@@ -62,6 +66,7 @@ WRITABLE_EXTENSIONS = frozenset({".java", ".yml", ".yaml", ".rs", ".json"})
 BLOCKED_FILENAMES = frozenset({"pom.xml", "build.xml"})
 
 written_files = []
+new_insights  = []
 
 SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plugin for Spigot/Paper/BungeeCord/Velocity.
 
@@ -90,6 +95,9 @@ Topic-specific skill files with architecture, config keys, common issues, and fi
 - chatcontrol/.github/skills/tags-nicks/SKILL.md — Player tags, nick, prefix/suffix, /tag command, tag rules
 - chatcontrol/.github/skills/menus/SKILL.md — Color picker, spy toggle, channel GUI, Foundation Menu system
 Read the 1-3 most relevant skill files FIRST before answering — they contain detailed troubleshooting guides.
+
+## Learned Insights
+You may receive supplementary insights learned from previous issue resolutions. Skill files are authoritative; insights are supplementary hints for edge cases and common pitfalls discovered through real issues.
 
 ## Purchase Links — CRITICAL
 ChatControl is a premium plugin sold on BuiltByBit. The GitHub source code is provided as-is for reference only.
@@ -176,6 +184,31 @@ Think deeply and exhaustively before approving. You are the last line of defense
 3. If you find problems, fix them using patch_codebase_file (for existing files) or write_codebase_file (for new files)
 4. If you get an unexpected response from any tool, include the raw response in your output
 5. If everything looks correct, respond with "LGTM" and nothing else"""
+
+INSIGHT_SYSTEM_PROMPT = """You analyze resolved GitHub issues for ChatControl to extract reusable support insights.
+
+Your goal: identify NEW knowledge that wasn't already in the skill files but was needed to answer this issue.
+
+## What qualifies as an insight
+- A specific config key behavior or default that users commonly misunderstand
+- A non-obvious interaction between two features
+- A common user mistake with a concrete fix
+- An error message and its actual root cause
+- A setup step users frequently miss
+
+## What does NOT qualify
+- Generic advice like "check your config" or "update the plugin"
+- Information already clearly documented in the skill files
+- Issue-specific details that won't help anyone else
+- Anything you're uncertain or speculating about
+- Restating what skill files already say
+
+## Rules
+- Store at most 1-2 insights per issue. Most issues teach nothing new — that's fine.
+- If nothing is genuinely new or useful, do NOT call store_insight at all.
+- Check the existing insights list to avoid duplicates or near-duplicates.
+- Each insight must be specific enough that reading it alone tells you what to do.
+- Prefer insights about config keys, permissions, and common error causes."""
 
 
 def extract_keywords(title, body):
@@ -333,6 +366,50 @@ def format_conversation(issue_body, comments):
         text = "... (earlier conversation truncated)\n\n" + text[-MAX_CONVERSATION_SIZE:]
 
     return text
+
+
+def load_insights():
+    path = Path(INSIGHTS_FILE)
+
+    if not path.exists():
+        return []
+
+    try:
+        return json.loads(path.read_text())
+    except Exception as e:
+        print(f"Warning: Failed to load insights: {e}")
+        return []
+
+
+def prune_insights(insights):
+    cutoff = (datetime.now() - timedelta(days=INSIGHT_EXPIRY_DAYS)).strftime("%Y-%m-%d")
+    valid  = [i for i in insights if i.get("date", "") >= cutoff]
+
+    if len(valid) > MAX_INSIGHTS:
+        valid = valid[-MAX_INSIGHTS:]
+
+    return valid
+
+
+def save_insights(insights):
+    path = Path(INSIGHTS_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(insights, indent=2))
+
+
+def format_insights_for_prompt(insights):
+    if not insights:
+        return ""
+
+    lines = ["## Learned Insights (from previous issues \u2014 supplementary to skill files)"]
+
+    for i in insights:
+        topic = i.get("topic", "general")
+        text  = i.get("insight", "")
+        issue = i.get("issue", "?")
+        lines.append(f"- **[{topic}]** (#{issue}): {text}")
+
+    return "\n".join(lines)
 
 
 def read_field(value, field):
@@ -681,6 +758,29 @@ def patch_codebase_file(params: PatchFileParams) -> str:
         return f"Error writing file: {e}"
 
 
+class StoreInsightParams(BaseModel):
+    topic: str = Field(description="Topic category: channels, chat-formatting, rules-engine, chat-filter, groups, proxy-sync, database, commands, variables, messages, private-messaging, books-announcements, mute-warn, tags-nicks, menus, or 'general'")
+    insight: str = Field(description="Specific, actionable insight in 1-3 sentences. Must be concrete enough to help resolve similar future issues.")
+    related_skill: str = Field(default="", description="Skill file this supplements, e.g. 'channels'. Empty if general.")
+
+
+@define_tool(description="Store a learned insight from this issue. Only call if you found genuinely new knowledge not in skill files. Most issues teach nothing new — do not force insights.")
+def store_insight(params: StoreInsightParams) -> str:
+    if len(params.insight) < 20:
+        return "Error: Insight too short. Must be specific and actionable."
+
+    if len(params.insight) > 500:
+        return "Error: Insight too long. Keep to 1-3 concise sentences."
+
+    new_insights.append({
+        "topic":         params.topic,
+        "insight":       params.insight,
+        "related_skill": params.related_skill,
+    })
+
+    return f"Insight stored for topic '{params.topic}'."
+
+
 async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=3600):
     session = await client.create_session({
         "model": model,
@@ -761,6 +861,7 @@ async def run():
     labels         = os.environ.get("ISSUE_LABELS", "")
     comment_body   = os.environ.get("COMMENT_BODY", "")
     comment_author = os.environ.get("COMMENT_AUTHOR", "")
+    issue_number   = os.environ.get("ISSUE_NUMBER", "0")
     is_reply       = bool(comment_body)
     token          = os.environ.get("COPILOT_GITHUB_TOKEN")
 
@@ -807,6 +908,9 @@ async def run():
     key_files_text = "\n".join(f"- {f}" for f in KEY_FILES)
     label_line     = f"\n**Labels:** {labels}" if labels else ""
 
+    existing_insights = prune_insights(load_insights())
+    insights_text     = format_insights_for_prompt(existing_insights)
+
     if is_reply:
         conversation = load_conversation()
         thread       = format_conversation(body, conversation)
@@ -821,6 +925,7 @@ async def run():
 ## Possibly Relevant Files
 {key_files_text}
 {hints_text}
+{insights_text}
 
 Respond to the latest comment. If it's just a thank-you with no question, respond with exactly SKIP and nothing else."""
     else:
@@ -833,6 +938,7 @@ Respond to the latest comment. If it's just a thank-you with no question, respon
 ## Possibly Relevant Files
 {key_files_text}
 {hints_text}
+{insights_text}
 
 Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
@@ -908,6 +1014,44 @@ If you find problems, fix them with patch_codebase_file (for existing files) or 
                         print(f"Phase 2 — {model} failed: {e}")
                 else:
                     print("Warning: Phase 2 self-review failed for all models — skipping review")
+
+        if not (is_reply and text.strip().upper().startswith("SKIP")):
+            print("Phase 3 — extracting insights")
+
+            insight_prompt = f"""Analyze this resolved GitHub issue and the response given. Extract genuinely new support insights, if any.
+
+**Issue #{issue_number}: {title}**
+
+{body[:5000]}
+
+**Response Given:**
+{text[:5000]}
+
+{format_insights_for_prompt(existing_insights) or "No existing insights yet."}
+
+Read the 1-2 most relevant skill files to verify your insight isn't already documented. Then decide if there's genuinely new knowledge worth storing. If not, respond with "No new insights." without calling store_insight."""
+
+            insight_tools = [read_codebase_file, search_codebase, store_insight]
+
+            for model in models:
+                try:
+                    await run_agent_session(client, model, INSIGHT_SYSTEM_PROMPT, insight_prompt, insight_tools, timeout=180)
+                    print("Phase 3 — complete")
+                    break
+                except Exception as e:
+                    print(f"Phase 3 — {model} failed: {e}")
+
+            if new_insights:
+                for ni in new_insights:
+                    ni["date"]  = datetime.now().strftime("%Y-%m-%d")
+                    ni["issue"] = int(issue_number)
+
+                merged = existing_insights + new_insights
+                merged = prune_insights(merged)
+                save_insights(merged)
+                print(f"Phase 3 — stored {len(new_insights)} insight(s), total: {len(merged)}")
+            else:
+                print("Phase 3 — no new insights")
 
         if written_files:
             pr_lines = [

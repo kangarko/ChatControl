@@ -95,6 +95,26 @@ jobs:
           COMMENT_AUTHOR: ${{ github.event.comment.user.login || '' }}
         run: python chatcontrol/.github/scripts/issue_responder.py
 
+      - name: Commit learned insights
+        if: "!cancelled()"
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          cd chatcontrol
+          git add .github/insights/learned_insights.json 2>/dev/null || exit 0
+          if git diff --cached --quiet; then
+            echo "No insight changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Learn from #${ISSUE_NUM}"
+          git pull --rebase origin main 2>/dev/null || true
+          git push origin main
+          echo "Committed insights to main"
+
       - name: Create fix PR if changes were proposed
         id: fix_pr
         continue-on-error: true
@@ -104,6 +124,7 @@ jobs:
           ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
           cd chatcontrol
+          git checkout -- .github/insights/ 2>/dev/null || true
           git add -A
           if git diff --cached --quiet; then
             echo "No code changes proposed"

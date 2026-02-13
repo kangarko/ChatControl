@@ -15,6 +15,7 @@ FOUNDATION_DIR = "foundation"
 MAX_FILE_SIZE = 50_000
 MAX_SEARCH_FILES = 20
 MAX_SEARCH_RESULTS = 50
+MAX_DIFF_SIZE = 30_000
 RESPONSE_FILE = "response.md"
 
 STOP_WORDS = frozenset({
@@ -45,6 +46,20 @@ KEY_FILES = [
     f"{CHATCONTROL_DIR}/chatcontrol-bukkit/src/main/resources/proxy.yml",
 ]
 
+WRITABLE_PREFIXES = (
+    "chatcontrol-bukkit/src/main/",
+    "chatcontrol-core/src/main/",
+    "chatcontrol-proxy-core/src/main/",
+    "chatcontrol-bungeecord/src/main/",
+    "chatcontrol-velocity/src/main/",
+)
+
+WRITABLE_EXTENSIONS = frozenset({".java", ".yml", ".yaml", ".rs", ".json"})
+
+BLOCKED_FILENAMES = frozenset({"pom.xml", "build.xml"})
+
+written_files = []
+
 SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plugin for Spigot/Paper/BungeeCord/Velocity.
 
 ## Project Layout
@@ -71,7 +86,39 @@ Your readers are Minecraft server owners — busy people who want answers, not e
 - **Bold the key action:** e.g. **set `X: true` in settings.yml**
 - If you need more info, ask a few specific questions in a bullet list at the end.
 - Use GitHub Markdown with `yaml` or `java` language tags for code blocks.
-- Skip headers (##) unless you're genuinely covering multiple distinct topics."""
+- Skip headers (##) unless you're genuinely covering multiple distinct topics.
+
+## Fix Capability
+If you identify a clear, confident fix (config value correction, YAML fix, obvious single-file Java bug), use `write_codebase_file` to propose it. The change will be submitted as a draft PR for human review — you are NOT deploying to production.
+
+Only propose fixes when you are confident. Do NOT:
+- Modify Foundation code (separate repository)
+- Rewrite large sections of code or refactor
+- Add new files
+- Make speculative or uncertain changes
+- Touch build files (pom.xml, build.xml)
+
+Always explain what you changed and why in your response, so the reviewer can verify."""
+
+REVIEW_SYSTEM_PROMPT = """You are a senior engineer performing a thorough code review of proposed changes to ChatControl, a Minecraft plugin.
+
+Think deeply and exhaustively before approving. You are the last line of defense before these changes go into a draft PR.
+
+## What to check
+- **DRY violations**: Is there duplicated logic? Multiple functions or components doing the same thing? Does the change copy-paste something that already exists elsewhere?
+- **Broken code**: Will this compile? Are all imports present? Are types compatible? Are method signatures correct?
+- **Hidden bugs**: Null pointers, off-by-one errors, encoding issues, race conditions, resource leaks, unclosed streams?
+- **Edge cases**: What happens with empty input? Null values? Very large values? Special characters?
+- **Overengineering**: Is the change the minimum needed to fix the issue? Does it add unnecessary abstraction?
+- **Missed consistency**: Should similar changes be applied to other files or methods? Are there parallel implementations that need the same fix?
+- **Error handling**: If the code handles API responses or user input, does it log/surface unexpected values instead of swallowing them silently?
+
+## How to review
+1. Read each changed file in full to understand context
+2. Search the codebase for similar patterns that might need the same change
+3. If you find problems, fix them using write_codebase_file
+4. If you get an unexpected response from any tool, include the raw response in your output
+5. If everything looks correct, respond with "LGTM" and nothing else"""
 
 
 def extract_keywords(title, body):
@@ -167,6 +214,7 @@ def search_repos_by_keywords(keywords):
                 ["grep", "-rli",
                  "--include=*.java", "--include=*.yml",
                  "--include=*.yaml", "--include=*.rs",
+                 "--include=*.json",
                  f"--exclude-dir=target",
                  keyword, CHATCONTROL_DIR, FOUNDATION_DIR],
                 capture_output=True, text=True, timeout=10,
@@ -396,6 +444,141 @@ def list_directory(params: ListDirParams) -> str:
         return f"Error: {e}"
 
 
+class WriteFileParams(BaseModel):
+    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/resources/settings.yml'")
+    content: str = Field(description="The complete new content for the file")
+    reason: str = Field(description="Brief explanation of why this change fixes the issue")
+
+
+@define_tool(description="Write a modified source or config file to propose a fix. Only works for existing files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. The change will be submitted as a draft PR for human review.")
+def write_codebase_file(params: WriteFileParams) -> str:
+    if not params.path.startswith(CHATCONTROL_DIR + "/"):
+        return "Error: Can only write files in the chatcontrol/ repository, not foundation/."
+
+    relative = params.path[len(CHATCONTROL_DIR) + 1:]
+
+    if not any(relative.startswith(prefix) for prefix in WRITABLE_PREFIXES):
+        return f"Error: Can only write to source/resource directories under src/main/. Got: {relative}"
+
+    filename = Path(params.path).name
+
+    if filename in BLOCKED_FILENAMES:
+        return f"Error: Cannot modify build file: {filename}"
+
+    ext = Path(params.path).suffix.lower()
+
+    if ext not in WRITABLE_EXTENSIONS:
+        return f"Error: Cannot write {ext} files. Allowed: {', '.join(sorted(WRITABLE_EXTENSIONS))}"
+
+    if "/target/" in params.path:
+        return "Error: Cannot write to target/ (build output) directories."
+
+    resolved = validate_path(params.path)
+
+    if not resolved:
+        return "Error: Invalid path."
+
+    if not resolved.exists():
+        return f"Error: File does not exist: {params.path}. Can only modify existing files."
+
+    if not resolved.is_file():
+        return f"Error: Not a file: {params.path}"
+
+    if len(params.content) > MAX_FILE_SIZE:
+        return f"Error: Content too large ({len(params.content):,} chars). Max: {MAX_FILE_SIZE:,}."
+
+    try:
+        resolved.write_text(params.content)
+        written_files.append({"path": params.path, "reason": params.reason})
+        return f"Successfully wrote {len(params.content):,} characters to {params.path}"
+    except Exception as e:
+        return f"Error writing file: {e}"
+
+
+async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=600):
+    session = await client.create_session({
+        "model": model,
+        "streaming": True,
+        "system_message": {"content": system_prompt},
+        "tools": tools,
+        "infinite_sessions": {
+            "enabled": True,
+            "background_compaction_threshold": 0.80,
+            "buffer_exhaustion_threshold": 0.95,
+        },
+    })
+
+    try:
+        done            = asyncio.Event()
+        response_chunks = []
+        event_errors    = []
+        callback_errors = []
+
+        def on_event(event):
+            try:
+                event_type = normalize_role(read_field(event, "type"))
+                event_data = read_field(event, "data")
+
+                if event_type == "assistant.message":
+                    chunk = extract_text(read_field(event_data, "content"))
+
+                    if chunk:
+                        response_chunks.append(chunk)
+
+                elif event_type == "assistant.message_delta":
+                    chunk = extract_text(read_field(event_data, "delta_content"))
+
+                    if chunk:
+                        response_chunks.append(chunk)
+
+                elif event_type in ("error", "session.error", "assistant.error"):
+                    error_text = extract_text(event_data)
+
+                    if error_text:
+                        event_errors.append(f"{event_type}: {error_text}")
+                    else:
+                        event_errors.append(event_type)
+
+                elif event_type == "session.idle":
+                    done.set()
+            except Exception as callback_error:
+                callback_errors.append(repr(callback_error))
+                done.set()
+
+        session.on(on_event)
+        await session.send({"prompt": user_prompt})
+        await asyncio.wait_for(done.wait(), timeout=timeout)
+
+        messages      = await session.get_messages()
+        history_text  = extract_assistant_message_text(messages)
+        streamed_text = "".join(response_chunks).strip()
+        candidate     = history_text if history_text else streamed_text
+
+        if not candidate:
+            raise RuntimeError(
+                f"Empty output. chunks={len(response_chunks)}, "
+                f"event_errors={event_errors[:3]}, "
+                f"callback_errors={callback_errors[:3]}, "
+                f"messages={len(messages)}"
+            )
+
+        return candidate
+    finally:
+        await session.destroy()
+
+
+def get_git_diff():
+    try:
+        result = subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "diff"],
+            capture_output=True, text=True, timeout=30,
+        )
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"Warning: git diff failed: {e}")
+        return ""
+
+
 async def run():
     title  = os.environ["ISSUE_TITLE"]
     body   = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
@@ -410,14 +593,12 @@ async def run():
 
     print(f"Issue: {title}")
 
-    keywords = extract_keywords(title, body)
-    print(f"Extracted {len(keywords)} keywords")
-
+    keywords           = extract_keywords(title, body)
     stacktrace_classes = extract_stacktrace_classes(body)
     class_files        = find_class_files(stacktrace_classes) if stacktrace_classes else []
     mentioned_files    = extract_mentioned_files(body)
     search_files       = search_repos_by_keywords(keywords)
-    print(f"Pre-analysis: {len(class_files)} stacktrace files, {len(mentioned_files)} mentioned files, {len(search_files)} keyword matches")
+    print(f"Pre-analysis: {len(keywords)} keywords, {len(class_files)} stacktrace files, {len(mentioned_files)} mentioned files, {len(search_files)} keyword matches")
 
     hints = []
 
@@ -455,7 +636,8 @@ async def run():
 
 Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
-    models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
+    all_tools = [read_codebase_file, search_codebase, list_directory, write_codebase_file]
+    models    = ["claude-opus-4.6-fast", "claude-opus-4.6"]
 
     cli_path = resolve_cli_path()
     print(f"Using Copilot CLI: {cli_path}")
@@ -471,96 +653,79 @@ Read the most relevant files above, then give a short, direct answer. Lead with 
         model_failures = []
 
         for model in models:
-            print(f"Trying model: {model}")
+            print(f"Phase 1 — trying model: {model}")
 
             try:
-                session = await client.create_session({
-                    "model": model,
-                    "streaming": True,
-                    "system_message": {"content": SYSTEM_PROMPT},
-                    "tools": [read_codebase_file, search_codebase, list_directory],
-                    "infinite_sessions": {
-                        "enabled": True,
-                        "background_compaction_threshold": 0.80,
-                        "buffer_exhaustion_threshold": 0.95,
-                    },
-                })
-
-                try:
-                    done            = asyncio.Event()
-                    response_chunks = []
-                    event_errors    = []
-                    callback_errors = []
-
-                    def on_event(event):
-                        try:
-                            event_type = normalize_role(read_field(event, "type"))
-                            event_data = read_field(event, "data")
-
-                            if event_type == "assistant.message":
-                                chunk = extract_text(read_field(event_data, "content"))
-
-                                if chunk:
-                                    response_chunks.append(chunk)
-
-                            elif event_type == "assistant.message_delta":
-                                chunk = extract_text(read_field(event_data, "delta_content"))
-
-                                if chunk:
-                                    response_chunks.append(chunk)
-
-                            elif event_type in ("error", "session.error", "assistant.error"):
-                                error_text = extract_text(event_data)
-
-                                if error_text:
-                                    event_errors.append(f"{event_type}: {error_text}")
-                                else:
-                                    event_errors.append(event_type)
-
-                            elif event_type == "session.idle":
-                                done.set()
-                        except Exception as callback_error:
-                            callback_errors.append(repr(callback_error))
-                            done.set()
-
-                    session.on(on_event)
-                    await session.send({"prompt": user_prompt})
-                    await asyncio.wait_for(done.wait(), timeout=600)
-
-                    messages      = await session.get_messages()
-                    history_text  = extract_assistant_message_text(messages)
-                    streamed_text = "".join(response_chunks).strip()
-                    candidate     = history_text if history_text else streamed_text
-
-                    if candidate:
-                        text = candidate
-                        print(f"Success with model: {model}")
-                        break
-
-                    diagnostic = (
-                        f"Model '{model}' returned empty assistant output. "
-                        f"response_chunks={len(response_chunks)}, "
-                        f"event_errors={event_errors[:3]}, "
-                        f"callback_errors={callback_errors[:3]}, "
-                        f"message_count={len(messages)}"
-                    )
-                    raise RuntimeError(diagnostic)
-                finally:
-                    await session.destroy()
+                text = await run_agent_session(client, model, SYSTEM_PROMPT, user_prompt, all_tools)
+                print(f"Phase 1 — success with {model}")
+                break
             except Exception as e:
-                failure = f"{model}: {e}"
-                model_failures.append(failure)
-                print(f"Model {model} failed: {e}")
-                continue
+                model_failures.append(f"{model}: {e}")
+                print(f"Phase 1 — {model} failed: {e}")
 
         if not text:
-            joined_failures = " | ".join(model_failures)
-            raise RuntimeError(f"All models failed or returned empty output. Details: {joined_failures}")
+            raise RuntimeError(f"All models failed. Details: {' | '.join(model_failures)}")
+
+        if written_files:
+            print(f"Phase 2 — self-reviewing {len(written_files)} changed file(s)")
+            diff_output = get_git_diff()
+
+            if diff_output:
+                if len(diff_output) > MAX_DIFF_SIZE:
+                    diff_output = diff_output[:MAX_DIFF_SIZE] + "\n... (diff truncated)"
+
+                changed_summary = "\n".join(f"- `{wf['path']}`: {wf['reason']}" for wf in written_files)
+
+                review_prompt = f"""Review these proposed changes for a ChatControl GitHub issue fix.
+
+## Changed Files
+{changed_summary}
+
+## Diff
+```diff
+{diff_output}
+```
+
+Read each changed file and its surrounding code. Verify correctness, then check:
+1. DRY violations — duplicated logic that already exists elsewhere in the codebase
+2. Broken code — syntax errors, missing imports, wrong method signatures, type mismatches
+3. Hidden bugs — null handling, edge cases, off-by-one, encoding, resource leaks
+4. Overengineering — is the change the minimum needed to fix the issue?
+5. Consistency — does it match patterns and style in the surrounding code?
+6. Missed spots — should the same change be applied to other files or methods?
+7. Error handling — are unexpected responses logged, not silently swallowed?
+
+If you find problems, fix them with write_codebase_file. If everything looks correct, respond with "LGTM"."""
+
+                for model in models:
+                    print(f"Phase 2 — trying model: {model}")
+
+                    try:
+                        review_text = await run_agent_session(client, model, REVIEW_SYSTEM_PROMPT, review_prompt, all_tools)
+                        print(f"Phase 2 — complete: {review_text[:200]}")
+                        break
+                    except Exception as e:
+                        print(f"Phase 2 — {model} failed: {e}")
+                else:
+                    print("Warning: Phase 2 self-review failed for all models — skipping review")
+
+        if written_files:
+            pr_lines = [
+                "Automated fix proposed by AI analysis of the linked issue.\n",
+                "## Changes\n",
+            ]
+
+            for wf in written_files:
+                pr_lines.append(f"- `{wf['path']}`: {wf['reason']}")
+
+            pr_lines.append("\n**This is a draft PR — human review required before merging.**")
+            Path("pr_description.md").write_text("\n".join(pr_lines))
+            print("PR description written")
+
+        Path(RESPONSE_FILE).write_text(text)
+        print("Response written to response.md")
     finally:
         await client.stop()
-
-    Path(RESPONSE_FILE).write_text(text)
-    print("Response written to response.md")
 
 
 if __name__ == "__main__":

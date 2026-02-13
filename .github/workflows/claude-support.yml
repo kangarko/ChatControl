@@ -6,7 +6,8 @@ on:
 
 permissions:
   issues: write
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   respond:
@@ -52,6 +53,46 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
         run: python chatcontrol/.github/scripts/issue_responder.py
+
+      - name: Create fix PR if changes were proposed
+        id: fix_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          cd chatcontrol
+          if git diff --quiet; then
+            echo "No code changes proposed"
+            exit 0
+          fi
+
+          BRANCH="fix/issue-${ISSUE_NUM}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "Proposed fix for #${ISSUE_NUM}"
+          git push -f origin "$BRANCH"
+
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --json url --jq '.[0].url' 2>/dev/null || true)
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "pr_url=$EXISTING_PR" >> "$GITHUB_OUTPUT"
+          else
+            PR_URL=$(gh pr create \
+              --draft \
+              --title "Fix #${ISSUE_NUM}: ${ISSUE_TITLE}" \
+              --body-file ../pr_description.md \
+              --head "$BRANCH")
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Append PR link to response
+        if: steps.fix_pr.outputs.pr_url
+        run: |
+          printf '\n\n---\n:memo: **A draft fix has been proposed:** %s\n*Please review before merging.*' "${{ steps.fix_pr.outputs.pr_url }}" >> response.md
 
       - name: Post response comment
         if: success()

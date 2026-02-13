@@ -1,0 +1,72 @@
+name: AI Issue Support
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  respond:
+    if: github.event.issue.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    environment: copilot
+    steps:
+      - name: Checkout ChatControl
+        uses: actions/checkout@v4
+        with:
+          path: chatcontrol
+
+      - name: Checkout Foundation
+        uses: actions/checkout@v4
+        with:
+          repository: kangarko/foundation
+          path: foundation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Copilot SDK
+        run: pip install github-copilot-sdk
+
+      - name: Fix bundled CLI permissions
+        run: chmod +x "$(python -c 'import copilot, os; print(os.path.join(os.path.dirname(copilot.__file__), "bin", "copilot"))')"
+
+      - name: Analyze issue and generate response
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_MCP_GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
+        run: python chatcontrol/.github/scripts/issue_responder.py
+
+      - name: Post response comment
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file response.md
+
+      - name: Post failure diagnostic
+        if: failure() && hashFiles('failure.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file failure.md

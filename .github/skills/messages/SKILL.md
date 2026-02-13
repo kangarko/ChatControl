@@ -141,11 +141,11 @@ Messages:
 
 ### Example Scenario
 With `Join_Quit_Cooldown: 10 seconds`:
-1. Player joins at 0:00 → message shown
-2. Player quits at 0:02 → message shown
-3. Player joins at 0:05 → message suppressed (within 10s of last join)
-4. Player quits at 0:07 → message suppressed (within 10s of last quit)
-5. Player joins at 0:15 → message shown (cooldown expired)
+1. Player joins at 0:00 → message shown (first join, no cooldown)
+2. Player quits at 0:02 → message shown (first quit, no cooldown)
+3. Player joins at 0:05 → message suppressed (5 seconds since last join at 0:00, within 10s cooldown)
+4. Player quits at 0:07 → message suppressed (5 seconds since last quit at 0:02, within 10s cooldown)
+5. Player joins at 0:15 → message shown (15 seconds since last join at 0:00, cooldown expired)
 
 ### Debugging
 Enable `player-message` debug category to see cooldown activity:

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -54,8 +55,9 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 * Track the last time a player had a join/quit message shown
 	 * Key: Player UUID + "-" + MessageType (JOIN or QUIT)
 	 * Value: Timestamp in milliseconds when the message was last shown
+	 * Thread-safe to handle concurrent access during reload and broadcast
 	 */
-	private final Map<String, Long> joinQuitCooldowns = new HashMap<>();
+	private final Map<String, Long> joinQuitCooldowns = new ConcurrentHashMap<>();
 
 	/*
 	 * Create this class

@@ -12,7 +12,7 @@ from copilot import CopilotClient
 CHATCONTROL_DIR = "chatcontrol"
 FOUNDATION_DIR = "foundation"
 MAX_FILE_SIZE = 60_000
-MAX_CONTEXT_CHARS = 600_000
+MAX_CONTEXT_CHARS = 400_000
 MAX_SEARCH_FILES = 40
 RESPONSE_FILE = "response.md"
 

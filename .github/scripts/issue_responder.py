@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import asyncio
+import json
 import os
 import re
 import shutil
@@ -17,6 +18,8 @@ MAX_SEARCH_FILES = 20
 MAX_SEARCH_RESULTS = 50
 MAX_DIFF_SIZE = 30_000
 RESPONSE_FILE = "response.md"
+CONVERSATION_FILE = "conversation.json"
+MAX_CONVERSATION_SIZE = 50_000
 
 STOP_WORDS = frozenset({
     "the", "is", "at", "which", "on", "a", "an", "in", "to", "for",
@@ -107,6 +110,7 @@ ChatControl is a premium plugin sold on BuiltByBit. The GitHub source code is pr
 - For stacktraces, trace through the relevant source files
 - If the issue lacks info, ask for: server version, ChatControl version, config snippets, error logs, `/chc debug` ZIP
 - NEVER suggest downgrading the plugin or Java version
+- NEVER tell users to write code, create plugins, or implement things themselves — your users are server owners, not developers. If a feature needs code, implement it yourself via `write_codebase_file` and propose a PR
 
 ## Response Style
 Your readers are Minecraft server owners — busy people who want answers, not essays. Match the length to the complexity: a one-line config fix gets a one-line answer; a multi-layered bug gets a thorough walkthrough. Never pad, never ramble.
@@ -115,22 +119,37 @@ Your readers are Minecraft server owners — busy people who want answers, not e
 - **Show only what they need to change** — the relevant config key or code snippet, not the entire file.
 - **No greetings, no filler, no sign-offs.** Jump straight in.
 - **Never expose code internals.** Users are server owners, not developers. Don't mention polling intervals, messaging channel names, internal data structures, class names, or how the code works under the hood. Even if someone asks "how does X work?", explain only what they need to *do* (setup steps, config keys, what features it enables) — not the implementation.
+- **Never tell users to write code.** Don't suggest creating Java plugins, using APIs, registering classes, or calling methods. If a feature needs code changes, implement it yourself and propose a PR. If you can't implement it confidently, say it needs to be implemented by the development team — never ask the user to do it.
 - **Bold the key action:** e.g. **set `X: true` in settings.yml**
 - If you need more info, ask a few specific questions in a bullet list at the end.
 - Use GitHub Markdown with `yaml` or `java` language tags for code blocks.
 - Skip headers (##) unless you're genuinely covering multiple distinct topics.
 
-## Fix Capability
-If you identify a clear, confident fix (config value correction, YAML fix, obvious single-file Java bug), use `write_codebase_file` to propose it. The change will be submitted as a draft PR for human review — you are NOT deploying to production.
+## Fix & Feature Capability
+When you can fix a bug or implement a requested feature, use `write_codebase_file` to propose the changes. You can modify existing files AND create new ones. Changes are submitted as a draft PR for human review — you are NOT deploying to production.
 
-Only propose fixes when you are confident. Do NOT:
+**When to propose changes:**
+- Config fixes (YAML corrections, missing keys, new config options)
+- Bug fixes (single-file or multi-file Java fixes)
+- New integrations (third-party plugin hooks, party providers, placeholder expansions)
+- Small-to-medium feature additions that fit naturally into the existing architecture
+
+**Do NOT:**
 - Modify Foundation code (separate repository)
-- Rewrite large sections of code or refactor
-- Add new files
+- Rewrite large unrelated sections of code
 - Make speculative or uncertain changes
 - Touch build files (pom.xml, build.xml)
 
-Always explain what you changed and why in your response, so the reviewer can verify."""
+Always explain what you changed and why in your response, so the reviewer can verify.
+
+## Follow-Up Conversations
+When responding to a follow-up comment on a thread you already answered:
+- Read the full conversation to understand what was discussed
+- Don't repeat your previous answer — build on it, clarify, or address new information
+- If the user provided logs, config, or errors, analyze them specifically
+- If a maintainer already resolved the issue in a previous comment, respond with exactly SKIP and nothing else
+- If the comment is just a thank-you, acknowledgment, or confirmation with no further question, respond with exactly SKIP and nothing else
+- SKIP means no comment will be posted — use it to avoid unnecessary bot noise"""
 
 REVIEW_SYSTEM_PROMPT = """You are a senior engineer performing a thorough code review of proposed changes to ChatControl, a Minecraft plugin.
 
@@ -260,6 +279,54 @@ def search_repos_by_keywords(keywords):
 
     sorted_files = sorted(file_hits.items(), key=lambda x: -x[1])
     return [f for f, _ in sorted_files[:MAX_SEARCH_FILES]]
+
+
+def load_conversation():
+    path = Path(CONVERSATION_FILE)
+
+    if not path.exists():
+        return []
+
+    try:
+        data = json.loads(path.read_text())
+
+        return [
+            {
+                "author": c["user"]["login"],
+                "body":   c["body"],
+                "is_bot": c["user"]["type"] == "Bot",
+            }
+            for c in data
+        ]
+    except Exception as e:
+        print(f"Warning: Failed to load conversation: {e}")
+        return []
+
+
+def format_conversation(issue_body, comments):
+    parts     = [f"**Original issue:**\n{issue_body}"]
+    last_user = None
+
+    for i, c in enumerate(comments):
+        if not c["is_bot"]:
+            last_user = i
+
+    for i, c in enumerate(comments):
+        if c["is_bot"]:
+            label = "Bot response"
+        elif i == last_user:
+            label = f"Latest comment by @{c['author']} (respond to this)"
+        else:
+            label = f"Comment by @{c['author']}"
+
+        parts.append(f"**{label}:**\n{c['body']}")
+
+    text = "\n\n---\n\n".join(parts)
+
+    if len(text) > MAX_CONVERSATION_SIZE:
+        text = "... (earlier conversation truncated)\n\n" + text[-MAX_CONVERSATION_SIZE:]
+
+    return text
 
 
 def read_field(value, field):
@@ -495,12 +562,12 @@ def list_directory(params: ListDirParams) -> str:
 
 
 class WriteFileParams(BaseModel):
-    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/resources/settings.yml'")
+    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/java/org/mineacademy/chatcontrol/MyClass.java'. Can be a new or existing file.")
     content: str = Field(description="The complete new content for the file")
-    reason: str = Field(description="Brief explanation of why this change fixes the issue")
+    reason: str = Field(description="Brief explanation of why this change fixes the issue or implements the feature")
 
 
-@define_tool(description="Write a modified source or config file to propose a fix. Only works for existing files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. The change will be submitted as a draft PR for human review.")
+@define_tool(description="Write or create a source/config file to propose a fix or feature. Works for files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. Changes are submitted as a draft PR for human review.")
 def write_codebase_file(params: WriteFileParams) -> str:
     if not params.path.startswith(CHATCONTROL_DIR + "/"):
         return "Error: Can only write files in the chatcontrol/ repository, not foundation/."
@@ -528,19 +595,20 @@ def write_codebase_file(params: WriteFileParams) -> str:
     if not resolved:
         return "Error: Invalid path."
 
-    if not resolved.exists():
-        return f"Error: File does not exist: {params.path}. Can only modify existing files."
-
-    if not resolved.is_file():
+    if resolved.exists() and not resolved.is_file():
         return f"Error: Not a file: {params.path}"
+
+    is_new = not resolved.exists()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
 
     if len(params.content) > MAX_FILE_SIZE:
         return f"Error: Content too large ({len(params.content):,} chars). Max: {MAX_FILE_SIZE:,}."
 
     try:
         resolved.write_text(params.content)
-        written_files.append({"path": params.path, "reason": params.reason})
-        return f"Successfully wrote {len(params.content):,} characters to {params.path}"
+        written_files.append({"path": params.path, "reason": params.reason, "new": is_new})
+        action = "Created" if is_new else "Updated"
+        return f"{action} {params.path} ({len(params.content):,} chars)"
     except Exception as e:
         return f"Error writing file: {e}"
 
@@ -601,9 +669,17 @@ async def run_agent_session(client, model, system_prompt, user_prompt, tools, ti
 
 def get_git_diff():
     try:
+        subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "add", "-A"],
+            capture_output=True, timeout=10,
+        )
         result = subprocess.run(
-            ["git", "-C", CHATCONTROL_DIR, "diff"],
+            ["git", "-C", CHATCONTROL_DIR, "diff", "--cached"],
             capture_output=True, text=True, timeout=30,
+        )
+        subprocess.run(
+            ["git", "-C", CHATCONTROL_DIR, "reset", "--quiet"],
+            capture_output=True, timeout=10,
         )
         return result.stdout.strip()
     except Exception as e:
@@ -612,10 +688,13 @@ def get_git_diff():
 
 
 async def run():
-    title  = os.environ["ISSUE_TITLE"]
-    body   = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
-    labels = os.environ.get("ISSUE_LABELS", "")
-    token  = os.environ.get("COPILOT_GITHUB_TOKEN")
+    title          = os.environ["ISSUE_TITLE"]
+    body           = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
+    labels         = os.environ.get("ISSUE_LABELS", "")
+    comment_body   = os.environ.get("COMMENT_BODY", "")
+    comment_author = os.environ.get("COMMENT_AUTHOR", "")
+    is_reply       = bool(comment_body)
+    token          = os.environ.get("COPILOT_GITHUB_TOKEN")
 
     if not token:
         raise RuntimeError("Missing required environment variable: COPILOT_GITHUB_TOKEN")
@@ -623,9 +702,13 @@ async def run():
     if len(body) > 100_000:
         body = body[:100_000] + "\n... (truncated)"
 
-    print(f"Issue: {title}")
+    if is_reply:
+        print(f"Reply on issue: {title} (by @{comment_author})")
+    else:
+        print(f"New issue: {title}")
 
-    keywords           = extract_keywords(title, body)
+    all_text           = f"{body}\n{comment_body}" if is_reply else body
+    keywords           = extract_keywords(title, all_text)
     stacktrace_classes = extract_stacktrace_classes(body)
     class_files        = find_class_files(stacktrace_classes) if stacktrace_classes else []
     mentioned_files    = extract_mentioned_files(body)
@@ -656,7 +739,24 @@ async def run():
     key_files_text = "\n".join(f"- {f}" for f in KEY_FILES)
     label_line     = f"\n**Labels:** {labels}" if labels else ""
 
-    user_prompt = f"""Help with this GitHub issue. Keep your response short and actionable.
+    if is_reply:
+        conversation = load_conversation()
+        thread       = format_conversation(body, conversation)
+
+        user_prompt = f"""A user posted a follow-up comment on this issue. Respond to their latest comment.
+
+**Issue Title:** {title}{label_line}
+
+## Conversation Thread
+{thread}
+
+## Possibly Relevant Files
+{key_files_text}
+{hints_text}
+
+Respond to the latest comment. If it's just a thank-you with no question, respond with exactly SKIP and nothing else."""
+    else:
+        user_prompt = f"""Help with this GitHub issue. Keep your response short and actionable.
 
 **Title:** {title}{label_line}
 
@@ -708,7 +808,7 @@ Read the most relevant files above, then give a short, direct answer. Lead with 
 
                 changed_summary = "\n".join(f"- `{wf['path']}`: {wf['reason']}" for wf in written_files)
 
-                review_prompt = f"""Review these proposed changes for a ChatControl GitHub issue fix.
+                review_prompt = f"""Review these proposed changes for a ChatControl GitHub issue.
 
 ## Changed Files
 {changed_summary}
@@ -748,14 +848,18 @@ If you find problems, fix them with write_codebase_file. If everything looks cor
             ]
 
             for wf in written_files:
-                pr_lines.append(f"- `{wf['path']}`: {wf['reason']}")
+                prefix = "**New:** " if wf.get("new") else ""
+                pr_lines.append(f"- {prefix}`{wf['path']}`: {wf['reason']}")
 
             pr_lines.append("\n**This is a draft PR — human review required before merging.**")
             Path("pr_description.md").write_text("\n".join(pr_lines))
             print("PR description written")
 
-        Path(RESPONSE_FILE).write_text(text)
-        print("Response written to response.md")
+        if is_reply and text.strip().upper().startswith("SKIP"):
+            print("Bot decided to skip — no response needed")
+        else:
+            Path(RESPONSE_FILE).write_text(text)
+            print("Response written to response.md")
     finally:
         await client.stop()
 

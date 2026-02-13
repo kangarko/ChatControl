@@ -613,7 +613,7 @@ def write_codebase_file(params: WriteFileParams) -> str:
         return f"Error writing file: {e}"
 
 
-async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=600):
+async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=3600):
     session = await client.create_session({
         "model": model,
         "streaming": False,

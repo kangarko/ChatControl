@@ -54,9 +54,19 @@ jobs:
         run: python chatcontrol/.github/scripts/issue_responder.py
 
       - name: Post response comment
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh issue comment "${{ github.event.issue.number }}" \
             --repo "${{ github.repository }}" \
             --body-file response.md
+
+      - name: Post failure diagnostic
+        if: failure() && hashFiles('failure.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file failure.md

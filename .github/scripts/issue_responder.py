@@ -3,6 +3,7 @@
 import asyncio
 import os
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -291,10 +292,101 @@ The following files from the ChatControl and Foundation repositories are relevan
 Provide a clear, actionable response. Reference specific file paths and config keys where applicable."""
 
 
+def read_field(value, field):
+    if isinstance(value, dict):
+        return value.get(field)
+
+    return getattr(value, field, None)
+
+
+def normalize_role(value):
+    if value is None:
+        return ""
+
+    role_value = read_field(value, "value")
+
+    if role_value is not None:
+        return str(role_value).strip().lower()
+
+    return str(value).strip().lower()
+
+
+def extract_text(value):
+    if value is None:
+        return ""
+
+    if isinstance(value, str):
+        return value.strip()
+
+    if isinstance(value, (int, float, bool)):
+        return str(value)
+
+    if isinstance(value, list):
+        parts = [extract_text(item) for item in value]
+        parts = [part for part in parts if part]
+
+        return "\n".join(parts).strip()
+
+    if isinstance(value, dict):
+        parts = []
+
+        for key in ("content", "text", "value", "delta_content", "message", "output_text", "parts", "items"):
+            part = extract_text(value.get(key))
+
+            if part:
+                parts.append(part)
+
+        return "\n".join(parts).strip()
+
+    parts = []
+
+    for attr in ("content", "text", "value", "delta_content", "message", "output_text"):
+        part = extract_text(getattr(value, attr, None))
+
+        if part:
+            parts.append(part)
+
+    return "\n".join(parts).strip()
+
+
+def extract_assistant_message_text(messages):
+    assistant_texts = []
+
+    for message in messages:
+        role = normalize_role(read_field(message, "role"))
+
+        if role != "assistant":
+            continue
+
+        content = read_field(message, "content")
+        text    = extract_text(content)
+
+        if text:
+            assistant_texts.append(text)
+
+    if not assistant_texts:
+        return ""
+
+    return assistant_texts[-1]
+
+
+def resolve_cli_path():
+    cli_path = shutil.which("copilot")
+
+    if not cli_path:
+        raise RuntimeError("Copilot CLI executable was not found on PATH.")
+
+    return cli_path
+
+
 async def run():
     title  = os.environ["ISSUE_TITLE"]
     body   = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
     labels = os.environ.get("ISSUE_LABELS", "")
+    token  = os.environ.get("COPILOT_GITHUB_TOKEN")
+
+    if not token:
+        raise RuntimeError("Missing required environment variable: COPILOT_GITHUB_TOKEN")
 
     if len(body) > 100_000:
         body = body[:100_000] + "\n... (truncated)"
@@ -322,11 +414,18 @@ async def run():
 
     models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
 
-    client = CopilotClient()
+    cli_path = resolve_cli_path()
+    print(f"Using Copilot CLI: {cli_path}")
+
+    client = CopilotClient({
+        "cli_path": cli_path,
+        "github_token": token,
+    })
     await client.start()
 
     try:
-        text = None
+        text           = None
+        model_failures = []
 
         for model in models:
             print(f"Trying model: {model}")
@@ -337,31 +436,76 @@ async def run():
                     "infinite_sessions": {"enabled": False},
                 })
 
-                done          = asyncio.Event()
-                response_text = []
+                try:
+                    done            = asyncio.Event()
+                    response_chunks = []
+                    event_errors    = []
+                    callback_errors = []
 
-                def on_event(event):
-                    if event.type.value == "assistant.message":
-                        response_text.append(event.data.content)
-                    elif event.type.value == "session.idle":
-                        done.set()
+                    def on_event(event):
+                        try:
+                            event_type = normalize_role(read_field(event, "type"))
+                            event_data = read_field(event, "data")
 
-                session.on(on_event)
-                await session.send({"prompt": full_prompt})
-                await asyncio.wait_for(done.wait(), timeout=300)
+                            if event_type == "assistant.message":
+                                chunk = extract_text(read_field(event_data, "content"))
 
-                text = response_text[0] if response_text else None
-                await session.destroy()
+                                if chunk:
+                                    response_chunks.append(chunk)
 
-                if text:
-                    print(f"Success with model: {model}")
-                    break
+                            elif event_type == "assistant.message_delta":
+                                chunk = extract_text(read_field(event_data, "delta_content"))
+
+                                if chunk:
+                                    response_chunks.append(chunk)
+
+                            elif event_type in ("error", "session.error", "assistant.error"):
+                                error_text = extract_text(event_data)
+
+                                if error_text:
+                                    event_errors.append(f"{event_type}: {error_text}")
+                                else:
+                                    event_errors.append(event_type)
+
+                            elif event_type == "session.idle":
+                                done.set()
+                        except Exception as callback_error:
+                            callback_errors.append(repr(callback_error))
+                            done.set()
+
+                    session.on(on_event)
+                    await session.send({"prompt": full_prompt})
+                    await asyncio.wait_for(done.wait(), timeout=300)
+
+                    messages      = await session.get_messages()
+                    history_text  = extract_assistant_message_text(messages)
+                    streamed_text = "\n".join(response_chunks).strip()
+                    candidate     = history_text if history_text else streamed_text
+
+                    if candidate:
+                        text = candidate
+                        print(f"Success with model: {model}")
+                        break
+
+                    diagnostic = (
+                        f"Model '{model}' returned empty assistant output. "
+                        f"response_chunks={len(response_chunks)}, "
+                        f"event_errors={event_errors[:3]}, "
+                        f"callback_errors={callback_errors[:3]}, "
+                        f"message_count={len(messages)}"
+                    )
+                    raise RuntimeError(diagnostic)
+                finally:
+                    await session.destroy()
             except Exception as e:
+                failure = f"{model}: {e}"
+                model_failures.append(failure)
                 print(f"Model {model} failed: {e}")
                 continue
 
         if not text:
-            text = "No response was generated. A human maintainer will follow up."
+            joined_failures = " | ".join(model_failures)
+            raise RuntimeError(f"All models failed or returned empty output. Details: {joined_failures}")
     finally:
         await client.stop()
 
@@ -376,4 +520,18 @@ async def run():
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    except Exception as fatal:
+        print(f"FATAL: {fatal}")
+
+        failure_body = (
+            "The AI analysis was unable to generate a response for this issue.\n\n"
+            f"**Error:** `{fatal}`\n\n"
+            "A human maintainer will follow up.\n\n"
+            "---\n"
+            "*Automated diagnostic from the AI Issue Support workflow.*"
+        )
+
+        Path("failure.md").write_text(failure_body)
+        raise

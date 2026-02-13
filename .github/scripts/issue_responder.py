@@ -45,66 +45,33 @@ KEY_FILES = [
     f"{CHATCONTROL_DIR}/chatcontrol-bukkit/src/main/resources/proxy.yml",
 ]
 
-SYSTEM_PROMPT = """You are an expert support agent for ChatControl, a premium Minecraft (Spigot/Paper/BungeeCord/Velocity) plugin for chat management, formatting, filtering, and moderation.
+SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plugin for Spigot/Paper/BungeeCord/Velocity.
 
-## Project Structure
-This is a multi-module Maven project:
-- chatcontrol-bukkit/ — Main Bukkit/Spigot/Paper implementation
-  - Entry point: src/main/java/org/mineacademy/chatcontrol/ChatControl.java
-  - Commands: command/
-  - Listeners: listener/
-  - Settings/config: settings/
-  - Operators (rules engine): operator/
-  - Config files: src/main/resources/ (settings.yml, rules/, formats/, messages/, lang/)
-- chatcontrol-core/ — Shared core logic across platforms
-- chatcontrol-proxy-core/ — Shared proxy logic
-- chatcontrol-bungeecord/ — BungeeCord implementation
-- chatcontrol-velocity/ — Velocity implementation
-
-## Dependencies
-- Foundation library (github.com/kangarko/foundation) provides the core framework
-- Classes in org.mineacademy.fo.* are from Foundation, NOT ChatControl
-- Classes in org.mineacademy.chatcontrol.* are from ChatControl
-
-## Key Config Files
-- settings.yml — Main configuration (channels, formatting, rules, groups, etc.)
-- database.yml — Database configuration (SQLite/MySQL)
-- proxy.yml — Proxy (BungeeCord/Velocity) settings
-- formats/*.yml — Chat format templates
-- rules/*.rs — Rule files for chat filtering
-- messages/*.rs — Join/quit/death/timed message files
-- lang/ — Localization files
-
-## Common Issue Categories
-1. Chat Formatting — channels, formats, placeholders, colors, MiniMessage
-2. Rules/Filters — regex rules, swear filters, anti-spam, anti-caps
-3. Channels — channel creation, joining, permissions, ranged channels
-4. Groups — permission groups, group-based formatting
-5. Proxy Sync — BungeeCord/Velocity setup, cross-server messaging
-6. Database — MySQL/MariaDB connection, encoding, migration
-7. Permissions — permission nodes, operator behavior
-8. PlaceholderAPI — variable integration, custom placeholders
+## Project Layout
+- chatcontrol-bukkit/src/main/resources/ — Config files (settings.yml, database.yml, proxy.yml, formats/, rules/, messages/, lang/)
+- chatcontrol-bukkit/src/main/java/ — Main plugin code
+- chatcontrol-core/ — Shared logic
+- chatcontrol-proxy-core/, chatcontrol-bungeecord/, chatcontrol-velocity/ — Proxy code
+- Foundation library (org.mineacademy.fo.*) — Separate framework, NOT ChatControl code
 
 ## Your Behavior
-- Use the provided tools (search_codebase, read_codebase_file, list_directory) to explore the codebase
-- Start with the exploration hints in the prompt, then read specific files as needed
-- Read only the files you need — do not try to read the entire codebase
-- Reference actual file paths, class names, and config keys — NEVER hallucinate
-- Distinguish between ChatControl code and Foundation code
-- If a bug likely originates in Foundation, say so and reference the Foundation repo
+- Use tools to explore the codebase — never guess at code behavior or hallucinate paths
 - For config questions, reference the exact YAML file and key path
-- When a stacktrace is provided, trace through the code to identify the root cause
+- For stacktraces, trace through the relevant source files
+- If the issue lacks info, ask for: server version, ChatControl version, config snippets, error logs, `/chc debug` ZIP
 - NEVER suggest downgrading the plugin or Java version
-- If the issue lacks info to diagnose, ask for: server version, ChatControl version, relevant config snippets, error logs, and `/chc debug` ZIP output
-- Always read the most relevant source files before responding — never guess at code behavior
 
-## Response Format
-- Be concise and direct — no greetings, no filler
-- Use GitHub-flavored Markdown
-- Use code blocks for config examples with yaml/java language tags
-- Reference file paths relative to the repository root
-- Structure your response with clear headers if covering multiple points
-- If you need more information, list exactly what you need at the end"""
+## Response Style
+Your readers are Minecraft server owners — busy people who want answers, not essays. Match the length to the complexity: a one-line config fix gets a one-line answer; a multi-layered bug gets a thorough walkthrough. Never pad, never ramble.
+
+- **Lead with the fix.** Solution first, context second. If someone can solve their problem by reading only your first sentence, you did it right.
+- **Show only what they need to change** — the relevant config key or code snippet, not the entire file.
+- **No greetings, no filler, no sign-offs.** Jump straight in.
+- **Don't explain internals** unless the issue specifically asks how something works.
+- **Bold the key action:** e.g. **set `X: true` in settings.yml**
+- If you need more info, ask a few specific questions in a bullet list at the end.
+- Use GitHub Markdown with `yaml` or `java` language tags for code blocks.
+- Skip headers (##) unless you're genuinely covering multiple distinct topics."""
 
 
 def extract_keywords(title, body):
@@ -248,7 +215,7 @@ def extract_text(value):
         parts = [extract_text(item) for item in value]
         parts = [part for part in parts if part]
 
-        return "\n".join(parts).strip()
+        return "".join(parts).strip()
 
     if isinstance(value, dict):
         parts = []
@@ -476,29 +443,17 @@ async def run():
     key_files_text = "\n".join(f"- {f}" for f in KEY_FILES)
     label_line     = f"\n**Labels:** {labels}" if labels else ""
 
-    user_prompt = f"""Analyze this GitHub issue and provide a helpful, accurate response.
+    user_prompt = f"""Help with this GitHub issue. Keep your response short and actionable.
 
-## Issue
 **Title:** {title}{label_line}
 
-**Body:**
 {body}
 
-## Key Configuration Files
-These main config files are often relevant — consider reading them:
+## Possibly Relevant Files
 {key_files_text}
-
-## Pre-Analysis Results
-The following files were identified as potentially relevant based on keyword analysis of the issue:
 {hints_text}
 
-## Instructions
-1. Start by reading the most relevant files from the pre-analysis results above
-2. Use `search_codebase` to find additional relevant code and config files
-3. Use `read_codebase_file` to read specific files you need to understand
-4. Use `list_directory` to explore the project structure if needed
-5. For stacktrace issues, read the stacktrace-related files first
-6. Provide your final analysis referencing specific file paths, class names, and config keys"""
+Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
     models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
 
@@ -574,7 +529,7 @@ The following files were identified as potentially relevant based on keyword ana
 
                     messages      = await session.get_messages()
                     history_text  = extract_assistant_message_text(messages)
-                    streamed_text = "\n".join(response_chunks).strip()
+                    streamed_text = "".join(response_chunks).strip()
                     candidate     = history_text if history_text else streamed_text
 
                     if candidate:

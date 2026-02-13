@@ -170,6 +170,29 @@ Make_Chat_Links_Clickable: false
 
 # -------------------------------------------------------------------------------------------------
 # Redirect messages over Redis if RedisBungee (or its forks) are installed?
+#
+# REQUIREMENTS:
+#   - RedisBungee plugin installed on your proxy (BungeeCord or Velocity)
+#   - Redis server configured in RedisBungee's config
+#   - This setting set to 'true'
+#
+# WHAT IT DOES:
+#   Enables cross-proxy communication in multi-proxy networks. When enabled:
+#   - Player messages sync across all proxies
+#   - Player data syncs (channels, AFK, mutes, vanish, nicknames, etc.)
+#   - Commands execute across all proxy instances
+#   - Backend server discovery works across the Redis network
+#
+# HOW TO SETUP:
+#   1. Install RedisBungee (or compatible fork like RedisBungee-Proxy) on all proxies
+#   2. Configure RedisBungee to connect to your Redis server
+#   3. Set Redis_Integration to 'true' below
+#   4. Restart all proxies - ChatControl will auto-detect RedisBungee
+#   5. Check logs for "Hooked into: RedisBungee" confirmation message
+#
+# DEBUGGING:
+#   Add 'redis' to the Debug list below to see detailed Redis operation logs.
+#   Example: Debug: [redis, proxy]
 # -------------------------------------------------------------------------------------------------
 Redis_Integration: true
 

@@ -110,7 +110,7 @@ ChatControl is a premium plugin sold on BuiltByBit. The GitHub source code is pr
 - For stacktraces, trace through the relevant source files
 - If the issue lacks info, ask for: server version, ChatControl version, config snippets, error logs, `/chc debug` ZIP
 - NEVER suggest downgrading the plugin or Java version
-- NEVER tell users to write code, create plugins, or implement things themselves — your users are server owners, not developers. If a feature needs code, implement it yourself via `write_codebase_file` and propose a PR
+- NEVER tell users to write code, create plugins, or implement things themselves — your users are server owners, not developers. If a feature needs code, implement it yourself via `patch_codebase_file` (for existing files) or `write_codebase_file` (for new files) and propose a PR
 
 ## Response Style
 Your readers are Minecraft server owners — busy people who want answers, not essays. Match the length to the complexity: a one-line config fix gets a one-line answer; a multi-layered bug gets a thorough walkthrough. Never pad, never ramble.
@@ -126,7 +126,13 @@ Your readers are Minecraft server owners — busy people who want answers, not e
 - Skip headers (##) unless you're genuinely covering multiple distinct topics.
 
 ## Fix & Feature Capability
-When you can fix a bug or implement a requested feature, use `write_codebase_file` to propose the changes. You can modify existing files AND create new ones. Changes are submitted as a draft PR for human review — you are NOT deploying to production.
+When you can fix a bug or implement a requested feature, propose changes via a draft PR for human review — you are NOT deploying to production.
+
+**Two tools for writing code:**
+- `patch_codebase_file` — **Use this for ALL edits to existing files.** Provide the exact `old_text` to find and `new_text` to replace it with. Include 2-3 lines of unchanged context around the target text so the match is unique. You MUST read the file first to get the exact text.
+- `write_codebase_file` — **Only for creating brand-new files** that don't exist yet. Provide the full content.
+
+**CRITICAL: NEVER use `write_codebase_file` on an existing file.** It will reject the call. For existing files, always use `patch_codebase_file` to surgically edit only the lines that need to change.
 
 **When to propose changes:**
 - Config fixes (YAML corrections, missing keys, new config options)
@@ -167,7 +173,7 @@ Think deeply and exhaustively before approving. You are the last line of defense
 ## How to review
 1. Read each changed file in full to understand context
 2. Search the codebase for similar patterns that might need the same change
-3. If you find problems, fix them using write_codebase_file
+3. If you find problems, fix them using patch_codebase_file (for existing files) or write_codebase_file (for new files)
 4. If you get an unexpected response from any tool, include the raw response in your output
 5. If everything looks correct, respond with "LGTM" and nothing else"""
 
@@ -562,12 +568,12 @@ def list_directory(params: ListDirParams) -> str:
 
 
 class WriteFileParams(BaseModel):
-    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/java/org/mineacademy/chatcontrol/MyClass.java'. Can be a new or existing file.")
-    content: str = Field(description="The complete new content for the file")
-    reason: str = Field(description="Brief explanation of why this change fixes the issue or implements the feature")
+    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/java/org/mineacademy/chatcontrol/MyClass.java'. Must be a NEW file that does not exist yet.")
+    content: str = Field(description="The complete content for the new file")
+    reason: str = Field(description="Brief explanation of why this new file is needed")
 
 
-@define_tool(description="Write or create a source/config file to propose a fix or feature. Works for files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. Changes are submitted as a draft PR for human review.")
+@define_tool(description="Create a NEW source/config file. Only for files that don't exist yet. For editing existing files, use patch_codebase_file instead. Works for files in chatcontrol/*/src/main/. Cannot modify Foundation, build files, or .github/. Changes are submitted as a draft PR for human review.")
 def write_codebase_file(params: WriteFileParams) -> str:
     if not params.path.startswith(CHATCONTROL_DIR + "/"):
         return "Error: Can only write files in the chatcontrol/ repository, not foundation/."
@@ -595,10 +601,9 @@ def write_codebase_file(params: WriteFileParams) -> str:
     if not resolved:
         return "Error: Invalid path."
 
-    if resolved.exists() and not resolved.is_file():
-        return f"Error: Not a file: {params.path}"
+    if resolved.exists():
+        return f"Error: File already exists: {params.path}. Use patch_codebase_file to edit existing files."
 
-    is_new = not resolved.exists()
     resolved.parent.mkdir(parents=True, exist_ok=True)
 
     if len(params.content) > MAX_FILE_SIZE:
@@ -606,9 +611,72 @@ def write_codebase_file(params: WriteFileParams) -> str:
 
     try:
         resolved.write_text(params.content)
-        written_files.append({"path": params.path, "reason": params.reason, "new": is_new})
-        action = "Created" if is_new else "Updated"
-        return f"{action} {params.path} ({len(params.content):,} chars)"
+        written_files.append({"path": params.path, "reason": params.reason, "new": True})
+        return f"Created {params.path} ({len(params.content):,} chars)"
+    except Exception as e:
+        return f"Error writing file: {e}"
+
+
+class PatchFileParams(BaseModel):
+    path: str = Field(description="Relative file path within chatcontrol/, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/resources/settings.yml'")
+    old_text: str = Field(description="The exact text to find in the file (must match uniquely). Include 2-3 lines of surrounding context to ensure a unique match.")
+    new_text: str = Field(description="The replacement text that will replace old_text")
+    reason: str = Field(description="Brief explanation of what this change does")
+
+
+@define_tool(description="Edit an existing source/config file by replacing a specific text snippet. Use this instead of write_codebase_file for all edits to existing files. Provide the exact old text and the new text. The old_text must appear exactly once in the file. Include 2-3 lines of context around the change to ensure uniqueness.")
+def patch_codebase_file(params: PatchFileParams) -> str:
+    if not params.path.startswith(CHATCONTROL_DIR + "/"):
+        return "Error: Can only edit files in the chatcontrol/ repository, not foundation/."
+
+    relative = params.path[len(CHATCONTROL_DIR) + 1:]
+
+    if not any(relative.startswith(prefix) for prefix in WRITABLE_PREFIXES):
+        return f"Error: Can only edit source/resource directories under src/main/. Got: {relative}"
+
+    filename = Path(params.path).name
+
+    if filename in BLOCKED_FILENAMES:
+        return f"Error: Cannot modify build file: {filename}"
+
+    ext = Path(params.path).suffix.lower()
+
+    if ext not in WRITABLE_EXTENSIONS:
+        return f"Error: Cannot edit {ext} files. Allowed: {', '.join(sorted(WRITABLE_EXTENSIONS))}"
+
+    if "/target/" in params.path:
+        return "Error: Cannot edit files in target/ (build output) directories."
+
+    resolved = validate_path(params.path)
+
+    if not resolved:
+        return "Error: Invalid path."
+
+    if not resolved.exists() or not resolved.is_file():
+        return f"Error: File not found: {params.path}. Use write_codebase_file to create new files."
+
+    try:
+        content = resolved.read_text(errors="replace")
+    except Exception as e:
+        return f"Error reading file: {e}"
+
+    count = content.count(params.old_text)
+
+    if count == 0:
+        return f"Error: old_text not found in {params.path}. Make sure it matches exactly (including whitespace and indentation). Read the file first to get the exact text."
+
+    if count > 1:
+        return f"Error: old_text matches {count} locations in {params.path}. Include more surrounding context lines to make the match unique."
+
+    new_content = content.replace(params.old_text, params.new_text, 1)
+
+    if len(new_content) > MAX_FILE_SIZE:
+        return f"Error: Resulting file too large ({len(new_content):,} chars). Max: {MAX_FILE_SIZE:,}."
+
+    try:
+        resolved.write_text(new_content)
+        written_files.append({"path": params.path, "reason": params.reason, "new": False})
+        return f"Patched {params.path}: replaced {len(params.old_text)} chars with {len(params.new_text)} chars"
     except Exception as e:
         return f"Error writing file: {e}"
 
@@ -768,7 +836,7 @@ Respond to the latest comment. If it's just a thank-you with no question, respon
 
 Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
-    all_tools = [read_codebase_file, search_codebase, list_directory, write_codebase_file]
+    all_tools = [read_codebase_file, search_codebase, list_directory, write_codebase_file, patch_codebase_file]
     models    = ["claude-opus-4.6"]
 
     cli_path = resolve_cli_path()
@@ -827,7 +895,7 @@ Read each changed file and its surrounding code. Verify correctness, then check:
 6. Missed spots — should the same change be applied to other files or methods?
 7. Error handling — are unexpected responses logged, not silently swallowed?
 
-If you find problems, fix them with write_codebase_file. If everything looks correct, respond with "LGTM"."""
+If you find problems, fix them with patch_codebase_file (for existing files) or write_codebase_file (for new files). If everything looks correct, respond with "LGTM"."""
 
                 for model in models:
                     print(f"Phase 2 — trying model: {model}")

@@ -7,13 +7,14 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from copilot import CopilotClient
+from pydantic import BaseModel, Field
+from copilot import CopilotClient, define_tool
 
 CHATCONTROL_DIR = "chatcontrol"
 FOUNDATION_DIR = "foundation"
-MAX_FILE_SIZE = 60_000
-MAX_CONTEXT_CHARS = 400_000
-MAX_SEARCH_FILES = 40
+MAX_FILE_SIZE = 50_000
+MAX_SEARCH_FILES = 20
+MAX_SEARCH_RESULTS = 50
 RESPONSE_FILE = "response.md"
 
 STOP_WORDS = frozenset({
@@ -85,7 +86,9 @@ This is a multi-module Maven project:
 8. PlaceholderAPI — variable integration, custom placeholders
 
 ## Your Behavior
-- Analyze the provided codebase context to find relevant classes, configs, and handlers
+- Use the provided tools (search_codebase, read_codebase_file, list_directory) to explore the codebase
+- Start with the exploration hints in the prompt, then read specific files as needed
+- Read only the files you need — do not try to read the entire codebase
 - Reference actual file paths, class names, and config keys — NEVER hallucinate
 - Distinguish between ChatControl code and Foundation code
 - If a bug likely originates in Foundation, say so and reference the Foundation repo
@@ -93,6 +96,7 @@ This is a multi-module Maven project:
 - When a stacktrace is provided, trace through the code to identify the root cause
 - NEVER suggest downgrading the plugin or Java version
 - If the issue lacks info to diagnose, ask for: server version, ChatControl version, relevant config snippets, error logs, and `/chc debug` ZIP output
+- Always read the most relevant source files before responding — never guess at code behavior
 
 ## Response Format
 - Be concise and direct — no greetings, no filler
@@ -211,87 +215,6 @@ def search_repos_by_keywords(keywords):
     return [f for f, _ in sorted_files[:MAX_SEARCH_FILES]]
 
 
-def read_file_safe(path):
-    try:
-        content = Path(path).read_text(errors="replace")
-
-        if len(content) > MAX_FILE_SIZE:
-            content = content[:MAX_FILE_SIZE] + "\n... (truncated)"
-
-        return content
-    except Exception:
-        return ""
-
-
-def compile_context(priority_files, search_files):
-    parts     = []
-    total     = 0
-    included  = set()
-
-    for key_file in KEY_FILES:
-        if total >= MAX_CONTEXT_CHARS:
-            break
-
-        if not Path(key_file).exists():
-            continue
-
-        content = read_file_safe(key_file)
-
-        if content:
-            parts.append(f"### {key_file}\n```\n{content}\n```")
-            total += len(content)
-            included.add(key_file)
-
-    for file_path in priority_files:
-        if total >= MAX_CONTEXT_CHARS:
-            break
-
-        if file_path in included:
-            continue
-
-        content = read_file_safe(file_path)
-
-        if content:
-            parts.append(f"### {file_path} (priority match)\n```\n{content}\n```")
-            total += len(content)
-            included.add(file_path)
-
-    for file_path in search_files:
-        if total >= MAX_CONTEXT_CHARS:
-            break
-
-        if file_path in included:
-            continue
-
-        content = read_file_safe(file_path)
-
-        if content:
-            parts.append(f"### {file_path}\n```\n{content}\n```")
-            total += len(content)
-            included.add(file_path)
-
-    return "\n\n".join(parts)
-
-
-def build_prompt(title, body, labels, context):
-    label_line = f"\n**Labels:** {labels}" if labels else ""
-
-    return f"""Analyze this GitHub issue and provide a helpful, accurate response.
-
-## Issue
-**Title:** {title}{label_line}
-
-**Body:**
-{body}
-
-## Codebase Context
-The following files from the ChatControl and Foundation repositories are relevant:
-
-{context}
-
-Provide a clear, actionable response. Reference specific file paths and config keys where applicable."""
-
-
 def read_field(value, field):
     if isinstance(value, dict):
         return value.get(field)
@@ -379,6 +302,133 @@ def resolve_cli_path():
     return cli_path
 
 
+ALLOWED_ROOTS = (CHATCONTROL_DIR, FOUNDATION_DIR)
+
+
+def validate_path(path_str):
+    normalized = os.path.normpath(path_str)
+
+    if not any(normalized == root or normalized.startswith(root + os.sep) for root in ALLOWED_ROOTS):
+        return None
+
+    resolved = Path(normalized).resolve()
+
+    for root in ALLOWED_ROOTS:
+        root_resolved = Path(root).resolve()
+
+        try:
+            resolved.relative_to(root_resolved)
+            return resolved
+        except ValueError:
+            continue
+
+    return None
+
+
+class ReadFileParams(BaseModel):
+    path: str = Field(description="Relative file path, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/resources/settings.yml'")
+
+
+@define_tool(description="Read a source file from the ChatControl or Foundation repository. Path must start with 'chatcontrol/' or 'foundation/'. Excludes build output directories.")
+def read_codebase_file(params: ReadFileParams) -> str:
+    resolved = validate_path(params.path)
+
+    if not resolved:
+        return "Error: Path must start with 'chatcontrol/' or 'foundation/' and stay within those directories."
+
+    if "/target/" in params.path:
+        return "Error: Cannot read files from target/ (build output) directories."
+
+    if not resolved.exists():
+        return f"Error: File not found: {params.path}"
+
+    if not resolved.is_file():
+        return f"Error: Not a file: {params.path}"
+
+    try:
+        content = resolved.read_text(errors="replace")
+
+        if len(content) > MAX_FILE_SIZE:
+            content = content[:MAX_FILE_SIZE] + f"\n... (truncated at {MAX_FILE_SIZE:,} characters)"
+
+        return content
+    except Exception as e:
+        return f"Error reading file: {e}"
+
+
+class SearchParams(BaseModel):
+    query: str = Field(description="Search term or keyword to grep for in source files")
+    file_types: str = Field(default="java,yml,yaml,rs,json", description="Comma-separated file extensions to search")
+
+
+@define_tool(description="Search the ChatControl and Foundation codebases for files containing a keyword. Returns matching file paths with line numbers and snippets. Excludes build output (target/) directories.")
+def search_codebase(params: SearchParams) -> str:
+    if len(params.query) < 2:
+        return "Error: Search query must be at least 2 characters."
+
+    extensions = [f"--include=*.{ext.strip()}" for ext in params.file_types.split(",")]
+
+    try:
+        result = subprocess.run(
+            ["grep", "-rn", "--max-count=3"] + extensions +
+            ["--exclude-dir=target", params.query, CHATCONTROL_DIR, FOUNDATION_DIR],
+            capture_output=True, text=True, timeout=15,
+        )
+
+        lines = result.stdout.strip().split("\n")
+        lines = [line for line in lines if line and "/target/" not in line]
+
+        if not lines:
+            return f"No matches found for '{params.query}'"
+
+        if len(lines) > MAX_SEARCH_RESULTS:
+            lines = lines[:MAX_SEARCH_RESULTS]
+            lines.append(f"... (showing {MAX_SEARCH_RESULTS} of many matches)")
+
+        return "\n".join(lines)
+    except subprocess.TimeoutExpired:
+        return "Error: Search timed out after 15 seconds."
+    except Exception as e:
+        return f"Error: {e}"
+
+
+class ListDirParams(BaseModel):
+    path: str = Field(description="Relative directory path, e.g. 'chatcontrol/chatcontrol-bukkit/src/main/resources/'")
+
+
+@define_tool(description="List files and subdirectories in a directory of the ChatControl or Foundation repository. Path must start with 'chatcontrol/' or 'foundation/'.")
+def list_directory(params: ListDirParams) -> str:
+    resolved = validate_path(params.path)
+
+    if not resolved:
+        return "Error: Path must start with 'chatcontrol/' or 'foundation/' and stay within those directories."
+
+    if not resolved.exists():
+        return f"Error: Directory not found: {params.path}"
+
+    if not resolved.is_dir():
+        return f"Error: Not a directory: {params.path}"
+
+    try:
+        entries = sorted(resolved.iterdir())
+        entries = [e for e in entries if e.name != "target"]
+        result  = []
+
+        for entry in entries[:100]:
+            if entry.is_dir():
+                result.append(f"  {entry.name}/")
+            else:
+                size = entry.stat().st_size
+                result.append(f"  {entry.name} ({size:,} bytes)")
+
+        if len(entries) > 100:
+            result.append(f"... and {len(entries) - 100} more entries")
+
+        return "\n".join(result)
+    except Exception as e:
+        return f"Error: {e}"
+
+
 async def run():
     title  = os.environ["ISSUE_TITLE"]
     body   = os.environ.get("ISSUE_BODY", "") or "(No description provided)"
@@ -399,18 +449,56 @@ async def run():
     stacktrace_classes = extract_stacktrace_classes(body)
     class_files        = find_class_files(stacktrace_classes) if stacktrace_classes else []
     mentioned_files    = extract_mentioned_files(body)
-    priority_files     = list(dict.fromkeys(class_files + mentioned_files))
+    search_files       = search_repos_by_keywords(keywords)
+    print(f"Pre-analysis: {len(class_files)} stacktrace files, {len(mentioned_files)} mentioned files, {len(search_files)} keyword matches")
 
-    print(f"Priority files: {len(priority_files)} (stacktrace: {len(class_files)}, mentioned: {len(mentioned_files)})")
+    hints = []
 
-    search_files = search_repos_by_keywords(keywords)
-    print(f"Keyword search files: {len(search_files)}")
+    if class_files:
+        hints.append("### Stacktrace-Related Files (read these first for error issues)")
 
-    context = compile_context(priority_files, search_files)
-    print(f"Context size: {len(context):,} chars")
+        for f in class_files[:10]:
+            hints.append(f"- {f}")
 
-    user_prompt = build_prompt(title, body, labels, context)
-    full_prompt = SYSTEM_PROMPT + "\n\n---\n\n" + user_prompt
+    if mentioned_files:
+        hints.append("### Files Mentioned in the Issue")
+
+        for f in mentioned_files[:10]:
+            hints.append(f"- {f}")
+
+    if search_files:
+        hints.append("### Files With Keyword Matches (ranked by relevance)")
+
+        for f in search_files[:MAX_SEARCH_FILES]:
+            hints.append(f"- {f}")
+
+    hints_text     = "\n".join(hints) if hints else "No specific files identified. Use the search_codebase tool to explore."
+    key_files_text = "\n".join(f"- {f}" for f in KEY_FILES)
+    label_line     = f"\n**Labels:** {labels}" if labels else ""
+
+    user_prompt = f"""Analyze this GitHub issue and provide a helpful, accurate response.
+
+## Issue
+**Title:** {title}{label_line}
+
+**Body:**
+{body}
+
+## Key Configuration Files
+These main config files are often relevant — consider reading them:
+{key_files_text}
+
+## Pre-Analysis Results
+The following files were identified as potentially relevant based on keyword analysis of the issue:
+{hints_text}
+
+## Instructions
+1. Start by reading the most relevant files from the pre-analysis results above
+2. Use `search_codebase` to find additional relevant code and config files
+3. Use `read_codebase_file` to read specific files you need to understand
+4. Use `list_directory` to explore the project structure if needed
+5. For stacktrace issues, read the stacktrace-related files first
+6. Provide your final analysis referencing specific file paths, class names, and config keys"""
 
     models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
 
@@ -433,7 +521,14 @@ async def run():
             try:
                 session = await client.create_session({
                     "model": model,
-                    "infinite_sessions": {"enabled": False},
+                    "streaming": True,
+                    "system_message": {"content": SYSTEM_PROMPT},
+                    "tools": [read_codebase_file, search_codebase, list_directory],
+                    "infinite_sessions": {
+                        "enabled": True,
+                        "background_compaction_threshold": 0.80,
+                        "buffer_exhaustion_threshold": 0.95,
+                    },
                 })
 
                 try:
@@ -474,8 +569,8 @@ async def run():
                             done.set()
 
                     session.on(on_event)
-                    await session.send({"prompt": full_prompt})
-                    await asyncio.wait_for(done.wait(), timeout=300)
+                    await session.send({"prompt": user_prompt})
+                    await asyncio.wait_for(done.wait(), timeout=600)
 
                     messages      = await session.get_messages()
                     history_text  = extract_assistant_message_text(messages)

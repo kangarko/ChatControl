@@ -656,7 +656,7 @@ async def run():
 Read the most relevant files above, then give a short, direct answer. Lead with the fix. Skip unnecessary explanation."""
 
     all_tools = [read_codebase_file, search_codebase, list_directory, write_codebase_file]
-    models    = ["claude-opus-4.6-fast", "claude-opus-4.6"]
+    models    = ["claude-opus-4.6"]
 
     cli_path = resolve_cli_path()
     print(f"Using Copilot CLI: {cli_path}")

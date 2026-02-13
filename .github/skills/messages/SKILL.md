@@ -120,8 +120,44 @@ Messages support all base operators: `then command`, `then console`, `then sound
 |-----|---------|---------|
 | `Apply_On` | `[join, quit, kick, death, timed]` | Which types are enabled |
 | `Stop_On_First_Match` | true | Stop after first matching group |
+| `Join_Quit_Cooldown` | `0 seconds` | Cooldown period to prevent join/quit spam |
 | `Timed_Delay` | `3 minutes` | Delay between timed broadcasts |
 | `Prefix.Join` / `.Quit` / etc. | format strings | Default message prefix per type |
+
+## Join/Quit Message Cooldown
+
+To prevent chat flooding when players repeatedly join/leave (e.g., due to lag or poor connection), you can configure a cooldown period:
+
+```yaml
+Messages:
+  Join_Quit_Cooldown: 10 seconds
+```
+
+### How It Works
+- When a player joins or quits, the message is shown normally
+- If the same player joins or quits again within the cooldown period, the message is silently suppressed
+- Each message type (JOIN/QUIT) has its own independent cooldown per player
+- Set to `0 seconds` to disable cooldown (default behavior)
+
+### Example Scenario
+With `Join_Quit_Cooldown: 10 seconds`:
+1. Player joins at 0:00 → message shown
+2. Player quits at 0:02 → message shown
+3. Player joins at 0:05 → message suppressed (within 10s of last join)
+4. Player quits at 0:07 → message suppressed (within 10s of last quit)
+5. Player joins at 0:15 → message shown (cooldown expired)
+
+### Debugging
+Enable `player-message` debug category to see cooldown activity:
+```yaml
+Debug: [player-message]
+```
+
+Log output example:
+```
+[DEBUG] Recording join message for Player123 (cooldown: 10s)
+[DEBUG] Suppressing quit message for Player123 (cooldown: 7s remaining)
+```
 
 ## Message Files
 
@@ -158,6 +194,12 @@ message:
 2. Verify no other plugin cancels the event
 3. Check `Stop_On_First_Match` — first match stops all further groups
 4. Ensure message group order: most specific on top
+5. If messages appear then disappear, check if `Join_Quit_Cooldown` is enabled
+
+### "Join/quit messages being spammed by laggy players"
+- Set `Join_Quit_Cooldown` to prevent message spam (e.g., `10 seconds`)
+- This suppresses repeated messages when players quickly rejoin
+- Enable `player-message` debug to verify cooldown is working
 
 ### "First-join detection not working"
 - Use `require sender script {statistic_PLAY_ONE_MINUTE} == 0`

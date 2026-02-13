@@ -320,31 +320,48 @@ async def run():
     user_prompt = build_prompt(title, body, labels, context)
     full_prompt = SYSTEM_PROMPT + "\n\n---\n\n" + user_prompt
 
+    models = ["claude-opus-4.6-fast", "claude-opus-4.6"]
+
     client = CopilotClient()
     await client.start()
 
     try:
-        session = await client.create_session({
-            "model": "claude-opus-4.6-fast",
-            "infinite_sessions": {"enabled": False},
-        })
+        text = None
 
-        done          = asyncio.Event()
-        response_text = []
+        for model in models:
+            print(f"Trying model: {model}")
 
-        def on_event(event):
-            if event.type.value == "assistant.message":
-                response_text.append(event.data.content)
-            elif event.type.value == "session.idle":
-                done.set()
+            try:
+                session = await client.create_session({
+                    "model": model,
+                    "infinite_sessions": {"enabled": False},
+                })
 
-        session.on(on_event)
-        await session.send({"prompt": full_prompt})
-        await asyncio.wait_for(done.wait(), timeout=300)
+                done          = asyncio.Event()
+                response_text = []
 
-        text = response_text[0] if response_text else "No response was generated. A human maintainer will follow up."
+                def on_event(event):
+                    if event.type.value == "assistant.message":
+                        response_text.append(event.data.content)
+                    elif event.type.value == "session.idle":
+                        done.set()
 
-        await session.destroy()
+                session.on(on_event)
+                await session.send({"prompt": full_prompt})
+                await asyncio.wait_for(done.wait(), timeout=300)
+
+                text = response_text[0] if response_text else None
+                await session.destroy()
+
+                if text:
+                    print(f"Success with model: {model}")
+                    break
+            except Exception as e:
+                print(f"Model {model} failed: {e}")
+                continue
+
+        if not text:
+            text = "No response was generated. A human maintainer will follow up."
     finally:
         await client.stop()
 

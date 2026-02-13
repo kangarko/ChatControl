@@ -49,6 +49,13 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 */
 	private Task broadcastTask;
 
+	/**
+	 * Track the last time a player had a join/quit message shown
+	 * Key: Player UUID + "-" + MessageType (JOIN or QUIT)
+	 * Value: Timestamp in milliseconds when the message was last shown
+	 */
+	private final Map<String, Long> joinQuitCooldowns = new HashMap<>();
+
 	/*
 	 * Create this class
 	 */
@@ -62,6 +69,7 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	@Override
 	public void load() {
 		this.messages.clear();
+		this.joinQuitCooldowns.clear(); // Clear cooldowns on reload
 
 		for (final PlayerMessageType type : PlayerMessageType.values())
 			if (type.getPlatform().contains(Platform.getType()))
@@ -150,6 +158,57 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 		return (List<T>) Collections.unmodifiableList(this.messages.getOrDefault(type, new ArrayList<>()));
 	}
 
+	/**
+	 * Check if a player's join/quit message is still in cooldown
+	 *
+	 * @param wrapped the player
+	 * @param type the message type (JOIN or QUIT)
+	 * @return true if the message should be suppressed due to cooldown, false otherwise
+	 */
+	private boolean isInCooldown(final WrappedSender wrapped, final PlayerMessageType type) {
+		// Only apply cooldown to JOIN and QUIT messages
+		if (type != PlayerMessageType.JOIN && type != PlayerMessageType.QUIT)
+			return false;
+
+		// Check if cooldown is disabled
+		final SimpleTime cooldown = Settings.Messages.JOIN_QUIT_COOLDOWN;
+
+		if (cooldown == null || cooldown.getTimeSeconds() <= 0)
+			return false;
+
+		final String key = wrapped.getUniqueId() + "-" + type.name();
+		final Long lastShown = this.joinQuitCooldowns.get(key);
+
+		if (lastShown == null)
+			return false;
+
+		final long now = System.currentTimeMillis();
+		final long cooldownMillis = cooldown.getTimeSeconds() * 1000L;
+
+		return (now - lastShown) < cooldownMillis;
+	}
+
+	/**
+	 * Update the last time a join/quit message was shown for a player
+	 *
+	 * @param wrapped the player
+	 * @param type the message type (JOIN or QUIT)
+	 */
+	private void updateCooldown(final WrappedSender wrapped, final PlayerMessageType type) {
+		// Only track cooldown for JOIN and QUIT messages
+		if (type != PlayerMessageType.JOIN && type != PlayerMessageType.QUIT)
+			return;
+
+		// Check if cooldown is disabled
+		final SimpleTime cooldown = Settings.Messages.JOIN_QUIT_COOLDOWN;
+
+		if (cooldown == null || cooldown.getTimeSeconds() <= 0)
+			return;
+
+		final String key = wrapped.getUniqueId() + "-" + type.name();
+		this.joinQuitCooldowns.put(key, System.currentTimeMillis());
+	}
+
 	/* ------------------------------------------------------------------------------- */
 	/* Static */
 	/* ------------------------------------------------------------------------------- */
@@ -170,6 +229,17 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 */
 	public static void broadcast(final PlayerMessageType type, @Nullable final WrappedSender wrappedSender, final String originalMessage) {
 		synchronized (instance) {
+			// Check cooldown for join/quit messages
+			if ((type == PlayerMessageType.JOIN || type == PlayerMessageType.QUIT) && wrappedSender != null) {
+				if (instance.isInCooldown(wrappedSender, type)) {
+					// Message is in cooldown, silently skip broadcasting
+					return;
+				}
+
+				// Update cooldown timestamp for this player
+				instance.updateCooldown(wrappedSender, type);
+			}
+
 			final OperatorCheck<?> check;
 
 			if (type == PlayerMessageType.DEATH) {

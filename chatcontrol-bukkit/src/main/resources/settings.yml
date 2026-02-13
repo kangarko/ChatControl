@@ -583,6 +583,14 @@ Messages:
   # Delay displaying join message to show it after other plugins have sent their messages.
   Defer_Join_Message_By: 1 tick
   
+  # Prevent join/quit message spam when a player repeatedly joins/leaves (e.g., due to lag or poor connection).
+  # If a player joins or quits, the message won't appear again until this cooldown period has passed.
+  # Set to 0 seconds to disable cooldown.
+  #
+  # Example: If set to 10 seconds, a player who joins, quits, and joins again within 10 seconds
+  # will only have their first join/quit messages shown. The subsequent messages are silenced.
+  Join_Quit_Cooldown: 0 seconds
+  
   # The default delay when sending timed messages. You can customize this for each individually
   # using the "delay" operator, but it cannot be lower than this value. 
   Timed_Delay: 10 seconds

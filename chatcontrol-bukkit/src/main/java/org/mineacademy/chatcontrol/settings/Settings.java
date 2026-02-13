@@ -527,6 +527,7 @@ public final class Settings extends SimpleSettings {
 		public static Map<PlayerMessageType, Long> DISCORD;
 		public static Map<PlayerMessageType, String> PREFIX;
 		public static SimpleTime DEFER_JOIN_MESSAGE_BY;
+		public static SimpleTime JOIN_QUIT_COOLDOWN;
 		public static SimpleTime TIMED_DELAY;
 
 		private static void init() {
@@ -537,6 +538,7 @@ public final class Settings extends SimpleSettings {
 			DISCORD = getMap("Discord", PlayerMessageType.class, Long.class);
 			PREFIX = getMap("Prefix", PlayerMessageType.class, String.class);
 			DEFER_JOIN_MESSAGE_BY = getTime("Defer_Join_Message_By");
+			JOIN_QUIT_COOLDOWN = getTime("Join_Quit_Cooldown");
 			TIMED_DELAY = getTime("Timed_Delay");
 
 			if (TIMED_DELAY.getTimeSeconds() > 3)

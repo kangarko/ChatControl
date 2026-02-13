@@ -1,5 +1,6 @@
 package org.mineacademy.chatcontrol.listener;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +60,7 @@ import net.sacredlabyrinth.phaed.simpleclans.events.ChatEvent;
 public final class ThirdPartiesListener {
 
 	private static McMMOListener mcMMOHook;
+	private static BedWars1058Hook bedWars1058Hook;
 
 	/**
 	 * Register all compatible hooks
@@ -106,6 +108,12 @@ public final class ThirdPartiesListener {
 
 			Platform.registerEvents(new DynmapListener());
 		}
+
+		if (Platform.isPluginInstalled("BedWars1058")) {
+			bedWars1058Hook = new BedWars1058Hook();
+
+			CommonCore.log("Note: Hooked into BedWars1058 for party channels");
+		}
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
@@ -140,6 +148,41 @@ public final class ThirdPartiesListener {
 	 */
 	public static List<Player> getMcMMOPartyRecipients(final Player player) {
 		return isMcMMOLoaded() ? mcMMOHook.getPartyRecipients(player) : new ArrayList<>();
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// BedWars1058
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Return true if BedWars1058 is loaded
+	 *
+	 * @return
+	 */
+	public static boolean isBedWars1058Loaded() {
+		return bedWars1058Hook != null;
+	}
+
+	/**
+	 * Return true if both players are in the same BedWars1058 arena.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isInSameBedWarsArena(final Player receiver, final Player sender) {
+		return isBedWars1058Loaded() && bedWars1058Hook.isInSameArena(receiver, sender);
+	}
+
+	/**
+	 * Return true if both players are on the same team in a BedWars1058 arena.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isInSameBedWarsTeam(final Player receiver, final Player sender) {
+		return isBedWars1058Loaded() && bedWars1058Hook.isInSameTeam(receiver, sender);
 	}
 }
 
@@ -327,6 +370,106 @@ final class McMMOListener implements Listener {
 		}
 
 		return new ArrayList<>();
+	}
+}
+
+/**
+ * BedWars1058 handle using reflection to avoid compile-time dependency
+ */
+final class BedWars1058Hook {
+
+	private boolean initialized = false;
+	private boolean errorLogged = false;
+	private Object arenaUtil;
+	private Method getArenaByPlayer;
+
+	private void init() {
+		if (this.initialized)
+			return;
+
+		this.initialized = true;
+
+		try {
+			final Class<?> bedWarsClass = Class.forName("com.andrei1058.bedwars.api.BedWars");
+			final org.bukkit.plugin.RegisteredServiceProvider<?> rsp = Bukkit.getServicesManager().getRegistration(bedWarsClass);
+
+			if (rsp != null) {
+				final Object api = rsp.getProvider();
+
+				this.arenaUtil = api.getClass().getMethod("getArenaUtil").invoke(api);
+				this.getArenaByPlayer = this.arenaUtil.getClass().getMethod("getArenaByPlayer", Player.class);
+			}
+
+		} catch (final Throwable throwable) {
+			CommonCore.warning("Failed to initialize BedWars1058 hook: " + throwable);
+		}
+	}
+
+	boolean isInSameArena(final Player receiver, final Player sender) {
+		this.init();
+
+		if (this.arenaUtil == null)
+			return false;
+
+		try {
+			final Object senderArena = this.getArenaByPlayer.invoke(this.arenaUtil, sender);
+
+			if (senderArena == null)
+				return false;
+
+			final Object receiverArena = this.getArenaByPlayer.invoke(this.arenaUtil, receiver);
+
+			return senderArena.equals(receiverArena);
+
+		} catch (final Throwable throwable) {
+			if (!this.errorLogged) {
+				CommonCore.warning("Failed checking BedWars1058 arena for " + sender.getName()
+						+ ". Ensure you have the latest BedWars1058 version. Error: " + throwable);
+
+				this.errorLogged = true;
+			}
+
+			return false;
+		}
+	}
+
+	boolean isInSameTeam(final Player receiver, final Player sender) {
+		this.init();
+
+		if (this.arenaUtil == null)
+			return false;
+
+		try {
+			final Object senderArena = this.getArenaByPlayer.invoke(this.arenaUtil, sender);
+
+			if (senderArena == null)
+				return false;
+
+			final Object receiverArena = this.getArenaByPlayer.invoke(this.arenaUtil, receiver);
+
+			if (!senderArena.equals(receiverArena))
+				return false;
+
+			final Method getTeam = senderArena.getClass().getMethod("getTeam", Player.class);
+			final Object senderTeam = getTeam.invoke(senderArena, sender);
+
+			if (senderTeam == null)
+				return false;
+
+			final Object receiverTeam = getTeam.invoke(senderArena, receiver);
+
+			return senderTeam.equals(receiverTeam);
+
+		} catch (final Throwable throwable) {
+			if (!this.errorLogged) {
+				CommonCore.warning("Failed checking BedWars1058 team for " + sender.getName()
+						+ ". Ensure you have the latest BedWars1058 version. Error: " + throwable);
+
+				this.errorLogged = true;
+			}
+
+			return false;
+		}
 	}
 }
 

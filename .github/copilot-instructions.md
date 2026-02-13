@@ -32,3 +32,25 @@ This is a multi-module Maven project:
 - Config questions should reference the relevant YAML file in `chatcontrol-bukkit/src/main/resources/`
 - Most user issues relate to: chat formatting, rules/filters, channels, groups, or proxy sync
 - If the issue lacks information to diagnose, ask for: server version, ChatControl version, relevant config snippets, and error logs
+
+## Domain Knowledge Skills
+
+Detailed skill files are in `.github/skills/*/SKILL.md` — each covers a specific subsystem with architecture, configuration, common issues, and file paths:
+
+| Skill | Covers |
+|-------|--------|
+| `chat-formatting` | Format files, parts, placeholders, hover/click, gradients, MiniMessage |
+| `channels` | Channel creation, types, modes, permissions, proxy channels |
+| `rules-engine` | .rs rule files, regex, operators, conditions, actions |
+| `chat-filter` | Anti-spam, anti-caps, anti-bot, similarity, grammar |
+| `groups` | Permission groups, rule groups, group overrides |
+| `proxy-sync` | BungeeCord/Velocity, proxy.yml, cross-server sync |
+| `database` | SQLite/MySQL, database.yml, player cache, logs |
+| `commands` | /chc subcommands, /channel, all commands, permissions |
+| `variables` | PlaceholderAPI, JavaScript variables, {variable} syntax |
+| `messages` | Join/quit/death/timed messages, .rs format |
+| `private-messaging` | /tell, /reply, /ignore, PM formats, spy, mail |
+| `books-announcements` | Books, announcements, broadcast, MOTD |
+| `mute-warn` | Mute hierarchy, warning points, punishments |
+| `tags-nicks` | Player tags, nick, prefix/suffix, /tag |
+| `menus` | Color picker, spy toggle, channel GUI |

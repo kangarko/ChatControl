@@ -127,6 +127,16 @@ public abstract class Party {
 	};
 
 	/**
+	 * Chat for BedWars1058/BedWars2023 - only shown to players in the same arena.
+	 */
+	public static final Party BEDWARS_GAME = new Party("bedwars-game") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return ThirdPartiesListener.isInSameBedWarsArena(receiver, sender);
+		}
+	};
+
+	/**
 	 * Only chat with players belonging to the same island as you
 	 * and having the given (or higher rank, from top to bottom)
 	 */

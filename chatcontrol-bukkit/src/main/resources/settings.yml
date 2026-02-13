@@ -112,7 +112,8 @@ Channels:
   #          Available values: factions-faction, factions-ally, factions-enemy, factions-truce,
   #          plotsquared-plot, towny-town, towny-nation, mcmmo-party, towny-ally, lands-land,
   #          bentobox-island-visitor, bentobox-island-coop, bentobox-island-trusted, bentobox-island-member,
-  #          bentobox-island-subowner, bentobox-island-owner, bentobox-island-mod and bentobox-island-admin
+  #          bentobox-island-subowner, bentobox-island-owner, bentobox-island-mod, bentobox-island-admin
+  #          and bedwars-game (BedWars1058/BedWars2023)
   #          [WARNING] The Party option does not work over proxy!
   #
   # - Message_Delay: This overrides Anti_Spam.Chat.Delay so you can chat chat delay per channel.

@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.dynmap.DynmapWebChatEvent;
 import org.mineacademy.chatcontrol.SenderCache;
 import org.mineacademy.chatcontrol.model.ChatControlProxyMessage;
@@ -60,6 +61,10 @@ public final class ThirdPartiesListener {
 
 	private static McMMOListener mcMMOHook;
 
+	private static boolean bedWarsLoaded;
+
+	private static boolean bedWarsErrorLogged;
+
 	/**
 	 * Register all compatible hooks
 	 */
@@ -106,6 +111,12 @@ public final class ThirdPartiesListener {
 
 			Platform.registerEvents(new DynmapListener());
 		}
+
+		if (Platform.isPluginInstalled("BedWars1058") || Platform.isPluginInstalled("BedWars2023")) {
+			bedWarsLoaded = true;
+
+			CommonCore.log("Note: Hooked into " + (Platform.isPluginInstalled("BedWars2023") ? "BedWars2023" : "BedWars1058") + " for arena party support");
+		}
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
@@ -140,6 +151,52 @@ public final class ThirdPartiesListener {
 	 */
 	public static List<Player> getMcMMOPartyRecipients(final Player player) {
 		return isMcMMOLoaded() ? mcMMOHook.getPartyRecipients(player) : new ArrayList<>();
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// BedWars1058 / BedWars2023
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Return true if both players are in the same BedWars1058/BedWars2023 arena.
+	 * Uses reflection to avoid a compile-time dependency on BedWars1058.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isInSameBedWarsArena(final Player receiver, final Player sender) {
+		if (!bedWarsLoaded)
+			return false;
+
+		try {
+			final Class<?> apiClass = Class.forName("com.andrei1058.bedwars.api.BedWars");
+			final RegisteredServiceProvider<?> rsp = Bukkit.getServicesManager().getRegistration(apiClass);
+
+			if (rsp == null)
+				return false;
+
+			final Object api = rsp.getProvider();
+			final Object arenaUtil = api.getClass().getMethod("getArenaUtil").invoke(api);
+			final Object senderArena = arenaUtil.getClass().getMethod("getArenaByPlayer", Player.class).invoke(arenaUtil, sender);
+
+			if (senderArena == null)
+				return false;
+
+			final Object receiverArena = arenaUtil.getClass().getMethod("getArenaByPlayer", Player.class).invoke(arenaUtil, receiver);
+
+			return senderArena.equals(receiverArena);
+
+		} catch (final Throwable t) {
+			if (!bedWarsErrorLogged) {
+				CommonCore.warning("Failed checking BedWars arena for " + sender.getName() + " and " + receiver.getName()
+						+ ". Ensure you have the latest BedWars version. Error: " + t);
+
+				bedWarsErrorLogged = true;
+			}
+
+			return false;
+		}
 	}
 }
 

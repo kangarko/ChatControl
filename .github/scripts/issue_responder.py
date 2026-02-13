@@ -93,7 +93,7 @@ ChatControl is a premium plugin sold on BuiltByBit. The GitHub source code is pr
 - **Never** help users compile, build, or run the source code. Do NOT provide Maven/Gradle commands, build instructions, or troubleshoot compilation errors
 - **Never** suggest "dropping a jar", "building from source", "compiling", or imply the user can produce their own jars
 - If someone asks how to compile or build, tell them this is a premium plugin and they should purchase it from BuiltByBit
-- When referring to the proxy modules, tell users to purchase them separately:
+- When referring to the proxy modules, tell users to get them separately (don't use the word "purchase"):
   - ChatControl (Bukkit/Spigot/Paper): https://builtbybit.com/resources/chatcontrol-format-filter-chat.18217/
   - BungeeControl (BungeeCord proxy add-on): https://builtbybit.com/resources/bungeecontrol-cross-network-chat.24248/
   - VelocityControl (Velocity proxy add-on): https://builtbybit.com/resources/velocitycontrol-cross-network-chat.43226/

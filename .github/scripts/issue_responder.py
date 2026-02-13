@@ -69,6 +69,25 @@ SYSTEM_PROMPT = """You are a support agent for ChatControl, a Minecraft chat plu
 - chatcontrol-proxy-core/, chatcontrol-bungeecord/, chatcontrol-velocity/ — Proxy code
 - Foundation library (org.mineacademy.fo.*) — Separate framework, NOT ChatControl code
 
+## Knowledge Base
+Topic-specific skill files with architecture, config keys, common issues, and file paths:
+- chatcontrol/.github/skills/chat-formatting/SKILL.md — Format files, parts, placeholders, hover/click, gradients, images, MiniMessage
+- chatcontrol/.github/skills/channels/SKILL.md — Channel creation, types, ranged, party, permissions, auto-join, modes, proxy
+- chatcontrol/.github/skills/rules-engine/SKILL.md — .rs rule files, regex, operators, conditions, actions, groups, imports
+- chatcontrol/.github/skills/chat-filter/SKILL.md — Anti-spam, anti-caps, anti-bot, similarity, delay, grammar, newcomer
+- chatcontrol/.github/skills/groups/SKILL.md — Permission groups, rule groups, overrides, chatcontrol.group.{name}
+- chatcontrol/.github/skills/proxy-sync/SKILL.md — BungeeCord, Velocity, proxy.yml, cross-server sync, plugin messaging
+- chatcontrol/.github/skills/database/SKILL.md — SQLite, MySQL, database.yml, player cache, mail, logs, UUID mapping
+- chatcontrol/.github/skills/commands/SKILL.md — /chc subcommands, /channel, /tell, /reply, all commands, permissions
+- chatcontrol/.github/skills/variables/SKILL.md — PlaceholderAPI, JavaScript variables, {variable} syntax, variable files
+- chatcontrol/.github/skills/messages/SKILL.md — Join/quit/kick/death/timed messages, .rs files, conditions, message groups
+- chatcontrol/.github/skills/private-messaging/SKILL.md — /tell, /reply, /ignore, PM formatting, social spy, vanish, mail
+- chatcontrol/.github/skills/books-announcements/SKILL.md — Books, timed announcements, broadcast, MOTD, announcement types
+- chatcontrol/.github/skills/mute-warn/SKILL.md — Mute hierarchy, warning points, /mute, temp mute, point decay
+- chatcontrol/.github/skills/tags-nicks/SKILL.md — Player tags, nick, prefix/suffix, /tag command, tag rules
+- chatcontrol/.github/skills/menus/SKILL.md — Color picker, spy toggle, channel GUI, Foundation Menu system
+Read the 1-3 most relevant skill files FIRST before answering — they contain detailed troubleshooting guides.
+
 ## Your Behavior
 - Use tools to explore the codebase — never guess at code behavior or hallucinate paths
 - For config questions, reference the exact YAML file and key path
@@ -498,7 +517,7 @@ def write_codebase_file(params: WriteFileParams) -> str:
 async def run_agent_session(client, model, system_prompt, user_prompt, tools, timeout=600):
     session = await client.create_session({
         "model": model,
-        "streaming": True,
+        "streaming": False,
         "system_message": {"content": system_prompt},
         "tools": tools,
         "infinite_sessions": {
@@ -509,29 +528,15 @@ async def run_agent_session(client, model, system_prompt, user_prompt, tools, ti
     })
 
     try:
-        done            = asyncio.Event()
-        response_chunks = []
-        event_errors    = []
-        callback_errors = []
+        done         = asyncio.Event()
+        event_errors = []
 
         def on_event(event):
             try:
                 event_type = normalize_role(read_field(event, "type"))
                 event_data = read_field(event, "data")
 
-                if event_type == "assistant.message":
-                    chunk = extract_text(read_field(event_data, "content"))
-
-                    if chunk:
-                        response_chunks.append(chunk)
-
-                elif event_type == "assistant.message_delta":
-                    chunk = extract_text(read_field(event_data, "delta_content"))
-
-                    if chunk:
-                        response_chunks.append(chunk)
-
-                elif event_type in ("error", "session.error", "assistant.error"):
+                if event_type in ("error", "session.error", "assistant.error"):
                     error_text = extract_text(event_data)
 
                     if error_text:
@@ -541,25 +546,19 @@ async def run_agent_session(client, model, system_prompt, user_prompt, tools, ti
 
                 elif event_type == "session.idle":
                     done.set()
-            except Exception as callback_error:
-                callback_errors.append(repr(callback_error))
+            except Exception:
                 done.set()
 
         session.on(on_event)
         await session.send({"prompt": user_prompt})
         await asyncio.wait_for(done.wait(), timeout=timeout)
 
-        messages      = await session.get_messages()
-        history_text  = extract_assistant_message_text(messages)
-        streamed_text = "".join(response_chunks).strip()
-        candidate     = history_text if history_text else streamed_text
+        messages  = await session.get_messages()
+        candidate = extract_assistant_message_text(messages)
 
         if not candidate:
             raise RuntimeError(
-                f"Empty output. chunks={len(response_chunks)}, "
-                f"event_errors={event_errors[:3]}, "
-                f"callback_errors={callback_errors[:3]}, "
-                f"messages={len(messages)}"
+                f"Empty output. event_errors={event_errors[:3]}, messages={len(messages)}"
             )
 
         return candidate

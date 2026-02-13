@@ -23,6 +23,7 @@ import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.FileUtil;
 import org.mineacademy.fo.ValidCore;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.model.RuleSetReader;
 import org.mineacademy.fo.model.SimpleTime;
@@ -184,8 +185,14 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 
 		final long now = System.currentTimeMillis();
 		final long cooldownMillis = cooldown.getTimeSeconds() * 1000L;
+		final boolean inCooldown = (now - lastShown) < cooldownMillis;
 
-		return (now - lastShown) < cooldownMillis;
+		if (inCooldown) {
+			final long remainingSeconds = ((cooldownMillis - (now - lastShown)) / 1000L);
+			Debugger.debug("player-message", "Suppressing " + type.name().toLowerCase() + " message for " + wrapped.getName() + " (cooldown: " + remainingSeconds + "s remaining)");
+		}
+
+		return inCooldown;
 	}
 
 	/**
@@ -207,6 +214,8 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 
 		final String key = wrapped.getUniqueId() + "-" + type.name();
 		this.joinQuitCooldowns.put(key, System.currentTimeMillis());
+
+		Debugger.debug("player-message", "Recording " + type.name().toLowerCase() + " message for " + wrapped.getName() + " (cooldown: " + cooldown.getTimeSeconds() + "s)");
 	}
 
 	/* ------------------------------------------------------------------------------- */

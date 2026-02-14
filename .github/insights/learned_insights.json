@@ -1,0 +1,9 @@
+[
+  {
+    "topic": "rules-engine",
+    "insight": "In player messages (join/quit/death/timed), `then` operators like `then discord`, `then console`, `then log`, and `then write` historically required at least one online receiver to execute because the filter loop iterates over online players. A fix was added so these sender-only operators now run via a fallback path even when no receivers are present (e.g., last player quitting). If a user reports these operators not firing on quit with no other players online, they need to update.",
+    "related_skill": "rules-engine",
+    "date": "2026-02-14",
+    "issue": 3459
+  }
+]

@@ -845,6 +845,181 @@ public abstract class PlayerMessage extends Operator {
 				// Execute main operators
 				this.executeOperators(message);
 			}
+
+			// Execute sender-only operators (discord, console, log, etc.) even when no online receivers exist
+			if (!pickedMessage && this.wrappedSender != null && this.canFilterSender(message)) {
+				this.pickedMessage = message.getNextMessage();
+
+				this.executeSenderOnlyOperators(message);
+			}
+		}
+
+		/*
+		 * Check only sender-side conditions, used when there are no online receivers
+		 * to still execute sender-only operators like then discord, then console, etc.
+		 */
+		private boolean canFilterSender(final T operator) {
+
+			// Base checks (disabled, begins/expires, discord, muted, data)
+			if (!super.canFilter(operator))
+				return false;
+
+			if (operator.getRequireSenderPermission() != null && !this.wrappedSender.hasPermission(operator.getRequireSenderPermission().getKey()))
+				return false;
+
+			if (operator.getIgnoreSenderPermission() != null && this.wrappedSender.hasPermission(operator.getIgnoreSenderPermission()))
+				return false;
+
+			if (operator.getRequireSenderScript() != null) {
+				try {
+					final Object result = JavaScriptExecutor.run(this.replaceSenderVariablesLegacy(operator.getRequireSenderScript(), operator), this.wrappedSender.getAudience());
+
+					if (result instanceof Boolean && !((boolean) result))
+						return false;
+
+				} catch (final FoScriptException ex) {
+					CommonCore.logFramed(
+							"Error parsing 'require sender script' in player message",
+							"Message " + operator.getUniqueName() + " in " + operator.getFile(),
+							"",
+							"Raw script: " + operator.getRequireSenderScript(),
+							"Sender: " + this.wrappedSender,
+							"Error: " + ex.getMessage(),
+							"",
+							"Check that the evaluated script",
+							"above is a valid JavaScript!");
+
+					throw ex;
+				}
+			}
+
+			if (operator.getIgnoreSenderScript() != null) {
+				try {
+					final Object result = JavaScriptExecutor.run(this.replaceSenderVariablesLegacy(operator.getIgnoreSenderScript(), operator), this.wrappedSender.getAudience());
+
+					if (result instanceof Boolean && ((boolean) result))
+						return false;
+
+				} catch (final FoScriptException ex) {
+					CommonCore.logFramed(
+							"Error parsing 'ignore sender script' in player message",
+							"Message " + operator.getUniqueName() + " in " + operator.getFile(),
+							"",
+							"Raw script: " + operator.getIgnoreSenderScript(),
+							"Sender: " + this.wrappedSender,
+							"Error: " + ex.getMessage(),
+							"",
+							"Check that the evaluated script",
+							"above is a valid JavaScript!");
+
+					throw ex;
+				}
+			}
+
+			if (operator.getRequireSenderVariable() != null && !operator.getRequireSenderVariable().matches(variable -> this.replaceSenderVariablesLegacy(variable, operator)))
+				return false;
+
+			if (this.wrappedSender.isPlayer()) {
+				if (!operator.getRequireSenderGamemodes().isEmpty() && !operator.getRequireSenderGamemodes().contains(this.wrappedSender.getPlayer().getGameMode()))
+					return false;
+
+				if (!operator.getRequireSenderWorlds().isEmpty() && !ValidCore.isInList(this.wrappedSender.getPlayer().getWorld().getName(), operator.getRequireSenderWorlds()))
+					return false;
+
+				if (!operator.getRequireSenderRegions().isEmpty()) {
+					final List<String> regions = DiskRegion.findRegionNames(this.wrappedSender.getPlayer().getLocation());
+					boolean found = false;
+
+					for (final String requireRegionName : operator.getRequireSenderRegions())
+						if (regions.contains(requireRegionName)) {
+							found = true;
+
+							break;
+						}
+
+					if (!found)
+						return false;
+				}
+
+				if (!operator.getRequireSenderChannels().isEmpty()) {
+					boolean atLeastInOne = false;
+
+					for (final String channelName : operator.getRequireSenderChannels())
+						if (this.wrappedSender.getPlayerCache().isInChannel(channelName)) {
+							atLeastInOne = true;
+
+							break;
+						}
+
+					if (!atLeastInOne)
+						return false;
+				}
+
+				if (operator.getIgnoreSenderGamemodes().contains(this.wrappedSender.getPlayer().getGameMode()))
+					return false;
+
+				if (operator.getIgnoreSenderWorlds().contains(this.wrappedSender.getPlayer().getWorld().getName()))
+					return false;
+
+				for (final String playersRegion : DiskRegion.findRegionNames(this.wrappedSender.getPlayer().getLocation()))
+					if (operator.getIgnoreSenderRegions().contains(playersRegion))
+						return false;
+
+				for (final String channelName : operator.getIgnoreSenderChannels())
+					if (this.wrappedSender.getPlayerCache().isInChannel(channelName))
+						return false;
+			}
+
+			return true;
+		}
+
+		/*
+		 * Execute only the sender-side one-time operators that do not require an
+		 * online receiver, such as then discord, then console, then log, then write.
+		 */
+		private void executeSenderOnlyOperators(final T operator) {
+			Debugger.debug("operator", "EXECUTING sender-only operators for " + operator.getUniqueName() + " (no online receivers)");
+
+			if (!this.wrappedSender.isConsole())
+				for (final String command : operator.getConsoleCommands()) {
+					final String picked = RandomUtil.nextItem(splitVertically(command));
+
+					Platform.dispatchConsoleCommand(this.wrappedSender.getAudience(), this.replaceSenderVariablesLegacy(picked, operator));
+				}
+
+			for (final String message : operator.getConsoleMessages())
+				CommonCore.log(SimpleComponent.fromMiniAmpersand(this.replaceSenderVariablesLegacy(RandomUtil.nextItem(splitVertically(message)), operator)).toLegacySection());
+
+			for (final Map.Entry<String, String> entry : operator.getNotifyMessages().entrySet()) {
+				final String permission = entry.getKey();
+				final String formatOrMessage = this.replaceSenderVariablesLegacy(entry.getValue(), operator);
+
+				final Format format = Format.parse(formatOrMessage);
+				final SimpleComponent component = format.build(this.wrappedSender, this.prepareVariables(this.wrappedSender, operator));
+
+				if (Settings.Proxy.ENABLED)
+					ProxyUtil.sendPluginMessage(ChatControlProxyMessage.NOTIFY, permission, component);
+			}
+
+			if (HookManager.isDiscordSRVLoaded())
+				for (final Map.Entry<Long, List<String>> entry : operator.getDiscordMessages().entrySet()) {
+					final Long discordChannelId = entry.getKey();
+					final List<String> discordMessages = entry.getValue();
+					int delay = 1;
+
+					for (final String discordMessage : discordMessages) {
+						Discord.getInstance().sendChannelMessageNoPlayerDelayed(delay, discordChannelId, SimpleComponent.fromMiniAmpersand(this.replaceSenderVariablesLegacy(discordMessage, operator)).toPlain());
+
+						delay += 2;
+					}
+				}
+
+			for (final Map.Entry<String, String> entry : operator.getWriteMessages().entrySet()) {
+				final String file = this.replaceSenderVariablesLegacy(entry.getKey(), operator);
+				final String message = SimpleComponent.fromMiniAmpersand(this.replaceSenderVariablesLegacy(entry.getValue(), operator)).toPlain();
+
+				Platform.runTaskAsync(() -> FileUtil.writeFormatted(file, message));
+			}
 		}
 
 		/**
@@ -1340,7 +1515,8 @@ public abstract class PlayerMessage extends Operator {
 		protected Map<String, Object> prepareVariables(final WrappedSender wrapped, final T operator) {
 			final Map<String, Object> map = super.prepareVariables(wrapped, operator);
 
-			map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedReceiver.getUniqueId(), PlaceholderPrefix.RECEIVER));
+			if (this.wrappedReceiver != null)
+				map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedReceiver.getUniqueId(), PlaceholderPrefix.RECEIVER));
 
 			map.put("broadcast_group", operator.getGroup());
 

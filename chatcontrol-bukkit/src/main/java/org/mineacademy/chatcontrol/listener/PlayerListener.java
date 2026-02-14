@@ -222,7 +222,6 @@ public final class PlayerListener implements Listener {
 
 		final WrappedSender wrapped = WrappedSender.fromPlayer(player);
 
-		wrapped.getSenderCache().setDatabaseLoaded(false);
 		wrapped.getSenderCache().setPendingProxyJoinMessage(false);
 
 		boolean hasQuitMessage = true;
@@ -244,6 +243,8 @@ public final class PlayerListener implements Listener {
 
 		if (!hasQuitMessage)
 			event.setQuitMessage(null);
+
+		wrapped.getSenderCache().setDatabaseLoaded(false);
 
 		// This data is stored in the database, so we can remove it from memory always
 		PlayerCache.remove(player);

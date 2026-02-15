@@ -53,12 +53,17 @@ import net.ess3.api.events.NickChangeEvent;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.events.ChatEvent;
 
+import com.alessiodp.parties.api.Parties;
+import com.alessiodp.parties.api.interfaces.PartiesAPI;
+import com.alessiodp.parties.api.interfaces.PartyPlayer;
+
 /**
  * A common listener for all third party plugin integration
  */
 public final class ThirdPartiesListener {
 
 	private static McMMOListener mcMMOHook;
+	private static boolean partiesLoaded;
 
 	/**
 	 * Register all compatible hooks
@@ -101,6 +106,12 @@ public final class ThirdPartiesListener {
 			Platform.registerEvents(new EssentialsListener());
 		}
 
+		if (Platform.isPluginInstalled("Parties")) {
+			partiesLoaded = true;
+
+			CommonCore.log("Note: Hooked into Parties for party channel support");
+		}
+
 		if (Platform.isPluginInstalled("dynmap")) {
 			CommonCore.log("Note: Hooked into dynmap");
 
@@ -140,6 +151,30 @@ public final class ThirdPartiesListener {
 	 */
 	public static List<Player> getMcMMOPartyRecipients(final Player player) {
 		return isMcMMOLoaded() ? mcMMOHook.getPartyRecipients(player) : new ArrayList<>();
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Parties (AlessioDP)
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Return true if the Parties plugin is loaded
+	 *
+	 * @return
+	 */
+	public static boolean isPartiesLoaded() {
+		return partiesLoaded;
+	}
+
+	/**
+	 * Return true if both players are in the same Parties (AlessioDP) party.
+	 *
+	 * @param receiver
+	 * @param sender
+	 * @return
+	 */
+	public static boolean isInPartiesParty(final Player receiver, final Player sender) {
+		return partiesLoaded && PartiesHelper.isInSameParty(receiver, sender);
 	}
 }
 
@@ -476,6 +511,47 @@ final class DynmapListener implements Listener {
 
 			// Send back since it's handled and dynmap wont
 			sender.sendPlainMessage(component.toPlain());
+		}
+	}
+}
+
+/**
+ * Parties (AlessioDP) helper for party membership checking
+ */
+final class PartiesHelper {
+
+	private static boolean errorLogged = false;
+
+	static boolean isInSameParty(final Player receiver, final Player sender) {
+		try {
+			final PartiesAPI api = Parties.getApi();
+
+			final PartyPlayer senderPlayer = api.getPartyPlayer(sender.getUniqueId());
+
+			if (senderPlayer == null)
+				return false;
+
+			final UUID senderPartyId = senderPlayer.getPartyId();
+
+			if (senderPartyId == null)
+				return false;
+
+			final PartyPlayer receiverPlayer = api.getPartyPlayer(receiver.getUniqueId());
+
+			if (receiverPlayer == null)
+				return false;
+
+			return senderPartyId.equals(receiverPlayer.getPartyId());
+
+		} catch (final Throwable throwable) {
+			if (!errorLogged) {
+				CommonCore.warning("Failed checking Parties party membership for " + sender.getName() + " and " + receiver.getName()
+						+ " due to an error. Ensure you have the latest Parties version. Error was: " + throwable);
+
+				errorLogged = true;
+			}
+
+			return false;
 		}
 	}
 }

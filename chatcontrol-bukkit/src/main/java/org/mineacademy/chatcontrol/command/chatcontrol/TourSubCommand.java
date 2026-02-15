@@ -178,6 +178,7 @@ public final class TourSubCommand extends MainSubCommand {
 			pages.add($.out(HookManager.isFactionsLoaded(), "Factions, FactionsX or FactionsUUID"));
 			pages.add($.out(HookManager.isLandsLoaded(), "Lands"));
 			pages.add($.out(ThirdPartiesListener.isMcMMOLoaded(), "mcMMO"));
+			pages.add($.out(ThirdPartiesListener.isPartiesLoaded(), "Parties"));
 			pages.add($.out(HookManager.isMythicMobsLoaded(), "MythicMobs"));
 			pages.add($.out(HookManager.isMultiverseCoreLoaded(), "Multiverse-Core"));
 			pages.add($.out(HookManager.isPlaceholderAPILoaded(), "PlaceholderAPI"));

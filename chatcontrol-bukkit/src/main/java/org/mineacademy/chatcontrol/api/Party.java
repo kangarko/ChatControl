@@ -127,6 +127,16 @@ public abstract class Party {
 	};
 
 	/**
+	 * Chat for Parties (AlessioDP) - only shown to players within the same party.
+	 */
+	public static final Party PARTIES = new Party("parties-party") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return ThirdPartiesListener.isInPartiesParty(receiver, sender);
+		}
+	};
+
+	/**
 	 * Only chat with players belonging to the same island as you
 	 * and having the given (or higher rank, from top to bottom)
 	 */

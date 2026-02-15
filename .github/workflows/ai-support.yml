@@ -1,0 +1,33 @@
+name: AI Issue Support
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  support:
+    if: >-
+      (github.event_name == 'issues' && github.event.issue.user.type != 'Bot') ||
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.type != 'Bot' &&
+       !github.event.issue.pull_request)
+    uses: kangarko/ai-support/.github/workflows/ai-support.yml@main
+    with:
+      project_id: chatcontrol
+      event_name: ${{ github.event_name }}
+      issue_title: ${{ github.event.issue.title }}
+      issue_body: ${{ github.event.issue.body || '' }}
+      issue_number: ${{ github.event.issue.number }}
+      issue_labels: ${{ join(github.event.issue.labels.*.name, ',') }}
+      comment_body: ${{ github.event.comment.body || '' }}
+      comment_author: ${{ github.event.comment.user.login || '' }}
+    secrets:
+      COPILOT_MCP_GITHUB_TOKEN: ${{ secrets.COPILOT_MCP_GITHUB_TOKEN }}
+      AI_SUPPORT_TOKEN: ${{ secrets.AI_SUPPORT_TOKEN }}

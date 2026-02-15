@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -44,6 +45,31 @@ import lombok.RequiredArgsConstructor;
  * Class holding methods for the /spy command
  */
 public final class Spy {
+
+	/**
+	 * Bounded in-memory cache of recently spy-broadcast books so that spy
+	 * recipients can open them even when {@code Log.Apply_On} does not
+	 * include {@code book} (and to avoid the async-insert race condition).
+	 */
+	private static final Map<UUID, SimpleBook> bookCache = new LinkedHashMap<UUID, SimpleBook>() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected boolean removeEldestEntry(final Map.Entry<UUID, SimpleBook> eldest) {
+			return size() > 1000;
+		}
+	};
+
+	/**
+	 * Return a cached book by its unique ID, or null
+	 *
+	 * @param uuid
+	 * @return
+	 */
+	@Nullable
+	public static SimpleBook getCachedBook(final UUID uuid) {
+		return bookCache.get(uuid);
+	}
 
 	/**
 	 * The type of spying what this is
@@ -407,6 +433,8 @@ public final class Spy {
 	 * @param uuid the unique ID of the book used for display
 	 */
 	public static void broadcastBook(final WrappedSender wrapped, final SimpleBook book, final UUID uuid) {
+		bookCache.put(uuid, book);
+
 		final Spy spy = from(Type.BOOK, wrapped, SimpleComponent.empty());
 
 		spy.placeholders(

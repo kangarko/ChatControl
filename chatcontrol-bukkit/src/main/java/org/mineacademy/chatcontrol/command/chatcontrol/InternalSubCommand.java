@@ -8,6 +8,7 @@ import org.mineacademy.chatcontrol.model.ChatControlProxyMessage;
 import org.mineacademy.chatcontrol.model.Discord;
 import org.mineacademy.chatcontrol.model.LogType;
 import org.mineacademy.chatcontrol.model.Packets;
+import org.mineacademy.chatcontrol.model.Spy;
 import org.mineacademy.chatcontrol.model.db.Database;
 import org.mineacademy.chatcontrol.model.db.Log;
 import org.mineacademy.chatcontrol.settings.Settings;
@@ -77,6 +78,15 @@ public final class InternalSubCommand extends MainSubCommand {
 		else if ("book".equals(param)) {
 			this.checkConsole();
 
+			// Check in-memory cache first (works without Log.Apply_On and avoids async race)
+			final SimpleBook cached = Spy.getCachedBook(uuid);
+
+			if (cached != null) {
+				cached.openPlain(this.audience);
+				return;
+			}
+
+			// Fall back to database
 			this.syncCallback(() -> Database.getInstance().getLogs(LogType.BOOK), logs -> {
 				boolean found = false;
 

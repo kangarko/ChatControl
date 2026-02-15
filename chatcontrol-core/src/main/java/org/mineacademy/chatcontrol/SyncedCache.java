@@ -732,9 +732,11 @@ public final class SyncedCache {
 
 		for (final ToggleType part : ToggleType.values()) {
 			final String value = cache != null && cache.hasToggledPartOff(part) ? "true" : "false";
+			final String enabledValue = cache != null && cache.hasToggledPartOff(part) ? "false" : "true";
 
 			variables.put(prefix + "_is_ignoring_" + part.name().toLowerCase(), value);
 			variables.put(prefix + "_is_ignoring_" + part.name().toLowerCase() + "s", value);
+			variables.put(prefix + "_toggle_" + part.getKey(), enabledValue);
 		}
 
 		return variables;

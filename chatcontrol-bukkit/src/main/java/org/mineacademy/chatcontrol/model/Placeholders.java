@@ -362,6 +362,31 @@ public final class Placeholders extends SimpleExpansion {
 				return playerCache == null ? "false" : String.valueOf(playerCache.isIgnoringMessages(messageType));
 		}
 
+		// Toggle state - positive semantics (true = enabled/receiving, false = disabled/ignoring)
+		if (identifier.startsWith("toggle_") || identifier.startsWith("player_toggle_")) {
+			final String key = identifier.startsWith("player_toggle_") ? identifier.substring("player_toggle_".length()) : identifier.substring("toggle_".length());
+
+			try {
+				final ToggleType toggleType = ToggleType.fromKey(key);
+
+				if (Settings.Toggle.APPLY_ON.contains(toggleType))
+					return playerCache == null ? "true" : String.valueOf(!playerCache.hasToggledPartOff(toggleType));
+			} catch (final IllegalArgumentException ex) {
+				// Not a ToggleType, try PlayerMessageType
+			}
+
+			try {
+				final PlayerMessageType messageType = PlayerMessageType.fromKey(key);
+
+				if (Settings.Messages.APPLY_ON.contains(messageType))
+					return playerCache == null ? "true" : String.valueOf(!playerCache.isIgnoringMessages(messageType));
+			} catch (final IllegalArgumentException ex) {
+				// Not a PlayerMessageType either
+			}
+
+			return "Unknown toggle '" + key + "'. Available: " + Common.join(ToggleType.values()) + ", " + Common.join(PlayerMessageType.values());
+		}
+
 		// TODO merge with SyncedCache variables and remove duplicated code
 
 		if (identifier.startsWith("player_is_ignoring_"))

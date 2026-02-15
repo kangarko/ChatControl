@@ -752,6 +752,10 @@ public abstract class PlayerMessage extends Operator {
 		@Override
 		protected void filter(final T message) throws EventHandledException {
 
+			// Reset for each group so that console/proxy commands and proxy/Discord
+			// broadcasts execute once per matching group, not just once overall
+			this.firstTimeRun = true;
+
 			Debugger.debug("operator", "FILTERING " + message.getUniqueName());
 
 			// Ignore

@@ -467,6 +467,9 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 		@Override
 		protected void filter(final T message) throws EventHandledException {
 
+			// Reset for each group so that operators execute once per matching group, not just once overall
+			this.executed = false;
+
 			Debugger.debug("operator", "FILTERING " + message.getUniqueName());
 
 			// Delay

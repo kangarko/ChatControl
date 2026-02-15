@@ -174,15 +174,21 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 
 				if (ProxySettings.ENABLE_FORWARD_COMMAND) {
 					if ("proxy".equals(server)) {
+						Debugger.debug("proxy", "Executing forwarded command on proxy: " + command);
+
 						if (Redis.isEnabled())
 							Redis.dispatchCommand(command);
 
 						else
 							Platform.dispatchConsoleCommand(null, command);
 
-					} else
+					} else {
+						Debugger.debug("proxy", "Forwarding command to server '" + server + "' from " + this.serverAlias + ": " + command);
+
 						this.forwardData(packet, data, true);
-				}
+					}
+				} else
+					Debugger.debug("proxy", "Ignoring forward command from " + this.serverAlias + " because Enable_Forward_Command is disabled in settings.yml");
 			}
 
 			else if (packet == ChatControlProxyMessage.DATABASE_READY) {

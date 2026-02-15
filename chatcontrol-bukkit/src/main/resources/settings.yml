@@ -430,7 +430,8 @@ Grammar:
 Rules:
   
   # Where should the rules be applied to?
-  # Available: chat, command, sign, book, anvil, tag
+  # Available: chat, command, sign, book, anvil, tag, packet
+  # 'packet' intercepts outgoing chat messages from the server/other plugins (requires ProtocolLib).
   Apply_On: [chat, command, sign, book, anvil, tag]
   
   # Print the '*--------- Rule match (X) for Y ---------' console message?

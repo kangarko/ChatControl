@@ -45,7 +45,12 @@ public enum RuleType {
 	/**
 	 * Rule matching player tags: nicks/prefix/suffix
 	 */
-	TAG("tag", LogType.COMMAND);
+	TAG("tag", LogType.COMMAND),
+
+	/**
+	 * Rule matching outgoing chat packets from the server to the player (requires ProtocolLib)
+	 */
+	PACKET("packet", LogType.CHAT);
 
 	/**
 	 * The saveable non-obfuscated key

@@ -694,6 +694,7 @@
   "command-rule-type-global": "global",
   "command-rule-type-sign": "sign",
   "command-rule-type-tag": "tag",
+  "command-rule-type-packet": "packet",
   "command-rule-usage": "<info/toggle/create/import/list/reload> [rule]",
   "command-rule-usages": [
     "/{label} {sublabel} info <rule> <gray>- Print rule information.",

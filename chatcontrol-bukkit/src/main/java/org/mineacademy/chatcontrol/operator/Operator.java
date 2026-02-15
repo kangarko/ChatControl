@@ -172,6 +172,11 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 	private final List<SimpleSound> sounds = new ArrayList<>();
 
 	/**
+	 * Permission:Sounds map to play sounds to all online players having such permission
+	 */
+	private final Map<String, List<SimpleSound>> broadcastSounds = new HashMap<>();
+
+	/**
 	 * The book to open for player
 	 */
 	@Nullable
@@ -453,9 +458,20 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		}
 
 		else if ("then sound".equals(firstTwo)) {
-			final SimpleSound sound = SimpleSound.fromString(theRest);
+			if (theRest.startsWith("for ")) {
+				final String[] split = theRest.substring(4).split(" ");
+				checkBoolean(split.length > 1, "wrong 'then sound for' syntax! Usage: then sound for <permission> <sound> [volume] [pitch]");
 
-			this.sounds.add(sound);
+				final String permission = split[0];
+				final SimpleSound sound = SimpleSound.fromString(CommonCore.joinRange(1, split));
+
+				this.broadcastSounds.computeIfAbsent(permission, k -> new ArrayList<>()).add(sound);
+
+			} else {
+				final SimpleSound sound = SimpleSound.fromString(theRest);
+
+				this.sounds.add(sound);
+			}
 		}
 
 		else if ("then book".equals(firstTwo)) {
@@ -1034,6 +1050,18 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 						if (Settings.Proxy.ENABLED)
 							ProxyUtil.sendPluginMessage(ChatControlProxyMessage.NOTIFY, permission, component);
 					}
+				}
+
+				for (final Map.Entry<String, List<SimpleSound>> entry : operator.getBroadcastSounds().entrySet()) {
+					final String permission = entry.getKey();
+					final List<SimpleSound> broadcastSounds = entry.getValue();
+
+					Platform.runTask(2, () -> {
+						for (final Player online : Players.getOnlinePlayersWithLoadedDb())
+							if (online.hasPermission(permission) && !online.getName().equals(this.wrappedSender.getName()))
+								for (final SimpleSound sound : broadcastSounds)
+									sound.play(online);
+					});
 				}
 
 				if (HookManager.isDiscordSRVLoaded())

@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.SenderCache;
+import org.mineacademy.chatcontrol.operator.Rule;
+import org.mineacademy.chatcontrol.operator.Rule.RuleCheck;
+import org.mineacademy.chatcontrol.operator.Rules;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.MinecraftVersion;
@@ -20,6 +23,7 @@ import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.collection.ExpiringMap;
 import org.mineacademy.fo.model.PacketListener;
+import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.FoundationPlayer;
 import org.mineacademy.fo.platform.Platform;
 
@@ -140,12 +144,38 @@ public final class Packets extends PacketListener {
 
 			@Override
 			protected String onJsonMessage(final Player player, final String jsonMessage) {
+				String result = jsonMessage;
+
+				// Apply packet rules if enabled
+				if (Settings.Rules.APPLY_ON.contains(RuleType.PACKET)) {
+					final boolean legacy = MinecraftVersion.olderThan(V.v1_16);
+					final String plainText = SimpleComponent.fromAdventureJson(jsonMessage, legacy).toPlain();
+
+					if (!plainText.isEmpty()) {
+						final WrappedSender wrapped = WrappedSender.fromPlayer(player);
+
+						// Rule.filter throws EventHandledException on "then deny", which
+						// SimpleChatAdapter catches and uses to cancel the packet
+						final RuleCheck<Rule> check = Rule.filter(RuleType.PACKET, wrapped, plainText);
+
+						if (check.isMessageChanged())
+							result = SimpleComponent.fromMiniAmpersand(check.getMessage()).toAdventureJson(null, legacy);
+					}
+				}
+
+				// Store for purge feature (only reached if not denied)
 				synchronized (Packets.this.playersPendingMessageRemoval) {
 					if (!Packets.this.playersPendingMessageRemoval.contains(player.getName()))
-						SenderCache.from(player).getLastChatPackets().add(jsonMessage);
-
-					return jsonMessage;
+						SenderCache.from(player).getLastChatPackets().add(result);
 				}
+
+				return result;
+			}
+
+			@Override
+			protected boolean editJson() {
+				return Settings.Rules.APPLY_ON.contains(RuleType.PACKET)
+						&& !Rules.getInstance().getRules(RuleType.PACKET).isEmpty();
 			}
 		});
 	}

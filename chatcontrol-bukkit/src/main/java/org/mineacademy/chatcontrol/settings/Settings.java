@@ -420,17 +420,6 @@ public final class Settings extends SimpleSettings {
 		private static void init() {
 			setPathPrefix("Rules");
 
-			final List<String> applyOn = getStringList("Apply_On");
-
-			if (applyOn.contains("packet") || applyOn.contains("PACKET")) {
-				CommonCore.warning("Packet rules are no longer supported in ChatControl because they lead to crashes and never worked properly with ViaVersion and many other packet plugins. We'll now remove them from your Rules.Apply_On section.");
-
-				applyOn.remove("packet");
-				applyOn.remove("PACKET");
-
-				set("Apply_On", applyOn);
-			}
-
 			APPLY_ON = getSet("Apply_On", RuleType.class);
 			ValidCore.checkBoolean(!APPLY_ON.contains(RuleType.GLOBAL), "To enable global rules, remove @import global from files in the rules/ folder.");
 

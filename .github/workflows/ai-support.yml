@@ -30,4 +30,3 @@ jobs:
       comment_author: ${{ github.event.comment.user.login || '' }}
     secrets:
       COPILOT_MCP_GITHUB_TOKEN: ${{ secrets.COPILOT_MCP_GITHUB_TOKEN }}
-      AI_SUPPORT_TOKEN: ${{ secrets.AI_SUPPORT_TOKEN }}

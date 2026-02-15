@@ -59,6 +59,7 @@ then notify chatcontrol.notify.swear <dark_gray>[<gray>Swear<dark_gray>] <gray>{
 # What the matching part of the message should be replaced to?
 # If you specify "@prolong " before and then one letter only, it will automatically
 # duplicate the letter to fit length of the matched word.
+# You can also use "@prolong:1 " to match the length of a specific regex group.
 then replace @prolong *
 
 # Or, you can comment the line above and uncomment this one to secretly

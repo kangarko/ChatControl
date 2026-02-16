@@ -16,10 +16,12 @@ import org.mineacademy.chatcontrol.model.PlayerMessageType;
 import org.mineacademy.chatcontrol.proxy.command.MeCommand;
 import org.mineacademy.chatcontrol.proxy.command.SayCommand;
 import org.mineacademy.chatcontrol.proxy.operator.ProxyPlayerMessages;
+import org.mineacademy.chatcontrol.proxy.operator.ProxyRule;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.collection.ExpiringMap;
 import org.mineacademy.fo.debug.Debugger;
+import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.exception.FoException;
 import org.mineacademy.fo.model.IsInList;
 import org.mineacademy.fo.model.SimpleComponent;
@@ -222,6 +224,36 @@ public final class ProxyEvents {
 				if (filterArgs.contains(arg))
 					it.remove();
 			}
+	}
+
+	/**
+	 * Handle proxy command rules matching.
+	 * Returns true if the command was denied by a rule.
+	 *
+	 * @param player
+	 * @param command
+	 * @return true if the command should be cancelled
+	 */
+	public static boolean handleCommand(final FoundationPlayer player, String command) {
+		if (command.isEmpty())
+			return false;
+
+		// Prepend "/" if not present for consistent matching
+		if (command.charAt(0) != '/')
+			command = "/" + command;
+
+		Debugger.debug("proxy", "Checking proxy command rules for " + player.getName() + ": " + command);
+
+		try {
+			final ProxyRule.RuleCheck check = new ProxyRule.RuleCheck(player, command);
+
+			check.start();
+
+			return check.isCancelledSilently();
+
+		} catch (final EventHandledException ex) {
+			return true;
+		}
 	}
 
 	/**

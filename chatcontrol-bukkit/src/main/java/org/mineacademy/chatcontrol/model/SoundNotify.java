@@ -21,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 /**
  * Handles @ mentioning and sound notify.
@@ -107,10 +106,10 @@ public final class SoundNotify {
 
 						final Variables variables = Variables.builder().placeholder("match", matchResult.group()).placeholders(networkPlayer.getPlaceholders(PlaceholderPrefix.TAGGED));
 
-						return PlainTextComponentSerializer.plainText().deserialize(variables.replaceLegacy(format));
+						return LegacyComponentSerializer.legacySection().deserialize(variables.replaceLegacy(format));
 					}));
 
-					message = PlainTextComponentSerializer.plainText().serialize(replacedMessage);
+					message = LegacyComponentSerializer.legacySection().serialize(replacedMessage);
 				}
 			}
 		}

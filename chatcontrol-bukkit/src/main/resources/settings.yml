@@ -79,11 +79,11 @@ Channels:
   #                   to use channel's formatting. [WARNING] The only way to hide console log is to cancel
   #                   the event, which may conflict with DynMap or other plugins!
   #
-  # - Format_To_Discord: Overrides the format from above for messages shown on Discord. To disable, do NOT
-  #                   use the Discord_Channel_Id option below and we simply won't send messages to Discord.
-  #                   For messages sent from Discord to Minecraft, we use the standard Format option.
+  # - Format_To_Discord: Controls how Minecraft messages appear ON DISCORD. This is what Discord users see
+  #                   when a player chats in-game. To disable sending to Discord, do NOT set Discord_Channel_Id.
   #
-  # - Format_From_Discord: Overrides the format from above for messages shown from Discord in Minecraft. 
+  # - Format_From_Discord: Controls how Discord messages appear IN MINECRAFT. This is what in-game players
+  #                   see when someone types on Discord. Overrides the standard Format for Discord->MC messages. 
   #
   # - Format_Discord_Webhook_Name: If Discord.Webhook is enabled, this option overrides the
   #                                name shown on the message, if you want to show a player's prefix here
@@ -548,6 +548,10 @@ Messages:
   # [WARNING] "Kick" messages are poorly implemented in Bukkit. We recommend configuring "quit"
   #           instead. Test it with your prefered punishment plugin.
   #
+  # [PROXY] On a network, BOTH the proxy plugin AND the backend server can send join/quit messages.
+  #         Use "require server" operator in your .rs files to control which server sends them, or
+  #         enable messages only on the proxy plugin to avoid duplicates.
+  #
   # Available: join, quit, kick, death, timed
   Apply_On: []
   
@@ -585,6 +589,9 @@ Messages:
   
   # The default delay when sending timed messages. You can customize this for each individually
   # using the "delay" operator, but it cannot be lower than this value. 
+  #
+  # [TIP] Use "player delay" operator in join/quit .rs files to prevent spam from players
+  #       reconnecting rapidly (e.g. "player delay 3 minutes" hides message if they rejoin within 3 min).
   Timed_Delay: 10 seconds
 
 # -------------------------------------------------------------------------------------------------
@@ -1193,7 +1200,11 @@ CoreArena:
   Send_Channel_Messages: true
 
 # -------------------------------------------------------------------------------------------------
-# DiscordSRV integration. 
+# DiscordSRV integration.
+#
+# [TIP] When writing rules that apply to Discord messages (e.g. in rules/ files), the "match"
+#       operator must come BEFORE "require perm" because Discord users don't have Minecraft
+#       permissions — the rule would fail before reaching the match check.
 # -------------------------------------------------------------------------------------------------
 Discord: 
   

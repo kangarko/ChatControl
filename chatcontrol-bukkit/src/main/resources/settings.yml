@@ -1324,7 +1324,7 @@ UUID_Lookup: true
 
 # -------------------------------------------------------------------------------------------------
 # The priority we format and check the chat with. By default, no need to modify.
-# Plugins which may require changing this: FactionsChat, BanManager, WorldGuard, InteractiveChat
+# Plugins which may require changing this: FactionsChat, BanManager, LibertyBans, WorldGuard, InteractiveChat
 # See: https://docs.mineacademy.org/chatcontrol/listener-priorities for help.
 #
 # DO NOT RELOAD WHEN CHANGING THIS - THIS IS UNSUPPORTED.

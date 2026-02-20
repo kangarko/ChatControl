@@ -510,7 +510,7 @@ public final class PlayerListener implements Listener {
 		if (CompMetadata.hasMetadata(item, SimpleBook.TAG)) {
 			this.discardBook(player, event);
 
-			Platform.runTask(() -> player.setItemInHand(new ItemStack(CompMaterial.AIR.getMaterial())));
+			Remain.runEntityTask(player, 0, () -> player.setItemInHand(new ItemStack(CompMaterial.AIR.getMaterial())));
 		}
 	}
 
@@ -542,6 +542,6 @@ public final class PlayerListener implements Listener {
 		SenderCache.from(player).setPendingMail(null);
 		Messenger.info(player, Lang.component("command-mail-draft-discarded"));
 
-		Platform.runTask(() -> player.updateInventory());
+		Remain.runEntityTask(player, 0, () -> player.updateInventory());
 	}
 }

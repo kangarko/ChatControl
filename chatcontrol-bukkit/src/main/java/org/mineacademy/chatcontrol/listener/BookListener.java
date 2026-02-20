@@ -26,7 +26,6 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.event.SimpleListener;
 import org.mineacademy.fo.model.SimpleBook;
 import org.mineacademy.fo.model.SimpleComponent;
-import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.remain.Remain;
@@ -176,8 +175,8 @@ public final class BookListener extends SimpleListener<PlayerEditBookEvent> {
 			} else
 				Messenger.info(player, Lang.component(event.isSigning() ? "command-mail-ready" : "command-mail-draft-saved"));
 
-			// Remove hand item
-			Platform.runTask(() -> {
+			// Remove hand item (must run on entity thread for Folia/ShreddedPaper)
+			Remain.runEntityTask(player, 0, () -> {
 				player.setItemInHand(new ItemStack(CompMaterial.AIR.getMaterial()));
 				player.updateInventory();
 			});

@@ -40,6 +40,7 @@ import org.mineacademy.fo.platform.FoundationPlayer;
 import org.mineacademy.fo.platform.Platform;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompMetadata;
+import org.mineacademy.fo.remain.Remain;
 import org.mineacademy.fo.settings.Lang;
 
 import lombok.AccessLevel;
@@ -229,7 +230,10 @@ public final class CommandMail extends ChatControlCommand {
 					.lore(Lang.legacy("command-mail-item-tooltip"))
 					.make();
 
-			player.setItemInHand(bookItem);
+			// Must run on entity thread for Folia/ShreddedPaper when invoked from async callbacks (e.g. reply flow)
+			Remain.runEntityTask(player, 0, () -> {
+				player.setItemInHand(bookItem);
+			});
 
 			if (senderCache.getPendingMailReply() != null)
 				this.tellInfo(Lang.component("command-mail-reply-usage", "player", senderCache.getPendingMailReply().getSenderName()));
@@ -453,19 +457,22 @@ public final class CommandMail extends ChatControlCommand {
 		// Remove draft from sender because it was finished
 		SenderCache.from(this.getSender()).setPendingMail(null);
 
-		// Try removing the item if it still exists
+		// Try removing the item if it still exists (must run on entity thread for Folia/ShreddedPaper)
 		final Player player = this.getPlayer();
-		final ItemStack[] content = player.getInventory().getContents();
 
-		for (int itemIndex = 0; itemIndex < content.length; itemIndex++) {
-			final ItemStack item = content[itemIndex];
+		Remain.runEntityTask(player, 0, () -> {
+			final ItemStack[] content = player.getInventory().getContents();
 
-			if (item != null && CompMetadata.hasMetadata(player, SimpleBook.TAG))
-				content[itemIndex] = new ItemStack(CompMaterial.AIR.getMaterial());
-		}
+			for (int itemIndex = 0; itemIndex < content.length; itemIndex++) {
+				final ItemStack item = content[itemIndex];
 
-		player.getInventory().setContents(content);
-		player.updateInventory();
+				if (item != null && CompMetadata.hasMetadata(player, SimpleBook.TAG))
+					content[itemIndex] = new ItemStack(CompMaterial.AIR.getMaterial());
+			}
+
+			player.getInventory().setContents(content);
+			player.updateInventory();
+		});
 
 		if (recipients.isEmpty()) {
 			if (!warned)

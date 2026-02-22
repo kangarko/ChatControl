@@ -751,6 +751,7 @@ public abstract class PlayerMessage extends Operator {
 		 */
 		@Override
 		protected void filter(final T message) throws EventHandledException {
+			this.firstTimeRun = true;
 
 			Debugger.debug("operator", "FILTERING " + message.getUniqueName());
 
@@ -844,6 +845,16 @@ public abstract class PlayerMessage extends Operator {
 
 				// Execute main operators
 				this.executeOperators(message);
+			}
+
+			if (!pickedMessage && this.wrappedSender != null) {
+				this.wrappedReceiver = this.wrappedSender;
+
+				if (this.canFilter(message)) {
+					this.pickedMessage = message.getNextMessage();
+
+					this.executeOperators(message);
+				}
 			}
 		}
 

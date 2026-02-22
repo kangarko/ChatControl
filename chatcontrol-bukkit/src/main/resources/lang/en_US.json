@@ -1001,5 +1001,6 @@
   "decoration-italic": "italic",
   "decoration-magic": "magic",
   "decoration-strikethrough": "strikethrough",
-  "decoration-underlined": "underlined"
+  "decoration-underlined": "underlined",
+  "decoration-obfuscated": "obfuscated"
 }

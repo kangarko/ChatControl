@@ -473,8 +473,8 @@ Rules:
   #            replacement is [censored], then the sign text will turn into 
   #            "hello, join
   #            [censored]" as we will join the lines, split by 15 chars and apply filtering.
-  # - separate = we check each line for rules separatedly
-  # - both = we first check lines joined and then separatedly
+  # - separate = we check each line for rules separately
+  # - both = we first check lines joined and then separately
   Signs_Check_Mode: separate
 
 # -------------------------------------------------------------------------------------------------
@@ -499,7 +499,7 @@ Private_Messages:
   # will see players from other servers in tab-completion. Others will only see players from their current server.
   Allow_Cross_Server_Tab_Complete: true
 
-  # Send message as an advancement? Requires Minecraft 1.12+. Imposes a performance penaulty.
+  # Send message as an advancement? Requires Minecraft 1.12+. Imposes a performance penalty.
   Toasts: false
   
   # See Sound_Notify.Sound for help.
@@ -872,7 +872,7 @@ Tag:
   # Do NOT change this to /nick because it won't work, see the TIP above to make a /nick command. 
   Command_Aliases: [tag]
   
-  # Check Essentials/CMI for players nicks? Has a slight performance penaulty. Enable if you don't
+  # Check Essentials/CMI for players nicks? Has a slight performance penalty. Enable if you don't
   # use our tag system or want backward compatibility.
   # [WARNING] Does not work for prefixes or suffixes when you have them enabled in Apply_On.
   Backward_Compatible: true
@@ -1347,7 +1347,7 @@ Show_Tips: true
 
 # -------------------------------------------------------------------------------------------------
 # Enable "/chc region" which can be used to restrict rules to a 3D cuboid area. 
-# Has a minor performance penaulty. Does not support reloading.
+# Has a minor performance penalty. Does not support reloading.
 # -------------------------------------------------------------------------------------------------
 Register_Regions: false
 

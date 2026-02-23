@@ -371,7 +371,7 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 				//"Proxy", this.proxy,
 				"Messages", this.messages,
 
-				"Require Sender Permission", this.requireSenderPermission,
+				"Require Sender Permission", this.requireSenderPermission != null ? this.requireSenderPermission.getKey() : null,
 				"Require Sender Script", this.requireSenderScript,
 				/*"Require Sender Gamemodes", this.requireSenderGamemodes,
 				"Require Sender Worlds", this.requireSenderWorlds,

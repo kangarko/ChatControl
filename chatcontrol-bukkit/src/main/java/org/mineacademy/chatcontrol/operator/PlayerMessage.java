@@ -659,7 +659,7 @@ public abstract class PlayerMessage extends Operator {
 				"Console For Each Commands", this.consoleForEachCommands,
 				"Messages", this.messages,
 
-				"Require Sender Permission", this.requireSenderPermission,
+				"Require Sender Permission", this.requireSenderPermission != null ? this.requireSenderPermission.getKey() : null,
 				"Require Sender Script", this.requireSenderScript,
 				"Require Sender Variable", this.requireSenderVariable,
 				"Require Sender Gamemodes", this.requireSenderGamemodes,
@@ -667,7 +667,7 @@ public abstract class PlayerMessage extends Operator {
 				"Require Sender Regions", this.requireSenderRegions,
 				"Require Sender Channels", this.requireSenderChannels,
 
-				"Require Receiver Permission", this.requireReceiverPermission,
+				"Require Receiver Permission", this.requireReceiverPermission != null ? this.requireReceiverPermission.getKey() : null,
 				"Require Receiver Script", this.requireReceiverScript,
 				"Require Receiver Variable", this.requireReceiverVariable,
 				"Require Receiver Gamemodes", this.requireReceiverGamemodes,

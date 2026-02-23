@@ -134,7 +134,7 @@ public final class ProxyRule extends ProxyOperator {
 		return super.collectOptions().putArray(
 				"Pattern", this.pattern.pattern(),
 				"Name", this.name,
-				"Require Sender Permission", this.requireSenderPermission,
+				"Require Sender Permission", this.requireSenderPermission != null ? this.requireSenderPermission.getKey() : null,
 				"Require Sender Script", this.requireSenderScript,
 				"Require Sender Servers", this.requireSenderServers,
 				"Ignore Sender Permission", this.ignoreSenderPermission,
@@ -160,6 +160,8 @@ public final class ProxyRule extends ProxyOperator {
 		private String message;
 
 		private Matcher matcher;
+
+		private String[] matchedGroups;
 
 		public RuleCheck(final FoundationPlayer audience, final String command) {
 			super(audience, CommonCore.newHashMap());
@@ -188,6 +190,11 @@ public final class ProxyRule extends ProxyOperator {
 
 			if (!this.matcher.find())
 				return;
+
+			this.matchedGroups = new String[this.matcher.groupCount() + 1];
+
+			for (int i = 0; i <= this.matcher.groupCount(); i++)
+				this.matchedGroups[i] = this.matcher.group(i) != null ? this.matcher.group(i) : "";
 
 			if (!rule.isIgnoreVerbose())
 				this.verbose("&f*-----possibly-filtered-proxy-command-----*",
@@ -299,9 +306,9 @@ public final class ProxyRule extends ProxyOperator {
 				map.put("ruleID", operator.getName());
 			}
 
-			if (this.matcher != null)
-				for (int i = 0; i <= this.matcher.groupCount(); i++)
-					map.put(String.valueOf(i), this.matcher.group(i) != null ? this.matcher.group(i) : "");
+			if (this.matchedGroups != null)
+				for (int i = 0; i < this.matchedGroups.length; i++)
+					map.put(String.valueOf(i), this.matchedGroups[i]);
 
 			return map;
 		}
@@ -310,12 +317,9 @@ public final class ProxyRule extends ProxyOperator {
 		protected String replaceVariablesLegacy(@NonNull final String message, final ProxyRule operator) {
 			String result = super.replaceVariablesLegacy(message, operator);
 
-			if (this.matcher != null)
-				for (int i = this.matcher.groupCount(); i >= 0; i--) {
-					final String group = this.matcher.group(i);
-
-					result = result.replace("$" + i, group != null ? group : "");
-				}
+			if (this.matchedGroups != null)
+				for (int i = this.matchedGroups.length - 1; i >= 0; i--)
+					result = result.replace("$" + i, this.matchedGroups[i]);
 
 			return result;
 		}

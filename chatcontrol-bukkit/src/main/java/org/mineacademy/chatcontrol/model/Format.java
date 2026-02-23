@@ -431,7 +431,7 @@ public final class Format extends YamlConfig {
 					image.drawFromHead(variables.replaceLegacy(this.imageHead));
 
 				} catch (final IOException | NullPointerException ex) {
-					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from head: " + this.imageHead + ". Error: " + ex.toString() + " Format part: " + this);
+					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to load image from head: " + this.imageHead + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 
 			if (this.imageUrl != null)
@@ -439,7 +439,7 @@ public final class Format extends YamlConfig {
 					image.drawFromUrl(variables.replaceLegacy(this.imageUrl));
 
 				} catch (final IOException | NullPointerException ex) {
-					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from URL: " + this.imageUrl + ". Error: " + ex.toString() + " Format part: " + this);
+					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to load image from URL: " + this.imageUrl + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 
 			if (this.imageFile != null)
@@ -447,7 +447,7 @@ public final class Format extends YamlConfig {
 					image.drawFromFile(FileUtil.getFile("images/" + this.imageFile));
 
 				} catch (final IOException | NullPointerException ex) {
-					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to look up player head from file: " + this.imageFile + ". Error: " + ex.toString() + " Format part: " + this);
+					CommonCore.logTimed(60 * 30, "(This error only shows every 30min) Unable to load image from file: " + this.imageFile + ". Error: " + ex.toString() + " Format part: " + this);
 				}
 
 			// Get the actual message, support multilineň
@@ -692,6 +692,22 @@ public final class Format extends YamlConfig {
 			part.imageUrl = map.getString("Image_Url");
 			part.imageHeight = map.getInteger("Image_Height");
 			part.imageFillterCharacter = map.get("Image_Type", ChatImage.FillerCharacter.class);
+
+			{
+				int imageSources = 0;
+
+				if (part.imageFile != null)
+					imageSources++;
+
+				if (part.imageHead != null)
+					imageSources++;
+
+				if (part.imageUrl != null)
+					imageSources++;
+
+				if (imageSources > 1)
+					Common.warning("Format " + formatName + " has part '" + partName + "' with multiple image sources (Image_File, Image_Head, Image_Url). Only one should be used at a time.");
+			}
 
 			if (part.imageFile != null)
 				ValidCore.checkBoolean(FileUtil.getFile("images/" + part.imageFile).exists(), "Image file '" + part.imageFile + "' not found in images/ folder for part: " + part);

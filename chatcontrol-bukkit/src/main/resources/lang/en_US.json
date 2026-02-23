@@ -1,7 +1,6 @@
 {
   "case-receiver": "receiver, receivers",
   "case-recipient": "recipient, recipients",
-  "channel-available": " <white>Available: <gray>",
   "channel-disabled": "<red>Channels are disabled. Set Channels.Enabled to true in settings.yml to enable.",
   "channel-disabled-world": "<red>Channels are not enabled on '{world}' world.",
   "channel-header": "Channels",
@@ -121,7 +120,6 @@
   "checker-move-chat": "Please move before typing into chat.",
   "checker-move-command": "Please move before executing commands.",
   "checker-no-text": "You cannot send chat messages without text!",
-  "checker-no-text-after-change": "Your message has been edited and cannot be sent because it is now empty.",
   "checker-parrot": "You cannot repeat '{message}' since it's {similarity}% similar to what was said in the last {delay}.",
   "checker-period": "You can only send {type_amount} {type} in {period_amount} {period}.",
   "checker-sign-duplication": "Do not place multiple signs with the same text.",
@@ -152,7 +150,6 @@
   "command-announce-success": "Your announcement has been sent.",
   "command-announce-success-network": "Your announcement was sent to server '{server}'.",
   "command-announce-type": "ANNOUNCEMENT",
-  "command-announce-type-network": "NETWORK ANNOUNCEMENT",
   "command-announce-usage": "<type> <message>",
   "command-announce-usage-actionbar": "/{label} {sublabel} actionbar <message> server:creative <gray>- Broadcast an action bar to 'creative' server.",
   "command-announce-usage-bossbar": "/{label} {sublabel} bossbar <message> time:<seconds> color:<color> style:<style> <gray>- Broadcast boss bar.",
@@ -277,8 +274,8 @@
     "",
     "<red><bold>NOTE: <reset><red>You cannot send commands to empty servers."
   ],
-  "command-header-no-subcommand": "<red>There are no arguments for this command.",
-  "command-header-no-subcommand-permission": "<red>You don't have permissions to view any subcommands.",
+  "command-header-no-subcommands": "<red>There are no arguments for this command.",
+  "command-header-no-subcommands-permission": "<red>You don't have permissions to view any subcommands.",
   "command-ignore-cannot-ignore-admin": "You cannot ignore that player.",
   "command-ignore-cannot-ignore-self": "You are already ignoring yourself when you don't listen to your body or your mind, fail to set boundaries and don't meet your own needs. Stop it, get some help.",
   "command-ignore-limit-reached": "You can only ignore {limit} players at once.",
@@ -328,20 +325,17 @@
     "<red><bold>TIP:<reset><gray> You can use this to measure the performance of variables and find which cause lag."
   ],
   "command-info-variables": "<gray>Result (took {time}ms): <reset>{result}",
-  "command-info-variables-empty": "<gray>Result (took {time}ms): <italic>Empty output.",
   "command-info-variables-no-message": "Please enter a message in which we replace variables.",
   "command-internal-invalid-book": "The book {uuid} was not found in our database.",
   "command-internal-invalid-meta": "You do not have the key metadata!",
   "command-invalid-channel": "No such channel: '{channel}'. Available: {available}",
   "command-invalid-group": "No such group: '{group}'. Available: {available}",
   "command-invalid-log": "No such log: '{type}'. Available: {available}",
-  "command-invalid-message": "No such message: '{message}'. Available: {available}",
   "command-invalid-mode": "No such mode: '{mode}'. Available: {available}",
   "command-invalid-rule": "No such rule: '{rule}'. Available: {available}",
   "command-invalid-server": "No such server: '{server}' Available: {available}.",
   "command-invalid-tag": "No such tag: '{tag}'. Available: {available}",
   "command-invalid-warning-set": "No such warning set: '{warning_set}'. Available: {available}",
-  "command-label-subcommand-description": " <white>/{label} {sublabel} {usage+}{dash+}{description}",
   "command-list-description": "List online players.",
   "command-list-header-local": "Listing Online Player(s)",
   "command-list-header-network": "Listing Network Player(s)",
@@ -541,12 +535,10 @@
   ],
   "command-mute-already-muted": "{type} '{name}' is already muted! Use 'off' as an argument to unmute.",
   "command-mute-already-muted-server": "{type} is already muted! Use 'off' as an argument to unmute.",
-  "command-mute-cannot-chat": "You cannot type to chat while you are muted.",
   "command-mute-cannot-chat-channel-muted": "Channel {channel} is muted. Remaining: {player_channel_unmute_remaining_short}",
   "command-mute-cannot-chat-player-muted": "You are muted, can't chat. Remaining: {player_unmute_remaining_short}",
   "command-mute-cannot-chat-proxy-muted": "The network is muted, can't chat. Remaining: {network_unmute_remaining_short}",
   "command-mute-cannot-chat-server-muted": "The server is muted, can't chat. Remaining: {server_unmute_remaining_short}",
-  "command-mute-cannot-command": "You cannot perform this command while you are muted.",
   "command-mute-cannot-create-books": "Cannot create books while the chat or you are muted!",
   "command-mute-cannot-mute-admin": "You cannot mute that player.",
   "command-mute-cannot-mute-proxy-not-enabled": "Cannot mute network as Proxy is not enabled in proxy.yml.",
@@ -559,7 +551,6 @@
   "command-mute-change-status-tooltip-unmute": [
     "<gold>Click to unmute"
   ],
-  "command-mute-channel-status": "Channel Mute Status",
   "command-mute-description": "Mute/unmute server, channel or players.",
   "command-mute-external": "unknown (non-ChatControl mute)",
   "command-mute-invalid-duration": "Invalid duration format: '{input}'! Valid syntax: 6y5mo4w3d2h1m0s such as 30m or 1m30s",
@@ -589,7 +580,6 @@
     "/{label} <type> <duration> [reason] <gray>- Mute the type with reason.",
     "<red>Tip: The type can be 'proxy', 'server', 'channel' or 'player'. For channels and players, also specify their name."
   ],
-  "command-no-console": "<red>You may only use this command as a player.",
   "command-no-group-name": "Please specify the group name. Available {available}",
   "command-no-message-name": "Please specify the message group. Available: {available}",
   "command-no-player-name-given": "Please specify a player name (can be offline, too).",
@@ -628,7 +618,6 @@
   "command-real-name-no-nick": "Player {player} has no nick.",
   "command-real-name-usage": "[name/nick]",
   "command-reload-success": "{plugin_name} {plugin_version} reloaded. Note that some changes require a server restart.",
-  "command-reloading": "reloading",
   "command-remote-database-required": "You need a remote database to use this feature with proxy. Reconfigure proxy.yml or database.yml files to continue.",
   "command-reply-alone": "You have nobody to reply to :(",
   "command-reply-dosage": "<message>",
@@ -708,8 +697,6 @@
   "command-say-usages": [
     "/{label} Hello everyone! <gray>- Broadcast a message."
   ],
-  "command-send-format-description": "Send a message using a given format from formats/ folder.",
-  "command-send-format-usage": "<format> [message]",
   "command-spy-auto-enable-1": "{prefix_warn} Your spy mode has been activated automatically. Type '/spy off' to disable. ",
   "command-spy-auto-enable-2": "<dark_gray>[<gold>?<dark_gray>]",
   "command-spy-auto-enable-tooltip": [
@@ -872,7 +859,6 @@
   "command-toggle-usages-timed": [
     "/{label} timed special <gray>- Toggle timed messages group 'special'."
   ],
-  "command-use-while-null": "<red>Cannot use this command while the plugin is {state}.",
   "data-loading": "Database is currently loading data, please wait...",
   "menu-color-button-color-lore": [
     "",
@@ -915,7 +901,6 @@
     "Current color: {color}",
     "Current decoration: {decoration}"
   ],
-  "menu-color-title": "Select Chat Color",
   "menu-spy-button-lore-1": [
     "",
     "Click to select which chat",
@@ -959,13 +944,6 @@
     "Click to toggle spying on",
     "everything in this menu."
   ],
-  "menu-spy-type-anvil": "items when they are renamed",
-  "menu-spy-type-book": "books when they are signed",
-  "menu-spy-type-chat": "all chat messages",
-  "menu-spy-type-command": "commands configured in settings.yml",
-  "menu-spy-type-mail": "mails when they are sent",
-  "menu-spy-type-private-messages": "all private messages",
-  "menu-spy-type-sign": "signs when they are placed",
   "part-blank": "blank",
   "part-has": "has",
   "part-unknown": "unknown",

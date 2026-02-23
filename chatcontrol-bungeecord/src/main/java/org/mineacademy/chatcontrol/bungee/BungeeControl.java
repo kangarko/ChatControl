@@ -13,6 +13,7 @@ import org.mineacademy.chatcontrol.proxy.ProxyEvents;
 import org.mineacademy.chatcontrol.proxy.ProxyServerCache;
 import org.mineacademy.chatcontrol.proxy.Redis;
 import org.mineacademy.chatcontrol.proxy.operator.ProxyPlayerMessages;
+import org.mineacademy.chatcontrol.proxy.operator.ProxyRules;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.command.ReloadCommand;
@@ -95,6 +96,7 @@ public final class BungeeControl extends BungeePlugin {
 	@Override
 	protected void onPluginReload() {
 		ProxyPlayerMessages.getInstance().load();
+		ProxyRules.getInstance().load();
 	}
 
 	@Override

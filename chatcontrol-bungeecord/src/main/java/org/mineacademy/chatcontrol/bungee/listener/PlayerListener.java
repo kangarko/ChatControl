@@ -71,14 +71,14 @@ public final class PlayerListener implements Listener {
 	}
 
 	/**
-	 * Forward chat messages
+	 * Forward chat messages and handle proxy command rules
 	 *
 	 * @param event
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onChatEvent(final ChatEvent event) {
-		if (!ProxySettings.ChatForwarding.ENABLED || event.isCancelled()) {
-			Debugger.debug("chat-forwarding", "Ignoring chat event bc chat forwarding is disabled, event cancelled");
+		if (event.isCancelled()) {
+			Debugger.debug("chat-forwarding", "Ignoring chat event bc event cancelled");
 
 			return;
 		}
@@ -89,6 +89,23 @@ public final class PlayerListener implements Listener {
 			return;
 		}
 
-		ProxyEvents.handleChatForwarding(Platform.toPlayer(event.getSender()), event.getMessage());
+		final String message = event.getMessage();
+
+		if (event.isCommand()) {
+			final boolean denied = ProxyEvents.handleCommand(Platform.toPlayer(event.getSender()), message);
+
+			if (denied)
+				event.setCancelled(true);
+
+			return;
+		}
+
+		if (!ProxySettings.ChatForwarding.ENABLED) {
+			Debugger.debug("chat-forwarding", "Ignoring chat forwarding because it is disabled");
+
+			return;
+		}
+
+		ProxyEvents.handleChatForwarding(Platform.toPlayer(event.getSender()), message);
 	}
 }

@@ -10,6 +10,7 @@ import org.mineacademy.chatcontrol.proxy.ChatControlProxyListenerProxy;
 import org.mineacademy.chatcontrol.proxy.ProxyEvents;
 import org.mineacademy.chatcontrol.proxy.Redis;
 import org.mineacademy.chatcontrol.proxy.operator.ProxyPlayerMessages;
+import org.mineacademy.chatcontrol.proxy.operator.ProxyRules;
 import org.mineacademy.chatcontrol.proxy.settings.ProxySettings;
 import org.mineacademy.chatcontrol.velocity.listener.PlayerListener;
 import org.mineacademy.chatcontrol.velocity.listener.RedisListener;
@@ -94,6 +95,7 @@ public final class VelocityControl extends VelocityPlugin {
 	@Override
 	protected void onPluginReload() {
 		ProxyPlayerMessages.getInstance().load();
+		ProxyRules.getInstance().load();
 	}
 
 	@Override

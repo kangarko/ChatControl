@@ -8,6 +8,7 @@ import org.mineacademy.fo.platform.Platform;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
@@ -15,6 +16,7 @@ import com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.player.TabCompleteEvent;
+import com.velocitypowered.api.proxy.Player;
 
 public final class PlayerListener {
 
@@ -77,6 +79,25 @@ public final class PlayerListener {
 	@Subscribe(order = PostOrder.LATE)
 	public void onTabComplete(final TabCompleteEvent event) {
 		ProxyEvents.handleTabComplete(event.getPartialMessage().trim(), event.getSuggestions());
+	}
+
+	/**
+	 * Handle proxy command rules
+	 *
+	 * @param event
+	 */
+	@Subscribe(order = PostOrder.LATE)
+	public void onCommandExecute(final CommandExecuteEvent event) {
+		if (!(event.getCommandSource() instanceof Player))
+			return;
+
+		if (event.getResult() == CommandExecuteEvent.CommandResult.denied())
+			return;
+
+		final boolean denied = ProxyEvents.handleCommand(Platform.toPlayer(event.getCommandSource()), event.getCommand());
+
+		if (denied)
+			event.setResult(CommandExecuteEvent.CommandResult.denied());
 	}
 
 	/**

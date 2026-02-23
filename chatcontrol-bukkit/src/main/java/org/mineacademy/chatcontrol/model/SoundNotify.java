@@ -3,6 +3,7 @@ package org.mineacademy.chatcontrol.model;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mineacademy.chatcontrol.SyncedCache;
@@ -19,9 +20,6 @@ import org.mineacademy.fo.settings.Lang;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 /**
  * Handles @ mentioning and sound notify.
@@ -67,50 +65,50 @@ public final class SoundNotify {
 
 				if (Platform.callEvent(event)) {
 					final Pattern pattern = Pattern.compile("(?i)(?<!\\S)(" + Pattern.quote(event.getPrefix() + networkPlayer.getNameOrNickColorless()) + "|" + Pattern.quote(event.getPrefix() + networkPlayer.getPlayerName()) + ")(?!\\S)");
-					final Component replacedMessage = LegacyComponentSerializer.legacySection().deserialize(message).replaceText(b -> b.match(pattern).replacement((matchResult, builder) -> {
+					final Matcher matcher = pattern.matcher(message);
 
-						// Ignore if ignoring
-						if (wrapped.getPlayerCache() != null && (networkPlayer.isIgnoringPlayer(wrapped.getPlayerCache().getUniqueId()) || wrapped.getPlayerCache().isIgnoringPlayer(networkPlayer.getUniqueId()))) {
-							if (networkPlayer.isIgnoringPlayer(wrapped.getPlayerCache().getUniqueId()))
-								Platform.runTask(() -> Messenger.warn(wrapped.getAudience(), Lang.component("command-ignore-cannot-sound-notify-receiver", "player", networkPlayer.getPlayerName())));
+					if (!matcher.find())
+						continue;
 
-							if (wrapped.getPlayerCache().isIgnoringPlayer(networkPlayer.getUniqueId()))
-								Platform.runTask(() -> Messenger.warn(wrapped.getAudience(), Lang.component("command-ignore-cannot-sound-notify-sender", "player", networkPlayer.getPlayerName())));
+					// Ignore if ignoring
+					if (wrapped.getPlayerCache() != null && (networkPlayer.isIgnoringPlayer(wrapped.getPlayerCache().getUniqueId()) || wrapped.getPlayerCache().isIgnoringPlayer(networkPlayer.getUniqueId()))) {
+						if (networkPlayer.isIgnoringPlayer(wrapped.getPlayerCache().getUniqueId()))
+							Platform.runTask(() -> Messenger.warn(wrapped.getAudience(), Lang.component("command-ignore-cannot-sound-notify-receiver", "player", networkPlayer.getPlayerName())));
 
-							return builder;
-						}
+						if (wrapped.getPlayerCache().isIgnoringPlayer(networkPlayer.getUniqueId()))
+							Platform.runTask(() -> Messenger.warn(wrapped.getAudience(), Lang.component("command-ignore-cannot-sound-notify-sender", "player", networkPlayer.getPlayerName())));
 
-						if (Settings.Toggle.APPLY_ON.contains(ToggleType.SOUND_NOTIFY) && wrapped.getPlayerCache() != null && wrapped.getPlayerCache().hasToggledPartOff(ToggleType.SOUND_NOTIFY))
-							return builder;
+						continue;
+					}
 
-						if (!canUse) {
-							CommonCore.tellLater(0, wrapped.getAudience(), Lang.component("checker-sound-notify", "seconds", Lang.numberFormat("case-second", cooldown - delaySinceLast)));
+					if (Settings.Toggle.APPLY_ON.contains(ToggleType.SOUND_NOTIFY) && wrapped.getPlayerCache() != null && wrapped.getPlayerCache().hasToggledPartOff(ToggleType.SOUND_NOTIFY))
+						continue;
 
-							return builder;
-						}
+					if (!canUse) {
+						CommonCore.tellLater(0, wrapped.getAudience(), Lang.component("checker-sound-notify", "seconds", Lang.numberFormat("case-second", cooldown - delaySinceLast)));
 
-						// Call API and finish up
-						if (Platform.callEvent(new PlayerMentionEvent(wrapped.getSender(), networkPlayer))) {
+						continue;
+					}
 
-							// Send the sound over network if possible
-							final FoundationPlayer onlineNetworkPlayer = networkPlayer.toPlayer();
+					// Call API and finish up
+					if (Platform.callEvent(new PlayerMentionEvent(wrapped.getSender(), networkPlayer))) {
 
-							if (onlineNetworkPlayer != null) {
-								Settings.SoundNotify.SOUND.play(onlineNetworkPlayer);
+						// Send the sound over network if possible
+						final FoundationPlayer onlineNetworkPlayer = networkPlayer.toPlayer();
 
-								playersWhoHeardSound.add(onlineNetworkPlayer.getUniqueId());
-							} else
-								ProxyUtil.sendPluginMessage(ChatControlProxyMessage.SOUND, networkPlayer.getUniqueId(), Settings.SoundNotify.SOUND.toString());
+						if (onlineNetworkPlayer != null) {
+							Settings.SoundNotify.SOUND.play(onlineNetworkPlayer);
 
-							wrapped.getSenderCache().setLastSoundNotify(System.currentTimeMillis());
-						}
+							playersWhoHeardSound.add(onlineNetworkPlayer.getUniqueId());
+						} else
+							ProxyUtil.sendPluginMessage(ChatControlProxyMessage.SOUND, networkPlayer.getUniqueId(), Settings.SoundNotify.SOUND.toString());
 
-						final Variables variables = Variables.builder().placeholder("match", matchResult.group()).placeholders(networkPlayer.getPlaceholders(PlaceholderPrefix.TAGGED));
+						wrapped.getSenderCache().setLastSoundNotify(System.currentTimeMillis());
+					}
 
-						return PlainTextComponentSerializer.plainText().deserialize(variables.replaceLegacy(format));
-					}));
+					final Variables variables = Variables.builder().placeholder("match", matcher.group()).placeholders(networkPlayer.getPlaceholders(PlaceholderPrefix.TAGGED));
 
-					message = PlainTextComponentSerializer.plainText().serialize(replacedMessage);
+					message = pattern.matcher(message).replaceAll(Matcher.quoteReplacement(variables.replaceLegacy(format)));
 				}
 			}
 		}

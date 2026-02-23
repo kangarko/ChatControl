@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.mineacademy.chatcontrol.SenderCache;
@@ -1354,6 +1355,17 @@ public final class PlayerCache extends Row {
 	 * @param syncCallback
 	 */
 	public static void poll(String nameOrNick, final Consumer<PlayerCache> syncCallback) {
+		poll(nameOrNick, syncCallback, null);
+	}
+
+	/**
+	 * @see #poll(String, Consumer)
+	 *
+	 * @param nameOrNick
+	 * @param syncCallback
+	 * @param entity the entity for Folia entity-thread scheduling, or null
+	 */
+	public static void poll(String nameOrNick, final Consumer<PlayerCache> syncCallback, @Nullable final Entity entity) {
 		synchronized (uniqueCacheMap) {
 			Debugger.debug("cache", "Polling player cache from name or nick '" + nameOrNick + "'");
 
@@ -1388,7 +1400,10 @@ public final class PlayerCache extends Row {
 			Platform.runTaskAsync(() -> {
 				final PlayerCache cache = Database.getInstance().getCache(finalNameOrNick);
 
-				Platform.runTask(() -> syncCallback.accept(cache));
+				if (entity != null && Remain.isFolia())
+					Remain.runEntityTask(entity, 0, () -> syncCallback.accept(cache));
+				else
+					Platform.runTask(() -> syncCallback.accept(cache));
 			});
 		}
 	}
@@ -1400,13 +1415,27 @@ public final class PlayerCache extends Row {
 	 * @param syncCallback
 	 */
 	public static void pollAll(final Consumer<List<PlayerCache>> syncCallback) {
+		pollAll(syncCallback, null);
+	}
+
+	/**
+	 * @see #pollAll(Consumer)
+	 *
+	 * @param syncCallback
+	 * @param entity the entity for Folia entity-thread scheduling, or null
+	 */
+	public static void pollAll(final Consumer<List<PlayerCache>> syncCallback, @Nullable final Entity entity) {
 		Valid.checkSync("Polling cache must be called sync!");
 
 		Platform.runTaskAsync(() -> {
 			final List<PlayerCache> caches = Database.getInstance().getRows(ChatControlTable.PLAYERS);
 
 			Collections.sort(caches, Comparator.comparing(PlayerCache::getPlayerName));
-			Platform.runTask(() -> syncCallback.accept(caches));
+
+			if (entity != null && Remain.isFolia())
+				Remain.runEntityTask(entity, 0, () -> syncCallback.accept(caches));
+			else
+				Platform.runTask(() -> syncCallback.accept(caches));
 		});
 	}
 

@@ -40,6 +40,7 @@ import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.platform.Platform;
+import org.mineacademy.fo.remain.Remain;
 import org.mineacademy.fo.settings.Lang;
 
 import lombok.NonNull;
@@ -201,6 +202,8 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 		// Prevent calling this again when loading
 		senderCache.setQueryingDatabase(true);
 
+		final Player entityContext = this.getSender() instanceof Player ? (Player) this.getSender() : null;
+
 		PlayerCache.poll(nameOrNick, cache -> {
 			handleCallbackCommand(this.getSender(),
 					() -> {
@@ -211,7 +214,7 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 					}, () -> {
 						senderCache.setQueryingDatabase(false);
 					});
-		});
+		}, entityContext);
 	}
 
 	/**
@@ -252,9 +255,11 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 		// Prevent calling this again when loading
 		senderCache.setQueryingDatabase(true);
 
+		final Player entityContext = this.getSender() instanceof Player ? (Player) this.getSender() : null;
+
 		PlayerCache.pollAll(caches -> handleCallbackCommand(this.getSender(),
 				() -> syncCallback.accept(caches),
-				() -> senderCache.setQueryingDatabase(false)));
+				() -> senderCache.setQueryingDatabase(false)), entityContext);
 	}
 
 	/**
@@ -428,7 +433,10 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 	 * See below, but everything is wrapped and run on the main thread
 	 */
 	static void syncCallbackCommand(final CommandSender sender, final Runnable callback, final Runnable finallyCallback) {
-		Platform.runTask(() -> handleCallbackCommand(sender, callback, finallyCallback));
+		if (Remain.isFolia() && sender instanceof Player)
+			Remain.runEntityTask((Player) sender, 0, () -> handleCallbackCommand(sender, callback, finallyCallback));
+		else
+			Platform.runTask(() -> handleCallbackCommand(sender, callback, finallyCallback));
 	}
 
 	/*

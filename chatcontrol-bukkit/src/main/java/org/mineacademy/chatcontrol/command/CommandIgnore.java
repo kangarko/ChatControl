@@ -108,7 +108,7 @@ public final class CommandIgnore extends ChatControlCommand {
 				Platform.runTask(() -> HookManager.setIgnore(forCache.getUniqueId(), targetId, !ignored));
 
 				this.tellSuccess(Lang.component(
-						ignored ? "command-ignore-disable" : "command-ignore-enable" + (otherPlayer ? "-other" : ""),
+						(ignored ? "command-ignore-disable" : "command-ignore-enable") + (otherPlayer ? "-other" : ""),
 						"player", forCache.getPlayerName(),
 						"target", targetCache.getPlayerName()));
 

@@ -1302,7 +1302,7 @@ public final class PlayerCache extends Row {
 			final PlayerCache cache = uniqueCacheMap.get(player.getUniqueId());
 
 			if (cache == null)
-				throw new FoException("Unable to find cached database player " + player.getName() + " (db loaded? " + SenderCache.from(player).isDatabaseLoaded() + "; map: " + uniqueCacheMap + ")");
+				throw new FoException("Unable to find cached database player " + player.getName() + " (" + player.getUniqueId() + ") (db loaded? " + SenderCache.from(player).isDatabaseLoaded() + "; cached: " + uniqueCacheMap.size() + ")");
 
 			return cache;
 		}

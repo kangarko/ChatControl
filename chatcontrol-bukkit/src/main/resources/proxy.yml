@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------------------------------
 # A file that hold proxy-related related settings. Kept separate from settings.yml so you can symlink
-# the main settings or publish it to a Git while keeping the server name configured separatedly. 
+# the main settings or publish it to a Git while keeping the server name configured separately. 
 #
 # Changes to this file require a full server restart.
 # -----------------------------------------------------------------------------------------------------

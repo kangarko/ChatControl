@@ -10,7 +10,7 @@
 # Files in messages/ folder are read from top to bottom. Using a true value in your settings file,
 # in the 'Stop_On_First_Match' part means that if you have multiple messages there,
 # we only send the first eligible message to the player (we evaluate
-# this for each player separatedly).
+# this for each player separately).
 # A false value means players will see all messages that are eligible for them. 
 #
 # WARNING: These messages are unlikely to be used if you have a ban management

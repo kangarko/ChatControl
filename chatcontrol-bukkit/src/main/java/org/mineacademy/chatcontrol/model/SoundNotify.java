@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import org.mineacademy.chatcontrol.SyncedCache;
 import org.mineacademy.chatcontrol.api.PlayerMentionEvent;
 import org.mineacademy.chatcontrol.api.PlayerPreMentionEvent;
@@ -35,6 +37,19 @@ public final class SoundNotify {
 	 * @return
 	 */
 	public static String addTagAndSound(final WrappedSender wrapped, String message) {
+		return addTagAndSound(wrapped, message, null);
+	}
+
+	/**
+	 * Add colorized tag and sound notify to the message if enabled,
+	 * only for players in the given recipients set (if non-null).
+	 *
+	 * @param wrapped
+	 * @param message
+	 * @param recipientUuids the UUIDs of players who can see this message, or null for no filtering
+	 * @return
+	 */
+	public static String addTagAndSound(final WrappedSender wrapped, String message, @Nullable final Set<UUID> recipientUuids) {
 		if (Settings.SoundNotify.ENABLED && wrapped.hasPermission(Permissions.SOUND_NOTIFY)) {
 			final Set<UUID> playersWhoHeardSound = new HashSet<>();
 
@@ -52,6 +67,10 @@ public final class SoundNotify {
 					if (senderChannel != null && receiverChannel == null)
 						continue;
 				}
+
+				// Ignore if the receiver is not among the chat event recipients (e.g. filtered by a third-party channel plugin like Towny)
+				if (recipientUuids != null && !recipientUuids.contains(networkPlayer.getUniqueId()))
+					continue;
 
 				// Ignore if receiver has disabled sound notifications
 				if (Settings.Toggle.APPLY_ON.contains(ToggleType.SOUND_NOTIFY) && networkPlayer.hasToggledPartOff(ToggleType.SOUND_NOTIFY))

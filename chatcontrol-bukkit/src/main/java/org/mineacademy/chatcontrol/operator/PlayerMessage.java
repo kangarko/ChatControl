@@ -1351,7 +1351,7 @@ public abstract class PlayerMessage extends Operator {
 		protected Map<String, Object> prepareVariables(final WrappedSender wrapped, final T operator) {
 			final Map<String, Object> map = super.prepareVariables(wrapped, operator);
 
-			map.putAll(SyncedCache.getPlaceholders(this.wrappedSender.getName(), this.wrappedReceiver.getUniqueId(), PlaceholderPrefix.RECEIVER));
+			map.putAll(SyncedCache.getPlaceholders(this.wrappedReceiver.getName(), this.wrappedReceiver.getUniqueId(), PlaceholderPrefix.RECEIVER));
 
 			map.put("broadcast_group", operator.getGroup());
 

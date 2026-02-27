@@ -1,6 +1,8 @@
 package org.mineacademy.chatcontrol.listener.chat;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.SenderCache;
@@ -196,7 +198,12 @@ final class ChatHandler {
 			});
 
 			// Add tagging such as "Hey @kangarko"
-			state.setChatMessage(SoundNotify.addTagAndSound(wrapped, state.getChatMessage()));
+			final Set<UUID> viewerUuids = new HashSet<>();
+
+			for (final Player viewer : state.getViewers())
+				viewerUuids.add(viewer.getUniqueId());
+
+			state.setChatMessage(SoundNotify.addTagAndSound(wrapped, state.getChatMessage(), viewerUuids));
 
 			// Add cached colors
 			if (cache.hasChatDecoration())

@@ -37,7 +37,6 @@ import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.exception.FoScriptException;
 import org.mineacademy.fo.exception.MissingEnumException;
-import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.IsInList;
 import org.mineacademy.fo.model.JavaScriptExecutor;
@@ -784,7 +783,15 @@ public final class DeathMessage extends PlayerMessage {
 			final Map<String, Object> map = super.prepareVariables(wrapped, operator);
 			final String killerItemFormatted = this.killerItemMaterial != null ? ChatUtil.capitalizeFully(this.killerItemMaterial.toString()) : "Air";
 			final Component killerItemLabel = this.killerItemStack != null ? Component.text(killerItemFormatted).hoverEvent(Remain.convertItemStackToHoverEvent(this.killerItemStack)) : null;
-			final String killerItemName = this.killerItemStack != null && this.killerItemStack.hasItemMeta() && this.killerItemStack.getItemMeta().hasDisplayName() ? CompChatColor.stripColorCodes(this.killerItemStack.getItemMeta().getDisplayName()) : killerItemFormatted;
+			final String killerItemName;
+
+			if (this.killerItemStack != null && this.killerItemStack.hasItemMeta() && this.killerItemStack.getItemMeta().hasDisplayName()) {
+				// Strip only & codes (fake colors typed on anvil), preserve § codes (real colors from plugins)
+				String displayName = this.killerItemStack.getItemMeta().getDisplayName().replaceAll("&([0-9a-fA-Fk-oK-OrRx])", "");
+
+				killerItemName = SimpleComponent.fromMiniSection(displayName).toMini();
+			} else
+				killerItemName = killerItemFormatted;
 
 			if (this.killer instanceof Player)
 				map.putAll(SyncedCache.getPlaceholders(((Player) this.killer).getName(), ((Player) this.killer).getUniqueId(), PlaceholderPrefix.KILLER));

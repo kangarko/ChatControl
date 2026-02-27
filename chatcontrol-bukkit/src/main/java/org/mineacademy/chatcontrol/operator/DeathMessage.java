@@ -787,7 +787,7 @@ public final class DeathMessage extends PlayerMessage {
 
 			if (this.killerItemStack != null && this.killerItemStack.hasItemMeta() && this.killerItemStack.getItemMeta().hasDisplayName()) {
 				// Strip only & codes (fake colors typed on anvil), preserve § codes (real colors from plugins)
-				String displayName = this.killerItemStack.getItemMeta().getDisplayName().replaceAll("&([0-9a-fA-Fk-oK-OrRx])", "");
+				String displayName = this.killerItemStack.getItemMeta().getDisplayName().replaceAll("&([0-9a-fA-Fk-oK-OrRxX])", "");
 
 				killerItemName = SimpleComponent.fromMiniSection(displayName).toMini();
 			} else

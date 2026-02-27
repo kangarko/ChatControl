@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import org.mineacademy.chatcontrol.SyncedCache;
 import org.mineacademy.chatcontrol.api.PlayerMentionEvent;
 import org.mineacademy.chatcontrol.api.PlayerPreMentionEvent;
@@ -47,7 +49,7 @@ public final class SoundNotify {
 	 * @param recipientUuids the UUIDs of players who can see this message, or null for no filtering
 	 * @return
 	 */
-	public static String addTagAndSound(final WrappedSender wrapped, String message, @javax.annotation.Nullable final Set<UUID> recipientUuids) {
+	public static String addTagAndSound(final WrappedSender wrapped, String message, @Nullable final Set<UUID> recipientUuids) {
 		if (Settings.SoundNotify.ENABLED && wrapped.hasPermission(Permissions.SOUND_NOTIFY)) {
 			final Set<UUID> playersWhoHeardSound = new HashSet<>();
 

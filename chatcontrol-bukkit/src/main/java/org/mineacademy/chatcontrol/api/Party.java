@@ -127,6 +127,26 @@ public abstract class Party {
 	};
 
 	/**
+	 * Only chat with players in the same Parties (AlessioDP) party
+	 */
+	public static final Party PARTIES = new Party("parties-party") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return HookManager.isInSamePartiesParty(receiver, sender);
+		}
+	};
+
+	/**
+	 * Only chat with players in the same Party and Friends (PAF) party
+	 */
+	public static final Party PAF = new Party("paf-party") {
+		@Override
+		public boolean isInParty(final Player receiver, final Player sender) {
+			return HookManager.isInSamePAFParty(receiver, sender);
+		}
+	};
+
+	/**
 	 * Only chat with players belonging to the same island as you
 	 * and having the given (or higher rank, from top to bottom)
 	 */

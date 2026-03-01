@@ -180,6 +180,8 @@ public final class TourSubCommand extends MainSubCommand {
 			pages.add($.out(ThirdPartiesListener.isMcMMOLoaded(), "mcMMO"));
 			pages.add($.out(HookManager.isMythicMobsLoaded(), "MythicMobs"));
 			pages.add($.out(HookManager.isMultiverseCoreLoaded(), "Multiverse-Core"));
+			pages.add($.out(HookManager.isPAFLoaded(), "Party and Friends (PAF)"));
+			pages.add($.out(HookManager.isPartiesLoaded(), "Parties (AlessioDP)"));
 			pages.add($.out(HookManager.isPlaceholderAPILoaded(), "PlaceholderAPI"));
 			pages.add($.out(HookManager.isPlotSquaredLoaded(), "PlotSquared"));
 			pages.add($.out(HookManager.isProtocolLibLoaded(), "ProtocolLib"));

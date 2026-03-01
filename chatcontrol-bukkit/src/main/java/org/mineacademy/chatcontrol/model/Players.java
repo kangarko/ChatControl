@@ -132,7 +132,7 @@ public final class Players {
 			final boolean hasNick = cache.hasTag(Tag.Type.NICK);
 			final String nick = cache.getTag(Tag.Type.NICK);
 
-			player.setDisplayName(hasNick ? SimpleComponent.fromMiniAmpersand(nick).toLegacySection(null, false) : null);
+			player.setDisplayName(hasNick ? SimpleComponent.fromMiniAmpersand(nick).toLegacySection(null, false) + "§r" : null);
 
 			HookManager.setNick(player.getUniqueId(), nick);
 		}

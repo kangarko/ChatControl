@@ -412,7 +412,7 @@ public final class PlayerCache extends Row {
 				if (unreadCount > 0) {
 					final int finalUnreadCount = unreadCount;
 
-					Platform.runTask(4, () -> Messenger.warn(player, Lang.component("command-mail-join-notification", "amount", finalUnreadCount)));
+					Platform.runTask(Settings.Mail.JOIN_NOTIFICATION_DELAY.getTimeTicks(), () -> Messenger.warn(player, Lang.component("command-mail-join-notification", "amount", finalUnreadCount)));
 				}
 			});
 

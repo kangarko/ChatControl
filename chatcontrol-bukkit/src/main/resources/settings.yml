@@ -850,6 +850,11 @@ Mail:
   # The threshold after which old mails are automatically deleted. Set to 0 to disable.
   Clean_After: 90 days
   
+  # The delay before the unread mail notification is shown on join.
+  # Increase this if you want MOTD to appear first (e.g. set to "4 seconds").
+  # This delay starts after the database lookup for unread mail completes.
+  Join_Notification_Delay: 4 ticks
+
   # The commands for this feature. Must be at least one.
   Command_Aliases: [mail, email, post, gmail]
 

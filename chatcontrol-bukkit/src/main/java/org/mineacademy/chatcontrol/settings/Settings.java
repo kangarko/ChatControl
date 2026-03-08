@@ -766,6 +766,7 @@ public final class Settings extends SimpleSettings {
 
 		public static Boolean ENABLED;
 		public static SimpleTime CLEAN_AFTER;
+		public static SimpleTime JOIN_NOTIFICATION_DELAY;
 		public static List<String> COMMAND_ALIASES;
 
 		private static void init() {
@@ -773,6 +774,7 @@ public final class Settings extends SimpleSettings {
 
 			ENABLED = getBoolean("Enabled");
 			CLEAN_AFTER = getTime("Clean_After");
+			JOIN_NOTIFICATION_DELAY = getTime("Join_Notification_Delay");
 			COMMAND_ALIASES = getCommandList("Command_Aliases");
 		}
 	}

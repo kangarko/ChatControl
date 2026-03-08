@@ -325,6 +325,7 @@
     "<red><bold>TIP:<reset><gray> You can use this to measure the performance of variables and find which cause lag."
   ],
   "command-info-variables": "<gray>Result (took {time}ms): <reset>{result}",
+  "command-info-variables-empty": "<gray>Result (took {time}ms): <italic>(empty)",
   "command-info-variables-no-message": "Please enter a message in which we replace variables.",
   "command-internal-invalid-book": "The book {uuid} was not found in our database.",
   "command-internal-invalid-meta": "You do not have the key metadata!",

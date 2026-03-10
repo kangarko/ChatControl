@@ -844,6 +844,14 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			hiddenReceivers.removeIf(filter);
 		}
 
+		// Remove players who toggled proxy chat off
+		if (Settings.Toggle.APPLY_ON.contains(ToggleType.PROXY_CHAT)) {
+			final Predicate<Player> proxyFilter = receiver -> PlayerCache.fromCached(receiver).hasToggledPartOff(ToggleType.PROXY_CHAT);
+
+			receivers.removeIf(proxyFilter);
+			hiddenReceivers.removeIf(proxyFilter);
+		}
+
 		// Avoid sending doubled message to sender himself
 		final Predicate<Player> filter = recipient -> recipient.getUniqueId().equals(senderUid);
 		receivers.removeIf(filter);

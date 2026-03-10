@@ -65,6 +65,17 @@ public enum ToggleType {
 	},
 
 	/**
+	 * Player has disabled receiving proxy (cross-server) chat messages
+	 */
+	PROXY_CHAT("proxy_chat") {
+
+		@Override
+		public String getDescription() {
+			return Lang.plain("command-spy-type-proxy-chat");
+		}
+	},
+
+	/**
 	 * Player has disabled sound notifications
 	 */
 	SOUND_NOTIFY("sound_notify") {

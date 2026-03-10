@@ -927,7 +927,7 @@ Tab_List:
 Toggle: 
   
   # Where should we enable this feature? Leave empty to disable toggling anything.
-  # Available: announcement, broadcast, chat, mail, private_message, sound_notify
+  # Available: announcement, broadcast, chat, mail, private_message, proxy_chat, sound_notify
   Apply_On: []
   
   # The commands that invoke the toggle command. Must be at least one.

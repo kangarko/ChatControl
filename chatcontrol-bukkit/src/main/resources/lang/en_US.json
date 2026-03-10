@@ -741,6 +741,7 @@
   "command-spy-type-command": "commands",
   "command-spy-type-mail": "mails",
   "command-spy-type-private-message": "private messages",
+  "command-spy-type-proxy-chat": "proxy chat",
   "command-spy-type-sign": "signs",
   "command-spy-type-sound-notify": "sound notifications",
   "command-spy-usage": "<status/menu/on/off/toggle/list> [player] [type] [channel]",

@@ -281,23 +281,23 @@ public final class Discord extends DiscordListener {
 					else if (sender instanceof OfflinePlayer)
 						WebhookUtil.deliverMessage(channel, (OfflinePlayer) sender, webhookNameFormat, replacedMessage, (MessageEmbed) null);
 
-					else {
-						final Message discordMessage = channel.sendMessage(replacedMessage).complete();
-
-						// Mark it
-						if (json != null)
-							this.markReceivedMessage(discordChannelId, discordMessage.getIdLong(), json);
-					}
+					else
+						channel.sendMessage(replacedMessage).queue(discordMessage -> {
+							if (json != null)
+								this.markReceivedMessage(discordChannelId, discordMessage.getIdLong(), json);
+						});
 
 					Debugger.debug("discord", "[Minecraft > Discord Webhook] From MC '" + channel.getName() + "' to Discord '" + channel.getName() + "' message: " + replacedMessage);
 
 				} else {
-					final Message discordMessage = channel.sendMessage(replacedMessage).complete();
-					Debugger.debug("discord", "[Minecraft > Discord] From MC '" + channel.getName() + "' to Discord '" + channel.getName() + "' message: " + replacedMessage);
+					final String debugMessage = replacedMessage;
 
-					// Mark it
-					if (json != null)
-						this.markReceivedMessage(discordChannelId, discordMessage.getIdLong(), json);
+					channel.sendMessage(replacedMessage).queue(discordMessage -> {
+						Debugger.debug("discord", "[Minecraft > Discord] From MC '" + channel.getName() + "' to Discord '" + channel.getName() + "' message: " + debugMessage);
+
+						if (json != null)
+							this.markReceivedMessage(discordChannelId, discordMessage.getIdLong(), json);
+					});
 				}
 
 			} catch (final ErrorResponseException ex) {

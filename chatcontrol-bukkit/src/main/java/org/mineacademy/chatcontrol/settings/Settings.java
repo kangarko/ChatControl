@@ -509,11 +509,7 @@ public final class Settings extends SimpleSettings {
 				else
 					CommonCore.warning("Toast notifications write to disk on the main thread which poses a performance penalty.");
 
-			if (AUTOMODE && Remain.isFolia()) {
-				CommonCore.warning("Auto mode is not supported on Folia.");
 
-				AUTOMODE = false;
-			}
 		}
 	}
 

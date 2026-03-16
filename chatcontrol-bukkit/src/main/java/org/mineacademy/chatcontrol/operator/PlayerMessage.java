@@ -847,7 +847,8 @@ public abstract class PlayerMessage extends Operator {
 				this.executeOperators(message);
 			}
 
-			if (!pickedMessage && this.wrappedSender != null && this.type != PlayerMessageType.TIMED) {
+			if (!pickedMessage && this.wrappedSender != null && this.type != PlayerMessageType.TIMED
+					&& (!Settings.Messages.STOP_ON_FIRST_MATCH.contains(this.type) || !this.messageReceivers.contains(this.wrappedSender.getUniqueId()))) {
 				this.wrappedReceiver = this.wrappedSender;
 
 				if (this.canFilter(message)) {

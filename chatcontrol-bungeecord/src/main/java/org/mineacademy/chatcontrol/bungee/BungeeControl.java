@@ -104,8 +104,8 @@ public final class BungeeControl extends BungeePlugin {
 		return 2015;
 	}
 
-	@Override
+	/*@Override
 	public String getSentryDsn() {
 		return "https://f3e0e6f4236a18360bf321211866ae6f@o4508048573661184.ingest.us.sentry.io/4508052468269056";
-	}
+	}*/
 }

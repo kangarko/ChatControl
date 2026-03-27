@@ -290,7 +290,7 @@ public final class Placeholders extends SimpleExpansion {
 			} else if ("player_suffix".equals(identifier) && Settings.Tag.APPLY_ON.contains(Tag.Type.SUFFIX))
 				return CommonCore.getOrEmpty(playerCache.getTag(Tag.Type.SUFFIX));
 
-			else if ("player_suffix_section".equals(identifier) && Settings.Tag.APPLY_ON.contains(Tag.Type.PREFIX)) {
+			else if ("player_suffix_section".equals(identifier) && Settings.Tag.APPLY_ON.contains(Tag.Type.SUFFIX)) {
 				final String suffix = CommonCore.getOrEmpty(playerCache.getTag(Tag.Type.SUFFIX));
 
 				return SimpleComponent.fromMiniAmpersand(suffix).toLegacySection();

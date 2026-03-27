@@ -95,8 +95,8 @@ public final class ChatControl extends BukkitPlugin {
 			return "prototype/" + "variable-" + ("format".equals(type) ? "format" : "message") + ".yml";
 		};
 
-		// Add Sentry tags
-		Debugger.addSentryTag(() -> {
+		// Add crash report tags
+		Debugger.addCrashTag(() -> {
 			final Map<String, String> tags = new HashMap<>();
 
 			tags.put("db_type", Settings.Database.TYPE.getKey());
@@ -372,10 +372,10 @@ public final class ChatControl extends BukkitPlugin {
 		return 2013;
 	}
 
-	/*@Override
-	public String getSentryDsn() {
-		return "https://f3e0e6f4236a18360bf321211866ae6f@o4508048573661184.ingest.us.sentry.io/4508052468269056";
-	}*/
+	@Override
+	public boolean isErrorReportingSupported() {
+		return true;
+	}
 
 	@Override
 	public int getBStatsPluginId() {

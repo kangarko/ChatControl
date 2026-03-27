@@ -174,10 +174,10 @@ Make_Chat_Links_Clickable: false
 Redis_Integration: true
 
 # -------------------------------------------------------------------------------------------------
-# Send anonymous error reports to sentry.io? Helps us fix bugs without you needing to report them
+# Send anonymous error reports automatically? Helps us fix bugs without you needing to report them
 # and waste time opening tickets on GitHub.
 # -------------------------------------------------------------------------------------------------
-Sentry: true
+Error_Auto_Reporting: true
 
 # -------------------------------------------------------------------------------------------------
 # A list of parts of the plugin that will print log messages. Useful to see what the plugin does

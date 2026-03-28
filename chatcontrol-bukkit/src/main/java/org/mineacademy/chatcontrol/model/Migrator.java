@@ -138,10 +138,62 @@ public final class Migrator {
 					}
 				});
 
-				// Rename old folder to new
-				Files.move(oldFolder, newFolder, StandardCopyOption.REPLACE_EXISTING);
+				// Attempt atomic rename first, fall back to copy+delete for Windows locked folders
+				try {
+					Files.move(oldFolder, newFolder, StandardCopyOption.REPLACE_EXISTING);
 
-				CommonCore.log("Renamed ChatControlRed/ to ChatControl/ folder. Backup copy created in " + backupFolder);
+					CommonCore.log("Renamed ChatControlRed/ to ChatControl/ folder. Backup copy created in " + backupFolder);
+
+				} catch (final java.nio.file.AccessDeniedException ex) {
+					CommonCore.log("Could not rename folder directly (locked on Windows), copying files instead...");
+
+					// Copy all files from old folder to new folder
+					Files.walkFileTree(oldFolder, new SimpleFileVisitor<Path>() {
+						@Override
+						public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attributes) throws IOException {
+							final Path targetPath = newFolder.resolve(oldFolder.relativize(dir));
+
+							if (!Files.exists(targetPath))
+								Files.createDirectory(targetPath);
+
+							return FileVisitResult.CONTINUE;
+						}
+
+						@Override
+						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes) throws IOException {
+							try {
+								Files.copy(file, newFolder.resolve(oldFolder.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+							} catch (final NoSuchFileException ignored) {
+								// Removed in the meanwhile
+							}
+
+							return FileVisitResult.CONTINUE;
+						}
+					});
+
+					// Attempt to delete old folder, warn if it fails
+					try {
+						Files.walkFileTree(oldFolder, new SimpleFileVisitor<Path>() {
+							@Override
+							public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes) throws IOException {
+								Files.deleteIfExists(file);
+
+								return FileVisitResult.CONTINUE;
+							}
+
+							@Override
+							public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+								Files.deleteIfExists(dir);
+
+								return FileVisitResult.CONTINUE;
+							}
+						});
+					} catch (final IOException deleteEx) {
+						CommonCore.warning("Could not delete old ChatControlRed/ folder. Please remove it manually after the server stops.");
+					}
+
+					CommonCore.log("Copied ChatControlRed/ to ChatControl/ folder. Backup copy created in " + backupFolder);
+				}
 
 			} catch (final IOException ex) {
 				CommonCore.error(ex, "Failed to migrate ChatControlRed to ChatControl. Please rename the folder manually and keep a backup copy.");

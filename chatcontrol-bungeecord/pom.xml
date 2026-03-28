@@ -10,7 +10,7 @@
 
 	<artifactId>chatcontrol-bungeecord</artifactId>
 	<name>BungeeControl</name>
-	<version>4.4.8</version>
+	<version>4.4.8b</version>
 
 	<properties>
 		<main.class>org.mineacademy.chatcontrol.bungee.BungeeControl</main.class>

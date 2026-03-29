@@ -798,7 +798,7 @@ public final class DeathMessage extends PlayerMessage {
 
 			map.putAll(CommonCore.newHashMap(
 					// Override name even if the killer is a player due to some fixes
-					"killer", this.killer == null ? "" : this.killer,
+					"killer", this.killer == null ? "" : this.getKillerName(),
 					"killer_name", this.killer == null ? "" : this.getKillerName(),
 
 					"killer_type", this.killerType == null ? "" : ChatUtil.capitalizeFully(this.killerType),

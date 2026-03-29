@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -142,6 +143,13 @@ public final class Migrator {
 				Files.move(oldFolder, newFolder, StandardCopyOption.REPLACE_EXISTING);
 
 				CommonCore.log("Renamed ChatControlRed/ to ChatControl/ folder. Backup copy created in " + backupFolder);
+
+			} catch (final AccessDeniedException ex) {
+				CommonCore.warning("Could not rename ChatControlRed/ to ChatControl/ - the folder is locked (common on Windows). "
+						+ "Please: 1) Stop the server  2) Rename 'plugins/ChatControlRed' to 'plugins/ChatControl'  3) Start again. "
+						+ "A backup was created at: " + backupFolder.getFileName());
+
+				return;
 
 			} catch (final IOException ex) {
 				CommonCore.error(ex, "Failed to migrate ChatControlRed to ChatControl. Please rename the folder manually and keep a backup copy.");

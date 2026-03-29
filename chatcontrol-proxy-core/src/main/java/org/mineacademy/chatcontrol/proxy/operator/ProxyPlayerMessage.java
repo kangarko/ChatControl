@@ -26,6 +26,7 @@ import org.mineacademy.fo.model.SimpleComponent;
 import org.mineacademy.fo.model.SimpleTime;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.platform.FoundationPlayer;
+import org.mineacademy.fo.platform.FoundationServer;
 import org.mineacademy.fo.platform.Platform;
 
 import lombok.Getter;
@@ -786,8 +787,11 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 
 			if (receiverCache != null)
 				map.putAll(receiverCache.getPlaceholders(PlaceholderPrefix.RECEIVER));
-			else
-				map.put("receiver_server", this.receiverAudience.isPlayer() ? this.receiverAudience.getServer().getName() : "");
+			else {
+				final FoundationServer receiverServer = this.receiverAudience.isPlayer() ? this.receiverAudience.getServer() : null;
+
+				map.put("receiver_server", receiverServer != null ? receiverServer.getName() : "");
+			}
 
 			return map;
 		}

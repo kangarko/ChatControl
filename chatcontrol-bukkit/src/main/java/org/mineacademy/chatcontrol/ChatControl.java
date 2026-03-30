@@ -386,4 +386,9 @@ public final class ChatControl extends BukkitPlugin {
 	public int getBuiltByBitId() {
 		return 18217;
 	}
+
+	@Override
+	public String getBuiltByBitSharedToken() {
+		return "UYl2VzxD9xaAiDVCnLTxTCDjD4vDuPr7";
+	}
 }

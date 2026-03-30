@@ -787,7 +787,7 @@ public final class DeathMessage extends PlayerMessage {
 
 			if (this.killerItemStack != null && this.killerItemStack.hasItemMeta() && this.killerItemStack.getItemMeta().hasDisplayName()) {
 				// Strip only & codes (fake colors typed on anvil), preserve § codes (real colors from plugins)
-				String displayName = this.killerItemStack.getItemMeta().getDisplayName().replaceAll("&([0-9a-fA-Fk-oK-OrRxX])", "");
+				final String displayName = this.killerItemStack.getItemMeta().getDisplayName().replaceAll("&([0-9a-fA-Fk-oK-OrRxX])", "");
 
 				killerItemName = SimpleComponent.fromMiniSection(displayName).toMini();
 			} else
@@ -798,7 +798,7 @@ public final class DeathMessage extends PlayerMessage {
 
 			map.putAll(CommonCore.newHashMap(
 					// Override name even if the killer is a player due to some fixes
-					"killer", this.killer == null ? "" : this.killer,
+					"killer", this.killer == null ? "" : this.getKillerName(),
 					"killer_name", this.killer == null ? "" : this.getKillerName(),
 
 					"killer_type", this.killerType == null ? "" : ChatUtil.capitalizeFully(this.killerType),

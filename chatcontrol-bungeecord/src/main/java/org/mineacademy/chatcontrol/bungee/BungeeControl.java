@@ -108,4 +108,14 @@ public final class BungeeControl extends BungeePlugin {
 	public boolean isErrorReportingSupported() {
 		return true;
 	}
+
+	@Override
+	public int getBuiltByBitId() {
+		return 24248;
+	}
+
+	@Override
+	public String getBuiltByBitSharedToken() {
+		return "UYl2VzxD9xaAiDVCnLTxTCDjD4vDuPr7";
+	}
 }

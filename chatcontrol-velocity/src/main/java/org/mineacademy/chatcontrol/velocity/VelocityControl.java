@@ -102,4 +102,14 @@ public final class VelocityControl extends VelocityPlugin {
 	public boolean isErrorReportingSupported() {
 		return true;
 	}
+
+	@Override
+	public int getBuiltByBitId() {
+		return 43226;
+	}
+
+	@Override
+	public String getBuiltByBitSharedToken() {
+		return "UYl2VzxD9xaAiDVCnLTxTCDjD4vDuPr7";
+	}
 }

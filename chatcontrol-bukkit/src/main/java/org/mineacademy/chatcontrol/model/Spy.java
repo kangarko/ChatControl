@@ -319,9 +319,13 @@ public final class Spy {
 	private static List<Player> getOnlineSpyingChannelPlayers(final Channel channel) {
 		final List<Player> spying = new ArrayList<>();
 
-		for (final Player online : Players.getOnlinePlayersWithLoadedDb())
+		for (final Player online : Players.getOnlinePlayersWithLoadedDb()) {
+			if (!PlayerCache.isCached(online))
+				continue;
+
 			if (PlayerCache.fromCached(online).isSpyingChannel(channel) && online.hasPermission(Permissions.Command.SPY) && HookManager.isLogged(online))
 				spying.add(online);
+		}
 
 		return spying;
 	}
@@ -332,9 +336,13 @@ public final class Spy {
 	private static List<Player> getOnlineSpyingPlayers(final Spy.Type type) {
 		final List<Player> spying = new ArrayList<>();
 
-		for (final Player online : Players.getOnlinePlayersWithLoadedDb())
+		for (final Player online : Players.getOnlinePlayersWithLoadedDb()) {
+			if (!PlayerCache.isCached(online))
+				continue;
+
 			if (PlayerCache.fromCached(online).getSpyingSectors().contains(type) && online.hasPermission(Permissions.Command.SPY) && HookManager.isLogged(online))
 				spying.add(online);
+		}
 
 		return spying;
 	}

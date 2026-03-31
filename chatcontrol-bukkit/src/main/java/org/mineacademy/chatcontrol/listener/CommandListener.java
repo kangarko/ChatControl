@@ -1,5 +1,9 @@
 package org.mineacademy.chatcontrol.listener;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -32,6 +36,12 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 	@Getter
 	private static final CommandListener instance = new CommandListener();
 
+	/**
+	 * Players currently being filtered, used to prevent recursive StackOverflow
+	 * when a rule's "then command" dispatches a command that triggers this listener again.
+	 */
+	private static final Set<UUID> playersBeingFiltered = new HashSet<>();
+
 	/*
 	 * Create a new listener
 	 */
@@ -45,6 +55,12 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 	@Override
 	protected void execute(final PlayerCommandPreprocessEvent event) {
 		final Player player = event.getPlayer();
+
+		// Prevent infinite recursion when a rule's "then command" dispatches
+		// a player command that fires this listener again on the same stack
+		if (playersBeingFiltered.contains(player.getUniqueId()))
+			return;
+
 		final SenderCache senderCache = SenderCache.from(player);
 
 		if ((!senderCache.isDatabaseLoaded() || senderCache.isQueryingDatabase()) && (!HookManager.isAuthMeLoaded() || !Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED)) {
@@ -94,23 +110,30 @@ public final class CommandListener extends SimpleListener<PlayerCommandPreproces
 		if (Settings.Newcomer.RESTRICT_COMMANDS && Newcomer.isNewcomer(player) && !Settings.Newcomer.RESTRICT_COMMANDS_WHITELIST.isInList(label))
 			this.cancel(Lang.component("player-newcomer-cannot-command"));
 
-		// Filters
-		final Checker check = Checker.filterCommand(wrapped, message, wrapped.getPlayerCache().getWriteChannel());
+		// Filters -- guard against recursion from rule-dispatched commands
+		playersBeingFiltered.add(player.getUniqueId());
 
-		if (check.isMessageChanged())
-			message = check.getMessage();
+		try {
+			final Checker check = Checker.filterCommand(wrapped, message, wrapped.getPlayerCache().getWriteChannel());
 
-		// Send to spying players and log but prevent duplicates
-		if ((!ValidCore.isInList(label, Settings.Mail.COMMAND_ALIASES) || !Settings.Mail.ENABLED)
-				&& ((!ValidCore.isInList(label, Settings.PrivateMessages.TELL_ALIASES) && !ValidCore.isInList(label, Settings.PrivateMessages.REPLY_ALIASES)) ||
-						!Settings.PrivateMessages.ENABLED)
-				&& !(ValidCore.isInList(label, SimpleSettings.MAIN_COMMAND_ALIASES) && args.length > 1 && "internal".equals(args[1]))) {
+			if (check.isMessageChanged())
+				message = check.getMessage();
 
-			if (!ValidCore.isInList(label, Settings.Me.COMMAND_ALIASES) && !check.isSpyingIgnored())
-				Spy.broadcastCommand(wrapped, SimpleComponent.fromMiniSection(message));
+			// Send to spying players and log but prevent duplicates
+			if ((!ValidCore.isInList(label, Settings.Mail.COMMAND_ALIASES) || !Settings.Mail.ENABLED)
+					&& ((!ValidCore.isInList(label, Settings.PrivateMessages.TELL_ALIASES) && !ValidCore.isInList(label, Settings.PrivateMessages.REPLY_ALIASES)) ||
+							!Settings.PrivateMessages.ENABLED)
+					&& !(ValidCore.isInList(label, SimpleSettings.MAIN_COMMAND_ALIASES) && args.length > 1 && "internal".equals(args[1]))) {
 
-			if (!check.isLoggingIgnored())
-				Log.logCommand(player, message);
+				if (!ValidCore.isInList(label, Settings.Me.COMMAND_ALIASES) && !check.isSpyingIgnored())
+					Spy.broadcastCommand(wrapped, SimpleComponent.fromMiniSection(message));
+
+				if (!check.isLoggingIgnored())
+					Log.logCommand(player, message);
+			}
+
+		} finally {
+			playersBeingFiltered.remove(player.getUniqueId());
 		}
 
 		// Set the command back

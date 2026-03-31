@@ -1309,6 +1309,19 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
+	 * Return the player cache for the given player or null if not cached
+	 *
+	 * @param player
+	 * @return
+	 */
+	@Nullable
+	public static PlayerCache fromCachedOrNull(@NonNull final Player player) {
+		synchronized (uniqueCacheMap) {
+			return uniqueCacheMap.get(player.getUniqueId());
+		}
+	}
+
+	/**
 	 * Return true if the player is cached
 	 *
 	 * @param player

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mineacademy.chatcontrol.model.ChannelMode;
 import org.mineacademy.chatcontrol.model.PlaceholderPrefix;
@@ -78,23 +79,23 @@ public final class SyncedCache {
 	/**
 	 * The plugin parts the player has toggled off.
 	 */
-	private final Set<ToggleType> toggledOffParts = new HashSet<>();
+	private final Set<ToggleType> toggledOffParts = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Set of timed message broadcast groups this player is not receiving
 	 */
-	private final Map<PlayerMessageType, Set<String>> ignoredMessages = new HashMap<>();
+	private final Map<PlayerMessageType, Set<String>> ignoredMessages = new ConcurrentHashMap<>();
 
 	/**
 	 * List of ignored dudes
 	 */
-	private final Set<UUID> ignoredPlayers = new HashSet<>();
+	private final Set<UUID> ignoredPlayers = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Map of channel names and modes this synced man is in
 	 */
 	@Getter
-	private final Map<String, ChannelMode> channels = new HashMap<>();
+	private final Map<String, ChannelMode> channels = new ConcurrentHashMap<>();
 
 	/**
 	 * The player prefix from Vault
@@ -726,7 +727,7 @@ public final class SyncedCache {
 				prefix + "_prefix", cache != null ? cache.getPrefix() : "",
 				prefix + "_suffix", cache != null ? cache.getSuffix() : "",
 				prefix + "_server", cache != null ? cache.getServerName() : "",
-				prefix + "_channels", cache == null || cache.getChannels().isEmpty() ? Lang.plain("part-none") : CommonCore.join(CommonCore.newSet(cache.getChannels().keySet())), // Clone to prevent CME
+				prefix + "_channels", cache == null || cache.getChannels().isEmpty() ? Lang.plain("part-none") : CommonCore.join(cache.getChannels().keySet()),
 				prefix + "_is_afk", cache != null && cache.isAfk() ? "true" : "false",
 				prefix + "_is_vanished", cache != null && cache.isVanished() ? "true" : "false");
 

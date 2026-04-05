@@ -129,6 +129,9 @@ final class ChatHandler {
 			}
 		}
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		state.setChatMessage(state.getChatMessage().replace("\\n", ""));
+
 		// Do not use channels
 		if (!Settings.Channels.ENABLED || Settings.Channels.IGNORE_WORLDS.contains(player.getWorld().getName())) {
 

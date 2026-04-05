@@ -46,6 +46,9 @@ public final class CommandSay extends ChatControlCommand {
 	protected void onCommand() {
 		String message = Colors.removeColorsNoPermission(this.getSender(), this.joinArgs(0), Colors.Type.SAY);
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		message = message.replace("\\n", "");
+
 		if (this.getSender().hasPermission(Permissions.Chat.LINKS))
 			message = ChatUtil.addMiniMessageUrlTags(message);
 

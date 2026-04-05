@@ -515,6 +515,9 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		// Throw exception is handled
 		Mute.checkMute(sender, this);
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		state.setMessage(state.getMessage().replace("\\n", ""));
+
 		// Remove colors early so filters can force colors
 		state.setMessage(Colors.removeColorsNoPermission(sender.getSender(), state.getMessage(), Colors.Type.CHAT));
 

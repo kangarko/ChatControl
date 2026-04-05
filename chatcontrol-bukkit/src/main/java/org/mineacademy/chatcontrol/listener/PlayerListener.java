@@ -308,6 +308,12 @@ public final class PlayerListener implements Listener {
 		if (ValidCore.isNullOrEmpty(lines))
 			return;
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		for (int i = 0; i < lines.length; i++) {
+			lines[i] = lines[i].replace("\\n", "");
+			event.setLine(i, event.getLine(i).replace("\\n", ""));
+		}
+
 		// Check mute
 		if (Mute.isSomethingMutedIf(Settings.Mute.PREVENT_SIGNS, wrapped)) {
 			Messenger.warn(player, Lang.component("command-mute-cannot-place-signs"));
@@ -451,6 +457,9 @@ public final class PlayerListener implements Listener {
 
 			LogUtil.logOnce("anvil-colors", "Applying rules to Anvil. If you wish players to use colors on items, give them 'chatcontrol.use.color.anvil' permission.");
 			String itemName = enabledOnAnvil ? Colors.removeColorsNoPermission(player, meta.getDisplayName(), Colors.Type.ANVIL) : meta.getDisplayName();
+
+			// Prevent literal \n from reaching component serialization (client crash exploit)
+			itemName = itemName.replace("\\n", "");
 
 			// Check mute
 			if (Mute.isSomethingMutedIf(Settings.Mute.PREVENT_ANVIL, wrapped)) {

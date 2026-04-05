@@ -61,6 +61,9 @@ public final class PrivateMessage {
 
 		final Map<String, Object> placeholders = new HashMap<>();
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		message = message.replace("\\n", "");
+
 		message = Colors.removeColorsNoPermission(sender.getSender(), message, Colors.Type.PRIVATE_MESSAGE);
 
 		if (sender.hasPermission(Permissions.Chat.LINKS))

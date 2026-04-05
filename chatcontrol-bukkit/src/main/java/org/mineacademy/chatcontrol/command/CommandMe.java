@@ -51,6 +51,9 @@ public final class CommandMe extends ChatControlCommand {
 			return;
 		}
 
+		// Prevent literal \n from reaching component serialization (client crash exploit)
+		message = message.replace("\\n", "");
+
 		message = Colors.removeColorsNoPermission(this.getSender(), message, Colors.Type.ME);
 
 		if (this.getSender().hasPermission(Permissions.Chat.LINKS))

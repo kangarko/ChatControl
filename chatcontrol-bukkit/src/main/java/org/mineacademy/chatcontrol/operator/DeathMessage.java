@@ -825,13 +825,16 @@ public final class DeathMessage extends PlayerMessage {
 			final String fallback = ChatUtil.capitalizeFully(this.killerType);
 
 			try {
-				final String name = this.killer.isCustomNameVisible() ? this.killer.getCustomName() : this.killer.getName();
+				final String name = this.killer.isCustomNameVisible() && this.killer.getCustomName() != null ? this.killer.getCustomName() : this.killer.getName();
+
+				if (name == null)
+					return fallback;
 
 				// Return the custom name or fallback in case the name contains known health plugin letters
 				return name.contains("♡") || name.contains("♥") || name.contains("❤") || name.contains("■") ? fallback : name;
 
-			} catch (final Error err) {
-				// MC version incompatible call for Entity#getName
+			} catch (final Throwable t) {
+				// MC version incompatible call for Entity#getName or unexpected null
 				return fallback;
 			}
 		}

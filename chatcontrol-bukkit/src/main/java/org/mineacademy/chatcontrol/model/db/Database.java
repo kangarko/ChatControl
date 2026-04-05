@@ -74,6 +74,7 @@ public final class Database extends SimpleDatabase {
 			return;
 
 		// Upgrade table structure
+		this.migrateLogsTable(ChatControlTable.LOGS);
 		this.migrateMailTable(ChatControlTable.MAIL);
 
 		// Load caches
@@ -281,6 +282,49 @@ public final class Database extends SimpleDatabase {
 	 */
 	public List<Log> getLogs(LogType type) {
 		return this.getRowsWhere(ChatControlTable.LOGS, Where.builder().equals("Type", type.getKey()));
+	}
+
+	/**
+	 * Migrate the logs table to add the Id column if missing (added in newer versions).
+	 */
+	private void migrateLogsTable(final Table table) {
+		try {
+			final boolean columnExists = this.doesColumnExist(table, "Id");
+
+			if (!columnExists) {
+				CommonCore.log("", "Migrating logs table to add missing Id column...");
+
+				if (this.isSQLite()) {
+					this.batchUpdateUnsafe(Arrays.asList(
+							"CREATE TABLE `" + table.getName() + "_temp` ("
+									+ "`Id` INTEGER PRIMARY KEY AUTOINCREMENT, "
+									+ "`Server` text, "
+									+ "`Date` text DEFAULT NULL, "
+									+ "`Type` text, "
+									+ "`Sender` text, "
+									+ "`Receiver` text, "
+									+ "`Content` text, "
+									+ "`ChannelName` text, "
+									+ "`RuleName` text, "
+									+ "`RuleGroupName` text);",
+							"INSERT INTO `" + table.getName() + "_temp` (Server, Date, Type, Sender, Receiver, Content, ChannelName, RuleName, RuleGroupName) "
+									+ "SELECT Server, Date, Type, Sender, Receiver, Content, ChannelName, RuleName, RuleGroupName FROM `" + table.getName() + "`;",
+							"DROP TABLE `" + table.getName() + "`;",
+							"ALTER TABLE `" + table.getName() + "_temp` RENAME TO `" + table.getName() + "`;"));
+
+				} else {
+					try (PreparedStatement statement = this.prepareStatement(
+							"ALTER TABLE `" + table.getName() + "` ADD COLUMN `Id` int NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`Id`);")) {
+						statement.executeUpdate();
+					}
+				}
+
+				CommonCore.log("Migrated logs table successfully.");
+			}
+
+		} catch (final SQLException ex) {
+			CommonCore.error(ex, "Error migrating " + table.getName() + " table to add Id column.");
+		}
 	}
 
 	/* ------------------------------------------------------------------------------- */

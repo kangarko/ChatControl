@@ -114,6 +114,9 @@ public final class ProxyEvents {
 
 			final byte[] data = message.toByteArray(CommonCore.ZERO_UUID, server.getName());
 
+			if (data == null)
+				return;
+
 			if (data.length > Short.MAX_VALUE)
 				CommonCore.log("[forwardData-main] Outgoing proxy message was oversized, not sending. Max length: 32766 bytes, got " + data.length + " bytes.");
 

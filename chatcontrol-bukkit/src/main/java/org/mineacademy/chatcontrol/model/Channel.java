@@ -763,6 +763,10 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			rangeBypass = true;
 
 		for (final Player receiver : this.getOnlinePlayers().keySet()) {
+
+			if (!PlayerCache.isCached(receiver))
+				continue;
+
 			final PlayerCache receiverCache = PlayerCache.fromCached(receiver);
 
 			if (!senderIsInArena && receiver.hasMetadata("CoreArena_Arena") && !Settings.CoreArena.SEND_CHANNEL_MESSAGES)

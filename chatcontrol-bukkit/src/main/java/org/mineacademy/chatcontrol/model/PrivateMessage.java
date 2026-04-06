@@ -153,7 +153,7 @@ public final class PrivateMessage {
 				if (Proxy.ENABLED && Settings.PrivateMessages.PROXY)
 					ProxyUtil.sendPluginMessage(ChatControlProxyMessage.REPLY_UPDATE, receiverCache.getUniqueId(), sender.getName(), sender.getUniqueId());
 
-			} else
+			} else if (PlayerCache.isCached(receiverPlayer))
 				PlayerCache.fromCached(receiverPlayer).setReplyPlayerName(sender.getName());
 		}
 

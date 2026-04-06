@@ -438,7 +438,11 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		final List<Player> players = new ArrayList<>();
 
 		for (final Player online : Players.getOnlinePlayersWithLoadedDb()) {
-			final PlayerCache cache = PlayerCache.fromCached(online);
+			final PlayerCache cache = PlayerCache.fromCachedOrNull(online);
+
+			if (cache == null)
+				continue;
+
 			final ChannelMode otherMode = cache.getChannelMode(this);
 
 			if (otherMode == mode)
@@ -457,7 +461,11 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		final Map<Player, ChannelMode> players = new HashMap<>();
 
 		for (final Player online : Players.getOnlinePlayersWithLoadedDb()) {
-			final PlayerCache cache = PlayerCache.fromCached(online);
+			final PlayerCache cache = PlayerCache.fromCachedOrNull(online);
+
+			if (cache == null)
+				continue;
+
 			final ChannelMode mode = cache.getChannelMode(this);
 
 			if (mode != null)
@@ -763,7 +771,10 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 			rangeBypass = true;
 
 		for (final Player receiver : this.getOnlinePlayers().keySet()) {
-			final PlayerCache receiverCache = PlayerCache.fromCached(receiver);
+			final PlayerCache receiverCache = PlayerCache.fromCachedOrNull(receiver);
+
+			if (receiverCache == null)
+				continue;
 
 			if (!senderIsInArena && receiver.hasMetadata("CoreArena_Arena") && !Settings.CoreArena.SEND_CHANNEL_MESSAGES)
 				continue;

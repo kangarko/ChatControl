@@ -80,15 +80,22 @@ public final class ChatControlProxyListenerProxy extends ProxyListener {
 				final Set<UUID> onlineUniqueIds = new HashSet<>();
 
 				if (Redis.isEnabled()) {
-					final AbstractRedisBungeeAPI redis = AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI();
+					try {
+						final AbstractRedisBungeeAPI redis = AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI();
 
-					for (final UUID uniqueId : redis.getPlayersOnline()) {
-						final String name = redis.getNameFromUuid(uniqueId);
+						for (final UUID uniqueId : redis.getPlayersOnline()) {
+							final String name = redis.getNameFromUuid(uniqueId);
 
-						namesAndUniqueIds.put(name, uniqueId);
-						onlineUniqueIds.add(uniqueId);
+							namesAndUniqueIds.put(name, uniqueId);
+							onlineUniqueIds.add(uniqueId);
 
-						SyncedCache.getOrCreate(name, uniqueId);
+							SyncedCache.getOrCreate(name, uniqueId);
+						}
+
+					} catch (final Throwable t) {
+						CommonCore.warning("Failed to get RedisBungee players, skipping sync cycle: " + t.getMessage());
+
+						return;
 					}
 
 				} else {

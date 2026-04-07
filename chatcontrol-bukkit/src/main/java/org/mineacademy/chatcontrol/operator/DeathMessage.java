@@ -499,10 +499,16 @@ public final class DeathMessage extends PlayerMessage {
 						final ItemStack hand = ((LivingEntity) damager).getEquipment().getItemInHand();
 
 						this.killerItemStack = hand;
-						this.killerItemMaterial = CompMaterial.fromItem(hand);
 
-						if (this.killerItemMaterial == null)
+						try {
+							this.killerItemMaterial = CompMaterial.fromItem(hand);
+
+							if (this.killerItemMaterial == null)
+								this.killerItemMaterial = CompMaterial.fromString(hand.getType().name());
+
+						} catch (final IllegalArgumentException ex) {
 							this.killerItemMaterial = CompMaterial.fromString(hand.getType().name());
+						}
 					}
 
 					if (HookManager.isBossLoaded())
@@ -529,10 +535,16 @@ public final class DeathMessage extends PlayerMessage {
 							final ItemStack hand = ((LivingEntity) shooter).getEquipment().getItemInHand();
 
 							this.killerItemStack = hand;
-							this.killerItemMaterial = CompMaterial.fromItem(hand);
 
-							if (this.killerItemMaterial == null)
+							try {
+								this.killerItemMaterial = CompMaterial.fromItem(hand);
+
+								if (this.killerItemMaterial == null)
+									this.killerItemMaterial = CompMaterial.fromString(hand.getType().name());
+
+							} catch (final IllegalArgumentException ex) {
 								this.killerItemMaterial = CompMaterial.fromString(hand.getType().name());
+							}
 						}
 					}
 				}

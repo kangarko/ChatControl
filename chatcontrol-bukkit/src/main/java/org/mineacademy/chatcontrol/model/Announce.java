@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -62,7 +61,7 @@ public final class Announce {
 	 * @param message
 	 * @param params
 	 */
-	public static void send(@Nullable final CommandSender sender, final AnnounceType type, final String message, final SerializedMap params) {
+	public static void send(final CommandSender sender, final AnnounceType type, final String message, final SerializedMap params) {
 		Consumer<FoundationPlayer> function = null;
 		boolean broadcastOnThisServer = true;
 		boolean stayOnThisServer = false;

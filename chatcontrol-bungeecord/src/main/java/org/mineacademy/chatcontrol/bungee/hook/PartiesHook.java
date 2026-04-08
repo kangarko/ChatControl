@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.bungee.hook;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import com.alessiodp.parties.api.Parties;
 import com.alessiodp.parties.api.interfaces.PartiesAPI;
@@ -19,7 +18,7 @@ public final class PartiesHook {
 	 * @param uuid
 	 * @param nick
 	 */
-	public static void setNickName(final UUID uuid, @Nullable final String nick) {
+	public static void setNickName(final UUID uuid, final String nick) {
 		final PartiesAPI api = Parties.getApi();
 		final PartyPlayer player = api.getPartyPlayer(uuid);
 

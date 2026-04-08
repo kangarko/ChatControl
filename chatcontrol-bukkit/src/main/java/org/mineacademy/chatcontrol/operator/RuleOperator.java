@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.GameMode;
 import org.mineacademy.chatcontrol.api.RuleReplaceEvent;
@@ -59,19 +58,16 @@ public abstract class RuleOperator extends Operator {
 	 * Permission required for the rule to apply,
 	 * message sent to player if he lacks it.
 	 */
-	@Nullable
 	private Tuple<String, String> requirePermission;
 
 	/**
 	 * Parse the given boolean and only continue with the rule if it's outcome is equaling the operator value.
 	 */
-	@Nullable
 	private final List<RequireVariable> requireVariables = new ArrayList<>();
 
 	/**
 	 * JavaScript boolean output required to be true for the rule to apply
 	 */
-	@Nullable
 	private String requireScript;
 
 	/**
@@ -344,7 +340,6 @@ public abstract class RuleOperator extends Operator {
 		/**
 		 * Channel wherefrom the checked message is sent, null if N/A
 		 */
-		@Nullable
 		protected final Channel channel;
 
 		/**
@@ -357,7 +352,7 @@ public abstract class RuleOperator extends Operator {
 		 * @param wrapped
 		 * @param message
 		 */
-		protected RuleOperatorCheck(final WrappedSender wrapped, final String message, @Nullable final Channel channel) {
+		protected RuleOperatorCheck(final WrappedSender wrapped, final String message, final Channel channel) {
 			super(wrapped, message);
 
 			this.channel = channel;
@@ -585,7 +580,7 @@ public abstract class RuleOperator extends Operator {
 		/**
 		 * Run given operators for the given message and return the updated message
 		 */
-		protected void executeOperators(final RuleOperator operator, @Nullable final Matcher matcher) throws EventHandledException {
+		protected void executeOperators(final RuleOperator operator, final Matcher matcher) throws EventHandledException {
 
 			// Delay
 			if (operator.getDelay() != null) {

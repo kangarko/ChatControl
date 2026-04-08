@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -176,7 +175,7 @@ public interface SharedChatControlCommandCore extends SharedBukkitCommandCore {
 	 *
 	 * @throws CommandException
 	 */
-	default void pollDiskCacheOrSelf(@Nullable final String nameOrNick, final Consumer<PlayerCache> syncCallback) throws CommandException {
+	default void pollDiskCacheOrSelf(final String nameOrNick, final Consumer<PlayerCache> syncCallback) throws CommandException {
 
 		if (nameOrNick == null) {
 			this.checkBoolean(this.isPlayer(), Lang.component("command-console-missing-player-name"));

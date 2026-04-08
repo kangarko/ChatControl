@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -72,19 +71,16 @@ public final class Log extends RowDate {
 	/**
 	 * Optional, channel name, if associated with
 	 */
-	@Nullable
 	private String channelName;
 
 	/**
 	 * Optional, rule name, if associated with
 	 */
-	@Nullable
 	private String ruleName;
 
 	/**
 	 * Optional, rule group name, if associated with
 	 */
-	@Nullable
 	private String ruleGroupName;
 
 	/**
@@ -204,17 +200,14 @@ public final class Log extends RowDate {
 		return this;
 	}
 
-	@Nullable
 	public String getChannelName() {
 		return this.channelName == null || this.channelName.isEmpty() ? null : this.channelName;
 	}
 
-	@Nullable
 	public String getRuleName() {
 		return this.ruleName == null || this.ruleName.isEmpty() ? null : this.ruleName;
 	}
 
-	@Nullable
 	public String getRuleGroupName() {
 		return this.ruleGroupName == null || this.ruleGroupName.isEmpty() ? null : this.ruleGroupName;
 	}
@@ -229,7 +222,7 @@ public final class Log extends RowDate {
 	 *
 	 * @return true if log was saved successfully
 	 */
-	public boolean write(@Nullable final CommandSender sender) {
+	public boolean write(final CommandSender sender) {
 		if (!Settings.Log.APPLY_ON.contains(this.type)) {
 			Debugger.debug("log", "Skipping logging of type " + this.type + " because it is not enabled in settings.yml under Log.Apply_On: " + Settings.Log.APPLY_ON);
 

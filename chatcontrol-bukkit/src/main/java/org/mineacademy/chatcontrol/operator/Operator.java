@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -126,13 +125,11 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 	/**
 	 * Kick message that when set, rule will kick player
 	 */
-	@Nullable
 	private String kickMessage;
 
 	/**
 	 * The message that, if set, will show as a toast notification
 	 */
-	@Nullable
 	private ToastMessage toast;
 
 	/**
@@ -174,25 +171,21 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 	/**
 	 * The book to open for player
 	 */
-	@Nullable
 	private SimpleBook book;
 
 	/**
 	 * Title and subtitle to send
 	 */
-	@Nullable
 	private TitleMessage title;
 
 	/**
 	 * The message on the action bar
 	 */
-	@Nullable
 	private String actionBar;
 
 	/**
 	 * The Boss bar message
 	 */
-	@Nullable
 	private BossBarMessage bossBar;
 
 	/**
@@ -760,13 +753,11 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 * The message that is being altered
 		 */
 		@Getter
-		@Nullable
 		protected String message;
 
 		/**
 		 * The original message that was matched
 		 */
-		@Nullable
 		protected String originalMessage;
 
 		/**
@@ -814,7 +805,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 * @param wrappedPlayer
 		 * @param message
 		 */
-		protected OperatorCheck(@Nullable final WrappedSender wrappedPlayer, final String message) {
+		protected OperatorCheck(final WrappedSender wrappedPlayer, final String message) {
 			this.wrappedSender = wrappedPlayer;
 			this.message = message;
 			this.originalMessage = message;
@@ -1168,7 +1159,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 * @param operator
 		 * @return
 		 */
-		protected final String replaceSenderVariablesLegacy(@Nullable final String message, final T operator) {
+		protected final String replaceSenderVariablesLegacy(final String message, final T operator) {
 			return this.replaceVariablesForLegacy(message, operator, this.wrappedSender);
 		}
 
@@ -1191,7 +1182,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 * @param operator
 		 * @return
 		 */
-		protected final SimpleComponent replaceSenderVariables(@Nullable final SimpleComponent component, final T operator) {
+		protected final SimpleComponent replaceSenderVariables(final SimpleComponent component, final T operator) {
 			return this.replaceVariablesFor(component, operator, this.wrappedSender);
 		}
 
@@ -1252,7 +1243,7 @@ public abstract class Operator implements org.mineacademy.fo.model.Rule {
 		 *
 		 * @param errorMessage
 		 */
-		protected final void cancel(@Nullable final String errorMessage, final boolean cancelEvent) {
+		protected final void cancel(final String errorMessage, final boolean cancelEvent) {
 			if (errorMessage != null && !errorMessage.isEmpty())
 				Messenger.error(this.wrappedSender.getAudience(), Variables.builder().audience(this.wrappedSender.getAudience()).replaceLegacy(errorMessage));
 

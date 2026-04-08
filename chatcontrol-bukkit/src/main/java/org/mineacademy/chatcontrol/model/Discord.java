@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -187,7 +186,7 @@ public final class Discord extends DiscordListener {
 	 * @param json
 	 * @param chatControlChannel
 	 */
-	public void sendChannelMessage(@Nullable final CommandSender sender, @Nullable final OfflinePlayer offlineSender, final long discordChannelId, final String message, @Nullable final String json, @Nullable final Channel chatControlChannel) {
+	public void sendChannelMessage(final CommandSender sender, final OfflinePlayer offlineSender, final long discordChannelId, final String message, final String json, final Channel chatControlChannel) {
 		this.sendChannelMessageDelayed(0, sender, offlineSender, discordChannelId, message, json, chatControlChannel);
 	}
 
@@ -203,7 +202,7 @@ public final class Discord extends DiscordListener {
 	 * @param json
 	 * @param chatControlChannel
 	 */
-	public void sendChannelMessageDelayed(final int delayTicks, @Nullable final CommandSender sender, @Nullable final OfflinePlayer offlineSender, final long discordChannelId, String message, @Nullable final String json, @Nullable final Channel chatControlChannel) {
+	public void sendChannelMessageDelayed(final int delayTicks, final CommandSender sender, final OfflinePlayer offlineSender, final long discordChannelId, String message, final String json, final Channel chatControlChannel) {
 		if (!Settings.Discord.ENABLED || message.isEmpty())
 			return;
 
@@ -244,10 +243,8 @@ public final class Discord extends DiscordListener {
 
 				final String playerName = sender instanceof Player ? sender.getName() : offlineSender != null ? offlineSender.getName() : "";
 
-				@Nullable
 				final UUID playerUniqueId = sender instanceof Player ? ((Player) sender).getUniqueId() : offlineSender != null ? offlineSender.getUniqueId() : null;
 
-				@Nullable
 				final String linkedId = playerUniqueId != null ? DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(playerUniqueId) : null;
 
 				if (!playerName.isEmpty())

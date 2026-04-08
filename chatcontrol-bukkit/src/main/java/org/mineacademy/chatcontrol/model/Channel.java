@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -291,7 +290,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	 *
 	 * @param duration how long, null to unmute
 	 */
-	public void setMuted(@Nullable SimpleTime duration) {
+	public void setMuted(SimpleTime duration) {
 		final MuteEvent event = MuteEvent.channel(this, duration);
 
 		if (Platform.callEvent(event)) {
@@ -749,7 +748,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	/*
 	 * Return receiver list for player, first set is visible receivers, the other set is hidden receivers
 	 */
-	private Tuple<Set<Player>, Set<Player>> compileReceivers(@Nullable final WrappedSender sender) {
+	private Tuple<Set<Player>, Set<Player>> compileReceivers(final WrappedSender sender) {
 		final Player playerSender = sender != null ? sender.getPlayer() : null;
 		final boolean senderIsInArena = sender != null && sender.isPlayer() && playerSender.hasMetadata("CoreArena_Arena");
 
@@ -1190,7 +1189,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	 * @param player
 	 * @return
 	 */
-	public static List<Channel> filterChannelsPlayerCanLeave(final Collection<Channel> channels, @Nullable final Player player) {
+	public static List<Channel> filterChannelsPlayerCanLeave(final Collection<Channel> channels, final Player player) {
 		return collectChannels(channels, channel -> player == null || player.hasPermission(Permissions.Channel.LEAVE.replace("{channel}", channel.getName())));
 	}
 

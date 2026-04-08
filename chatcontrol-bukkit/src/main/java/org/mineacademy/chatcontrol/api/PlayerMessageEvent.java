@@ -1,6 +1,5 @@
 package org.mineacademy.chatcontrol.api;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -25,7 +24,6 @@ public final class PlayerMessageEvent extends SimpleEvent implements Cancellable
 	/**
 	 * The Dude himself, null if timed or demo run
 	 */
-	@Nullable
 	private final Player player;
 
 	/**
@@ -42,7 +40,6 @@ public final class PlayerMessageEvent extends SimpleEvent implements Cancellable
 	 * The original message if any, can be null
 	 * For example the death event has its own native MC messages returned here
 	 */
-	@Nullable
 	private final String originalMessage;
 
 	/**

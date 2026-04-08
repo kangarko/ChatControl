@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
@@ -59,13 +58,11 @@ public final class DeathMessage extends PlayerMessage {
 	 * Permission required for the killer that caused the rule to fire in
 	 * order for the rule to apply
 	 */
-	@Nullable
 	private Tuple<String, String> requireKillerPermission;
 
 	/**
 	 * JavaScript boolean output required to be true for the rule to apply
 	 */
-	@Nullable
 	private String requireKillerScript;
 
 	/**
@@ -106,7 +103,6 @@ public final class DeathMessage extends PlayerMessage {
 	/**
 	 * Bosses from the Boss plugin to require
 	 */
-	@Nullable
 	private IsInList<String> requireBosses;
 
 	/**
@@ -117,13 +113,11 @@ public final class DeathMessage extends PlayerMessage {
 	/**
 	 * Permission to bypass the rule
 	 */
-	@Nullable
 	private String ignoreKillerPermission;
 
 	/**
 	 * JavaScript boolean output when true for the rule to bypass
 	 */
-	@Nullable
 	private String ignoreKillerScript;
 
 	/**
@@ -398,7 +392,6 @@ public final class DeathMessage extends PlayerMessage {
 		/**
 		 * The killer entity
 		 */
-		@Nullable
 		private final Entity killer;
 
 		/**
@@ -414,19 +407,16 @@ public final class DeathMessage extends PlayerMessage {
 		/**
 		 * The killer type or null
 		 */
-		@Nullable
 		private EntityType killerType;
 
 		/**
 		 * The killer item in his hands or null
 		 */
-		@Nullable
 		private ItemStack killerItemStack;
 
 		/**
 		 * The killer item in his hands or null
 		 */
-		@Nullable
 		private CompMaterial killerItemMaterial;
 
 		/**
@@ -437,19 +427,16 @@ public final class DeathMessage extends PlayerMessage {
 		/**
 		 * The projectile or null
 		 */
-		@Nullable
 		private EntityType projectile;
 
 		/**
 		 * The block type or null
 		 */
-		@Nullable
 		private CompMaterial blockType;
 
 		/**
 		 * If player died by a Boss this is his name
 		 */
-		@Nullable
 		private String bossName = "";
 
 		/**

@@ -16,7 +16,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -561,7 +560,7 @@ public final class PlayerCache extends Row {
 	 *
 	 * @param chatColor
 	 */
-	public void setChatColorNoSave(@Nullable final CompChatColor chatColor) {
+	public void setChatColorNoSave(final CompChatColor chatColor) {
 		this.chatColor = chatColor;
 	}
 
@@ -570,7 +569,7 @@ public final class PlayerCache extends Row {
 	 *
 	 * @param chatDecoration
 	 */
-	public void setChatDecorationNoSave(@Nullable final CompChatColor chatDecoration) {
+	public void setChatDecorationNoSave(final CompChatColor chatDecoration) {
 		this.chatDecoration = chatDecoration;
 	}
 
@@ -772,7 +771,7 @@ public final class PlayerCache extends Row {
 	 * @param type
 	 * @param tag
 	 */
-	public void setTag(final Tag.Type type, @Nullable final String tag) {
+	public void setTag(final Tag.Type type, final String tag) {
 		this.setTag(type, tag, true);
 	}
 
@@ -783,7 +782,7 @@ public final class PlayerCache extends Row {
 	 * @param tag
 	 * @param reportToOtherPlugins
 	 */
-	public void setTag(final Tag.Type type, @Nullable final String tag, final boolean reportToOtherPlugins) {
+	public void setTag(final Tag.Type type, final String tag, final boolean reportToOtherPlugins) {
 		ValidCore.checkBoolean(tag == null || !tag.trim().isEmpty(), "Cannot save an empty tag, to remove it, set it to null");
 
 		if (tag != null) {
@@ -933,7 +932,7 @@ public final class PlayerCache extends Row {
 	 * @param mode
 	 * @param save
 	 */
-	public void updateChannelMode(final Channel channel, @Nullable final ChannelMode mode, final boolean save) {
+	public void updateChannelMode(final Channel channel, final ChannelMode mode, final boolean save) {
 		final String channelName = channel.getName().toLowerCase();
 
 		if (mode == null)
@@ -972,7 +971,7 @@ public final class PlayerCache extends Row {
 	 * @param key
 	 * @param object
 	 */
-	public void setRuleData(final String key, @Nullable final Object object) {
+	public void setRuleData(final String key, final Object object) {
 		if (object == null || object.toString().trim().equals("") || object.toString().equalsIgnoreCase("null"))
 			this.ruleData.remove(key);
 
@@ -1005,7 +1004,7 @@ public final class PlayerCache extends Row {
 	 *
 	 * @param duration how long, null to unmute
 	 */
-	public void setMuted(@Nullable SimpleTime duration) {
+	public void setMuted(SimpleTime duration) {
 		final MuteEvent event = MuteEvent.player(this.getPlayerName(), this.getUniqueId(), duration);
 
 		if (Platform.callEvent(event)) {
@@ -1052,7 +1051,7 @@ public final class PlayerCache extends Row {
 	 * @param permissible
 	 * @return true if at least one spying type was enabled
 	 */
-	public boolean setSpyingOn(@Nullable final Permissible permissible) {
+	public boolean setSpyingOn(final Permissible permissible) {
 		boolean atLeastOne = false;
 
 		for (final Spy.Type type : Spy.Type.values())
@@ -1230,7 +1229,6 @@ public final class PlayerCache extends Row {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Player toPlayer() {
 		final Player player = Remain.getPlayerByUUID(this.getUniqueId());
 
@@ -1365,7 +1363,7 @@ public final class PlayerCache extends Row {
 	 * @param syncCallback
 	 * @param entity the entity for Folia entity-thread scheduling, or null
 	 */
-	public static void poll(String nameOrNick, final Consumer<PlayerCache> syncCallback, @Nullable final Entity entity) {
+	public static void poll(String nameOrNick, final Consumer<PlayerCache> syncCallback, final Entity entity) {
 		synchronized (uniqueCacheMap) {
 			Debugger.debug("cache", "Polling player cache from name or nick '" + nameOrNick + "'");
 
@@ -1424,7 +1422,7 @@ public final class PlayerCache extends Row {
 	 * @param syncCallback
 	 * @param entity the entity for Folia entity-thread scheduling, or null
 	 */
-	public static void pollAll(final Consumer<List<PlayerCache>> syncCallback, @Nullable final Entity entity) {
+	public static void pollAll(final Consumer<List<PlayerCache>> syncCallback, final Entity entity) {
 		Valid.checkSync("Polling cache must be called sync!");
 
 		Platform.runTaskAsync(() -> {

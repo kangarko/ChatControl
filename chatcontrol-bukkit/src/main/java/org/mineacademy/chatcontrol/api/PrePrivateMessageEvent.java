@@ -1,6 +1,5 @@
 package org.mineacademy.chatcontrol.api;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -37,7 +36,6 @@ public final class PrePrivateMessageEvent extends SimpleEvent implements Cancell
 	/**
 	 * The recipient, null if he's on proxy
 	 */
-	@Nullable
 	private final Player receiver;
 
 	/**

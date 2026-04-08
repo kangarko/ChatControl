@@ -1,7 +1,7 @@
 <p align="center">
-  <small><i>After 12 years of Java experience, I recorded an online course on Java & Minecraft plugin development - if you want to learn how to code your own ChatControl click the link below and learn more!</i></small>
-  <a href="https://mineacademy.org/project-orion?st=github&sc=chatcontrol&utm_source=github&utm_medium=overview&utm_campaign=chatcontrol">
-    <img src="https://i.imgur.com/SVHA9Kf.png" />
+  <small><i>Learn how to code hyper-customized Minecraft plugins & servers In 30 days. Stop being held hostage by developers and limited plugins or spending years on learning code:</i></small>
+  <a href="https://mineacademy.org/project-orion?st=github&sc=chatcontrol">
+    <img src="https://mineacademy.org/assets/branding/spigot-overview-2026-04-05.png" />
   </a>
 </p>
 

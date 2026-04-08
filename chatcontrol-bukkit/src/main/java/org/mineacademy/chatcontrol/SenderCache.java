@@ -10,7 +10,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -101,7 +100,6 @@ public final class SenderCache {
 	 */
 	@Getter
 	@Setter
-	@Nullable
 	private String[] lastSignText;
 
 	/**
@@ -137,7 +135,7 @@ public final class SenderCache {
 	 */
 	@Getter
 	@Setter
-	private boolean databaseLoaded = false;
+	private volatile boolean databaseLoaded = false;
 
 	/**
 	 * Is the database currently being queried?
@@ -203,7 +201,6 @@ public final class SenderCache {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public String getLastChatMessage() {
 		final Output lastChatOutput = this.getLastChat();
 
@@ -214,7 +211,6 @@ public final class SenderCache {
 	 * Return the last chat output
 	 * @return
 	 */
-	@Nullable
 	public Output getLastChat() {
 		final List<Output> lastOutputs = this.getLastOutputs(LogType.CHAT, 1, null);
 
@@ -229,7 +225,7 @@ public final class SenderCache {
 	 * @param channel
 	 * @return
 	 */
-	public List<Output> getLastOutputs(final LogType type, final int amountInHistory, @Nullable final Channel channel) {
+	public List<Output> getLastOutputs(final LogType type, final int amountInHistory, final Channel channel) {
 		return this.filterOutputs(type, channel, amountInHistory, null);
 	}
 
@@ -241,7 +237,7 @@ public final class SenderCache {
 	 * @param channel
 	 * @return
 	 */
-	public List<Output> getOutputsAfter(final LogType type, final long timestamp, @Nullable final Channel channel) {
+	public List<Output> getOutputsAfter(final LogType type, final long timestamp, final Channel channel) {
 		return this.filterOutputs(type, channel, -1, output -> output.getTime() >= timestamp);
 	}
 
@@ -249,7 +245,7 @@ public final class SenderCache {
 	 * Return a list of inputs by the given type, if the type is chat then also from the given channel,
 	 * maximum of the given limit and matching the given filter
 	 */
-	private List<Output> filterOutputs(final LogType type, @Nullable final Channel channel, final int limit, @Nullable final Predicate<Output> filter) {
+	private List<Output> filterOutputs(final LogType type, final Channel channel, final int limit, final Predicate<Output> filter) {
 		final Queue<Output> allOutputs = this.lastCommunication.get(type);
 		final List<Output> listedOutputs = new ArrayList<>();
 
@@ -305,7 +301,7 @@ public final class SenderCache {
 	/*
 	 * Internal caching handler method
 	 */
-	private void record(final LogType type, final String input, @Nullable final Channel channel) {
+	private void record(final LogType type, final String input, final Channel channel) {
 		final Queue<Output> queue = this.lastCommunication.getOrDefault(type, new LimitedQueue<>(100));
 		final Output record = new Output(System.currentTimeMillis(), input, channel == null ? null : channel.getName());
 
@@ -448,7 +444,6 @@ public final class SenderCache {
 		/**
 		 * Message channel or null if not associated (such as for commands)
 		 */
-		@Nullable
 		private final String channel;
 
 		/**

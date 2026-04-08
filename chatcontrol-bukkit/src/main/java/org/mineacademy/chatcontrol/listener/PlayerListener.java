@@ -97,6 +97,11 @@ public final class PlayerListener implements Listener {
 				event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
 				return;
 			}
+
+		// Pre-load database cache while still on async thread to eliminate
+		// the gap between "player is online" and "cache is loaded"
+		if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED)
+			Database.getInstance().preLoadCache(playerName, uniqueId);
 	}
 
 	/**
@@ -125,14 +130,23 @@ public final class PlayerListener implements Listener {
 		if (Settings.Messages.APPLY_ON.contains(PlayerMessageType.JOIN))
 			event.setJoinMessage(null);
 
-		// Moves MySQL off of the main thread
-		// Delays the execution so that, if player comes from another server,
-		// his data is saved first in case database has slower connection than us
-		if (HookManager.isAuthMeLoaded() && Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED) {
-			Debugger.debug("player-message", "Waiting for " + player.getName() + " to log in AuthMe before loading his data and join message.");
+		// Use pre-loaded cache from AsyncPlayerPreLoginEvent if available
+		final PlayerCache pendingCache = database.takePendingCache(player.getUniqueId());
 
-		} else
-			database.loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache, event.getJoinMessage()));
+		if (pendingCache != null) {
+			pendingCache.putToCacheMap();
+			senderCache.setDatabaseLoaded(true);
+
+			if (!(HookManager.isAuthMeLoaded() && Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED))
+				pendingCache.onJoin(player, senderCache, event.getJoinMessage());
+
+		} else {
+			// Fallback to async load if pre-load was not available (e.g. database error during pre-login)
+			if (HookManager.isAuthMeLoaded() && Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED)
+				Debugger.debug("player-message", "Waiting for " + player.getName() + " to log in AuthMe before loading his data and join message.");
+			else
+				database.loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache, event.getJoinMessage()));
+		}
 	}
 
 	/**
@@ -249,11 +263,16 @@ public final class PlayerListener implements Listener {
 		// operators like 'then discord' execute even when no other players are online
 		wrapped.getSenderCache().setDatabaseLoaded(false);
 
-		// This data is stored in the database, so we can remove it from memory always
-		PlayerCache.remove(player);
+		// Defer removal by 1 tick so in-flight async iterations (e.g. Paper AsyncChatEvent)
+		// that already captured the player can still look up the cache entry
+		Remain.runTask(1, () -> {
+			if (!SenderCache.from(player).isDatabaseLoaded()) {
+				PlayerCache.remove(player);
 
-		if (Settings.CLEAR_CACHE_ON_EXIT)
-			SenderCache.remove(player);
+				if (Settings.CLEAR_CACHE_ON_EXIT)
+					SenderCache.remove(player);
+			}
+		});
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

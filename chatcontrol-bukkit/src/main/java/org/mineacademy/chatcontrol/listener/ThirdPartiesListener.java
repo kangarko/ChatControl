@@ -357,8 +357,12 @@ final class AuthMeListener implements Listener {
 		final Player player = event.getPlayer();
 		final SenderCache senderCache = SenderCache.from(player);
 
-		if (Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED)
-			Database.getInstance().loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache));
+		if (Settings.AuthMe.DELAY_JOIN_MESSAGE_UNTIL_LOGGED) {
+			if (senderCache.isDatabaseLoaded())
+				PlayerCache.fromCached(player).onJoin(player, senderCache);
+			else
+				Database.getInstance().loadAndStoreCache(player, senderCache, cache -> cache.onJoin(player, senderCache));
+		}
 	}
 }
 
@@ -382,9 +386,13 @@ final class EssentialsListener implements Listener {
 
 		if (Settings.Tag.BACKWARD_COMPATIBLE) {
 			final UUID uniqueId = player.getUUID();
-			final PlayerCache cache = PlayerCache.fromCached(Bukkit.getPlayer(uniqueId));
+			final Player onlinePlayer = Bukkit.getPlayer(uniqueId);
 
-			cache.setTag(Type.NICK, newNick, false /* prevent a race condition */);
+			if (onlinePlayer != null) {
+				final PlayerCache cache = PlayerCache.fromCached(onlinePlayer);
+
+				cache.setTag(Type.NICK, newNick, false /* prevent a race condition */);
+			}
 		}
 	}
 }

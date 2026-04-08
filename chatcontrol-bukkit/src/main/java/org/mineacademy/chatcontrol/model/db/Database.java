@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -63,6 +63,11 @@ public final class Database extends SimpleDatabase {
 	 * The map of player name to UUID
 	 */
 	private final Map<String, UUID> nameToUniqueId = new HashMap<>();
+
+	/**
+	 * Pre-loaded PlayerCache entries from AsyncPlayerPreLoginEvent, awaiting pickup in PlayerJoinEvent.
+	 */
+	private final Map<UUID, PlayerCache> pendingCaches = new ConcurrentHashMap<>();
 
 	/**
 	 * Called manually after the plugin is started to prevent NPE because settings#log#clean_after is loaded after the database is connected
@@ -416,7 +421,6 @@ public final class Database extends SimpleDatabase {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Mail findMail(final UUID uniqueId) {
 		return this.getRowWhere(ChatControlTable.MAIL, Where.builder().equals("UUID", uniqueId.toString()));
 	}
@@ -450,21 +454,11 @@ public final class Database extends SimpleDatabase {
 		final Task task = Platform.runTaskAsync(() -> {
 			try {
 				final long now = System.currentTimeMillis();
-				final Where where = Settings.UUID_LOOKUP ? Where.builder().equals("UUID", uniqueId.toString()) : Where.builder().equals("Name", playerName);
-
-				PlayerCache cache = this.getPlayerCacheWhereStrict(player, where);
+				PlayerCache cache = this.loadOrCreateCache(playerName, uniqueId);
 
 				if (System.currentTimeMillis() - now > 100 && Settings.Proxy.ENABLED)
 					CommonCore.warning("Your database connection is too slow (" + MathUtil.formatTwoDigits(((System.currentTimeMillis() - now) / 1000.0)) + " seconds). "
 							+ "This will cause issues on your proxy on player server switch. We recommend having the database server on the same machine as the proxy.");
-
-				// Not stored previously
-				if (cache == null) {
-					cache = new PlayerCache(playerName, uniqueId);
-
-					// Solves database not loaded when player switches servers without being saved
-					cache.upsert();
-				}
 
 				final PlayerCache finalCache = cache;
 
@@ -484,26 +478,74 @@ public final class Database extends SimpleDatabase {
 		senderCache.setCacheLoadingTask(task);
 	}
 
+	/**
+	 * Pre-loads a player's cache from the database synchronously.
+	 * Called from AsyncPlayerPreLoginEvent (already on an async thread).
+	 *
+	 * @param playerName
+	 * @param uniqueId
+	 */
+	public void preLoadCache(final String playerName, final UUID uniqueId) {
+		try {
+			this.pendingCaches.put(uniqueId, this.loadOrCreateCache(playerName, uniqueId));
+
+		} catch (final Throwable t) {
+			CommonCore.error(t, "Unable to pre-load database data for player " + playerName);
+		}
+	}
+
+	/**
+	 * Takes and removes a pre-loaded cache entry, populating name-UUID mappings.
+	 * Returns null if no pre-loaded entry exists.
+	 *
+	 * @param uniqueId
+	 * @return
+	 */
+	public PlayerCache takePendingCache(final UUID uniqueId) {
+		final PlayerCache cache = this.pendingCaches.remove(uniqueId);
+
+		if (cache != null) {
+			this.nameToUniqueId.put(cache.getPlayerName(), uniqueId);
+			this.uniqueIdToName.put(uniqueId, cache.getPlayerName());
+		}
+
+		return cache;
+	}
+
+	/*
+	 * Load the cache from the database or create a new one if not found
+	 */
+	private PlayerCache loadOrCreateCache(final String playerName, final UUID uniqueId) {
+		final Where where = Settings.UUID_LOOKUP ? Where.builder().equals("UUID", uniqueId.toString()) : Where.builder().equals("Name", playerName);
+		PlayerCache cache = this.getPlayerCacheWhereStrict(playerName, uniqueId, where);
+
+		if (cache == null) {
+			cache = new PlayerCache(playerName, uniqueId);
+			cache.upsert();
+		}
+
+		return cache;
+	}
+
 	/*
 	 * Get the player cache where the given player matches the given where clause
 	 */
-	private PlayerCache getPlayerCacheWhereStrict(final Player player, final Where where) {
+	private PlayerCache getPlayerCacheWhereStrict(final String playerName, final UUID uniqueId, final Where where) {
 		final List<PlayerCache> entries = new ArrayList<>();
 
 		this.select(ChatControlTable.PLAYERS, where, resultSet -> {
-			final PlayerCache row = new PlayerCache(player.getName(), player.getUniqueId(), resultSet);
+			final PlayerCache row = new PlayerCache(playerName, uniqueId, resultSet);
 
 			if (row != null)
 				entries.add(row);
 		});
 
 		if (entries.size() > 1)
-			new FoException("Found multiple entries for player " + player.getName() + " in the database! Please clean your table or report this if it's a bug: " + entries, false).printStackTrace();
+			new FoException("Found multiple entries for player " + playerName + " in the database! Please clean your table or report this if it's a bug: " + entries, false).printStackTrace();
 
 		return entries.isEmpty() ? null : entries.get(0);
 	}
 
-	@Nullable
 	public PlayerCache getCache(final String nameOrNick) {
 		final Table table = ChatControlTable.PLAYERS;
 

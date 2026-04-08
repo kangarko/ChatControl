@@ -25,12 +25,6 @@ ChatControl is the most advanced chat filtering and management plugin. It builds
 
 Visit [MineAcademy.org/ChatControl](https://mineacademy.org/chatcontrol) to purchase the plugin.
 
-## Donation
-
-<a href="https://buy.stripe.com/7sIg1QgQv9RC4ik6op">![Donate To ChatControl](https://i.imgur.com/vn1IUul.png)</a>
-
-Please [consider donating to ChatControl to support its continued development here](https://buy.stripe.com/7sIg1QgQv9RC4ik6op).
-
 ## Compiling
 Please note that NO support is provided for the compilation process and for non-buyers. Consider purchasing the plugin to support its development, get our insider rank on our [Discord](https://mineacademy.org/discord) and get support.
 

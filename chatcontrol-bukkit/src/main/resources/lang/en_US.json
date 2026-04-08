@@ -150,6 +150,7 @@
   "command-announce-success": "Your announcement has been sent.",
   "command-announce-success-network": "Your announcement was sent to server '{server}'.",
   "command-announce-type": "ANNOUNCEMENT",
+  "command-announce-type-network": "NETWORK ANNOUNCEMENT",
   "command-announce-usage": "<type> <message>",
   "command-announce-usage-actionbar": "/{label} {sublabel} actionbar <message> server:creative <gray>- Broadcast an action bar to 'creative' server.",
   "command-announce-usage-bossbar": "/{label} {sublabel} bossbar <message> time:<seconds> color:<color> style:<style> <gray>- Broadcast boss bar.",

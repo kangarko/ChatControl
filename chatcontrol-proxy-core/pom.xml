@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.mineacademy.plugin</groupId>
 			<artifactId>RedisBungeeAPI</artifactId>
-			<version>0.12.5</version>
+			<version>0.12.6</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

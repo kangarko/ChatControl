@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 
 import org.mineacademy.chatcontrol.model.RuleType;
 import org.mineacademy.fo.CommonCore;
@@ -105,7 +104,7 @@ public final class Rules<T extends Rule> extends RuleSetReader<T> {
 	 *
 	 * @return the newly created rule
 	 */
-	public Rule createRule(final RuleType type, final String match, @Nullable final String name, @Nullable final String group) {
+	public Rule createRule(final RuleType type, final String match, final String name, final String group) {
 		ValidCore.checkBoolean(this.findRuleByMatch(type, match) == null, "Rule type " + type + " with match '" + match + "' already exists!");
 
 		final File file = FileUtil.createIfNotExists("rules/" + type.getKey() + ".rs");

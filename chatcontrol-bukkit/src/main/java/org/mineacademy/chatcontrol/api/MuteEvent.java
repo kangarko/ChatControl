@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.api;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -33,26 +32,22 @@ public final class MuteEvent extends SimpleEvent implements Cancellable {
 	/**
 	 * The duration of the mute, null if we are UNmuting
 	 */
-	@Nullable
 	@Setter
 	private SimpleTime duration;
 
 	/**
 	 * The channel that got muted, or null if the event did not fire for a channel
 	 */
-	@Nullable
 	private Channel targetChannel;
 
 	/**
 	 * The player name who got muted, or null if the event did not fire for a player
 	 */
-	@Nullable
 	private String targetPlayerName;
 
 	/**
 	 * The player UUID who got muted, or null if the event did not fire for a player
 	 */
-	@Nullable
 	private UUID targetPlayerUniqueId;
 
 	/**

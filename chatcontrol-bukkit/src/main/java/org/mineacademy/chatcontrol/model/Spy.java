@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -73,7 +72,6 @@ public final class Spy {
 	/**
 	 * The channel associated with the spy
 	 */
-	@Nullable
 	private Channel channel;
 
 	/**
@@ -91,7 +89,6 @@ public final class Spy {
 	 * The custom format associated with this spy
 	 * If null, {@link Type#getFormat()} is used
 	 */
-	@Nullable
 	private String format;
 
 	/*

@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.api;
 
 import java.util.Set;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -32,7 +31,6 @@ public final class SpyEvent extends SimpleEvent implements Cancellable {
 	/**
 	 * The player who issued the message, may be null if coming from proxy for example
 	 */
-	@Nullable
 	private final WrappedSender sender;
 
 	/**

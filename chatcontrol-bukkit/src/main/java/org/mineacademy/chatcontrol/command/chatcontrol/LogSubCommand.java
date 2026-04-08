@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.chatcontrol.command.chatcontrol.ChatControlCommands.MainSubCommand;
@@ -275,7 +274,7 @@ public final class LogSubCommand extends MainSubCommand {
 	/*
 	 * Map chat key:value pairs parameters
 	 */
-	private SerializedMap mapParams(@Nullable final LogType type, final String line) {
+	private SerializedMap mapParams(final LogType type, final String line) {
 		final SerializedMap params = new SerializedMap();
 		final String[] words = line.split(" ");
 

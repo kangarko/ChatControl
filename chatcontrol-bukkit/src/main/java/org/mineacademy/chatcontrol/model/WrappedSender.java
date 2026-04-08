@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.model;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -32,13 +31,11 @@ public final class WrappedSender {
 	/**
 	 * The sender player, null if not applicable
 	 */
-	@Nullable
 	private final Player player;
 
 	/**
 	 * The sender player cache, null if not applicable
 	 */
-	@Nullable
 	private final PlayerCache playerCache;
 
 	/**
@@ -92,7 +89,6 @@ public final class WrappedSender {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public DiscordSender getDiscordSender() {
 		return this.isDiscord() ? (DiscordSender) this.sender : null;
 	}

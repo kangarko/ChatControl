@@ -8,7 +8,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -168,7 +167,7 @@ public final class Players {
 	 * @param broadcastStaffMessage
 	 * @param forced
 	 */
-	public static void clearChat(@Nullable final CommandSender sender, final boolean broadcastStaffMessage, final boolean forced) {
+	public static void clearChat(final CommandSender sender, final boolean broadcastStaffMessage, final boolean forced) {
 		for (final Player online : Players.getOnlinePlayersWithLoadedDb())
 			if (online.hasPermission(Permissions.Bypass.CLEAR) && !forced) {
 				if (broadcastStaffMessage && sender != null)

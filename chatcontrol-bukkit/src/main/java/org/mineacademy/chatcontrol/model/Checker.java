@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.SenderCache;
@@ -79,7 +78,6 @@ public final class Checker {
 	/**
 	 * Channel associated with this check
 	 */
-	@Nullable
 	private final Channel channel;
 
 	/**
@@ -115,7 +113,7 @@ public final class Checker {
 	 * @param message
 	 * @param channel
 	 */
-	private Checker(final LogType type, @NonNull final WrappedSender wrapped, final String message, @Nullable final Channel channel) throws EventHandledException {
+	private Checker(final LogType type, @NonNull final WrappedSender wrapped, final String message, final Channel channel) throws EventHandledException {
 		this.type = type;
 		this.wrapped = wrapped;
 		this.message = message;
@@ -134,7 +132,7 @@ public final class Checker {
 	 * @return
 	 * @throws EventHandledException
 	 */
-	public static Checker filterCommand(final WrappedSender wrapped, final String message, @Nullable final Channel channel) throws EventHandledException {
+	public static Checker filterCommand(final WrappedSender wrapped, final String message, final Channel channel) throws EventHandledException {
 		return new Checker(LogType.COMMAND, wrapped, message, channel);
 	}
 
@@ -147,7 +145,7 @@ public final class Checker {
 	 * @return
 	 * @throws EventHandledException
 	 */
-	public static Checker filterChannel(final WrappedSender wrapped, final String message, @Nullable final Channel channel) throws EventHandledException {
+	public static Checker filterChannel(final WrappedSender wrapped, final String message, final Channel channel) throws EventHandledException {
 		return new Checker(LogType.CHAT, wrapped, message, channel);
 	}
 

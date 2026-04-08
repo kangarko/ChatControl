@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
 
 import org.mineacademy.chatcontrol.api.PreRuleMatchEvent;
 import org.mineacademy.chatcontrol.model.Channel;
@@ -62,7 +61,6 @@ public class Rule extends RuleOperator {
 	/**
 	 * Apply rules from the given group name
 	 */
-	@Nullable
 	private String group;
 
 	/**
@@ -194,7 +192,7 @@ public class Rule extends RuleOperator {
 	 *
 	 * @return
 	 */
-	public static RuleCheck<Rule> filter(final RuleType type, final WrappedSender wrapped, final String message, @Nullable final Channel channel) {
+	public static RuleCheck<Rule> filter(final RuleType type, final WrappedSender wrapped, final String message, final Channel channel) {
 		final RuleCheck<Rule> check = new RuleCheck<>(type, wrapped, message, channel, null);
 
 		check.start();
@@ -210,7 +208,7 @@ public class Rule extends RuleOperator {
 	 * @param variables
 	 * @return
 	 */
-	public static RuleCheck<Rule> filter(final RuleType type, final WrappedSender wrapped, final String message, @Nullable final Map<String, Object> variables) {
+	public static RuleCheck<Rule> filter(final RuleType type, final WrappedSender wrapped, final String message, final Map<String, Object> variables) {
 		final RuleCheck<Rule> check = new RuleCheck<>(type, wrapped, message, null, variables);
 
 		check.start();
@@ -273,7 +271,7 @@ public class Rule extends RuleOperator {
 		 * @param wrapped
 		 * @param message
 		 */
-		protected RuleCheck(final RuleType type, @NonNull final WrappedSender wrapped, @NonNull final String message, @Nullable final Channel channel, @Nullable final Map<String, Object> variables) {
+		protected RuleCheck(final RuleType type, @NonNull final WrappedSender wrapped, @NonNull final String message, final Channel channel, final Map<String, Object> variables) {
 			super(wrapped, message, channel);
 
 			this.type = type;

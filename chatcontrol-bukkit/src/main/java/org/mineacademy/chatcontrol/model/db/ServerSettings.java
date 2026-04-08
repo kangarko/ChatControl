@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.model.db;
 
 import java.sql.SQLException;
 
-import javax.annotation.Nullable;
 
 import org.mineacademy.chatcontrol.api.MuteEvent;
 import org.mineacademy.fo.ValidCore;
@@ -99,7 +98,7 @@ public final class ServerSettings extends Row {
 	 *
 	 * @param duration how long, null to unmute
 	 */
-	public void setMuted(@Nullable SimpleTime duration) {
+	public void setMuted(SimpleTime duration) {
 		final MuteEvent event = MuteEvent.server(duration);
 
 		if (Platform.callEvent(event)) {

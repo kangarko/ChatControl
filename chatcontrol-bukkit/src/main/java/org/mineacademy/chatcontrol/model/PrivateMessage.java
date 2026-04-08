@@ -3,7 +3,6 @@ package org.mineacademy.chatcontrol.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -47,7 +46,6 @@ public final class PrivateMessage {
 	 */
 	public static void send(@NonNull final WrappedSender sender, @NonNull final SyncedCache receiverCache, @NonNull String message) throws EventHandledException {
 
-		@Nullable
 		final Player receiver = Bukkit.getPlayerExact(receiverCache.getPlayerName());
 		boolean playSound = true;
 		final PrePrivateMessageEvent event = new PrePrivateMessageEvent(sender, receiverCache, receiver, message, playSound);

@@ -529,7 +529,15 @@ public final class Settings extends SimpleSettings {
 			APPLY_ON = new HashSet<>(getSet("Apply_On", PlayerMessageType.class));
 			STOP_ON_FIRST_MATCH = new HashSet<>(getSet("Stop_On_First_Match", PlayerMessageType.class));
 			DISCORD = getMap("Discord", PlayerMessageType.class, Long.class);
-			PREFIX = getMap("Prefix", PlayerMessageType.class, String.class);
+
+			try {
+				PREFIX = getMap("Prefix", PlayerMessageType.class, String.class);
+			} catch (final FoException ex) {
+				throw new FoException("Failed to load 'Prefix' key in Messages section of settings.yml. "
+						+ "This key expects a map (with sub-keys like join, quit, etc.), not a plain string. "
+						+ "Please check your settings.yml format against the default configuration.", false);
+			}
+
 			DEFER_JOIN_MESSAGE_BY = getTime("Defer_Join_Message_By");
 			TIMED_DELAY = getTime("Timed_Delay");
 

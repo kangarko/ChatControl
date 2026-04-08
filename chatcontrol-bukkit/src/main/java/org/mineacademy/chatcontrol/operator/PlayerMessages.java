@@ -24,6 +24,7 @@ import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.FileUtil;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.exception.FoException;
+import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.RuleSetReader;
 import org.mineacademy.fo.model.SimpleTime;
 import org.mineacademy.fo.model.Task;
@@ -170,12 +171,13 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 */
 	public static void broadcast(final PlayerMessageType type, @Nullable final WrappedSender wrappedSender, final String originalMessage) {
 		synchronized (instance) {
+			final String convertedMessage = originalMessage != null ? CompChatColor.convertLegacyToMini(originalMessage, false) : originalMessage;
 			final OperatorCheck<?> check;
 
 			if (type == PlayerMessageType.DEATH) {
 				ValidCore.checkNotNull(wrappedSender, "Wrapped sender cannot be null for death messages");
 
-				check = new DeathMessageCheck(wrappedSender, originalMessage);
+				check = new DeathMessageCheck(wrappedSender, convertedMessage);
 			}
 
 			else if (type == PlayerMessageType.TIMED)
@@ -184,14 +186,14 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 			else {
 				ValidCore.checkNotNull(wrappedSender, "Wrapped sender cannot be null for join/kick/quit messages");
 
-				check = new JoinQuitKickCheck(type, wrappedSender, originalMessage);
+				check = new JoinQuitKickCheck(type, wrappedSender, convertedMessage);
 			}
 
-			if (Platform.callEvent(new PlayerMessageEvent(wrappedSender != null ? wrappedSender.getPlayer() : null, type, check, originalMessage)))
+			if (Platform.callEvent(new PlayerMessageEvent(wrappedSender != null ? wrappedSender.getPlayer() : null, type, check, convertedMessage)))
 				try {
 					check.start();
 				} catch (final Throwable t) {
-					CommonCore.error(t, "Failed to broadcast " + type + " message for sender " + wrappedSender + " with original message: " + originalMessage);
+					CommonCore.error(t, "Failed to broadcast " + type + " message for sender " + wrappedSender + " with original message: " + convertedMessage);
 				}
 		}
 	}

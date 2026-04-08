@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.api.PlayerMessageEvent;
@@ -169,7 +168,7 @@ public final class PlayerMessages extends RuleSetReader<PlayerMessage> {
 	 * @param wrappedSender
 	 * @param originalMessage
 	 */
-	public static void broadcast(final PlayerMessageType type, @Nullable final WrappedSender wrappedSender, final String originalMessage) {
+	public static void broadcast(final PlayerMessageType type, final WrappedSender wrappedSender, final String originalMessage) {
 		synchronized (instance) {
 			final String convertedMessage = originalMessage != null ? CompChatColor.convertLegacyToMini(originalMessage, false) : originalMessage;
 			final OperatorCheck<?> check;

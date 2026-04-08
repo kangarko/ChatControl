@@ -2,7 +2,6 @@ package org.mineacademy.chatcontrol.model.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +73,8 @@ public final class Database extends SimpleDatabase {
 			return;
 
 		// Upgrade table structure
-		this.migrateMailTable(ChatControlTable.MAIL);
+		this.migrateMailTable();
+		this.migrateLogsTable();
 
 		// Load caches
 		this.selectColumns(ChatControlTable.PLAYERS, Arrays.asList("UUID", "Name"), resultSet -> {
@@ -290,76 +290,96 @@ public final class Database extends SimpleDatabase {
 	/**
 	 * Migrate the mail table to the new format
 	 */
-	private void migrateMailTable(final Table table) {
+	private void migrateMailTable() {
 		try {
-			final boolean columnExists = this.doesColumnExist(table, "Sender");
+			if (this.doesColumnExist(ChatControlTable.MAIL, "Sender"))
+				return;
 
-			if (!columnExists) {
-				CommonCore.log("", "Migrating remote mail table to the new format...");
+			CommonCore.log("", "Migrating remote mail table to the new format...");
 
-				if (this.isSQLite()) {
-					this.batchUpdateUnsafe(Arrays.asList(
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Sender` varchar(64);",
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Sender_Deleted` tinyint(1) DEFAULT 0;",
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Recipients` longtext;",
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Body` longtext;",
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Send_Date` bigint(20) DEFAULT 0;",
-							"ALTER TABLE " + table.getName() + " ADD COLUMN `Auto_Reply` tinyint(1) DEFAULT 0;"));
+			final String tableName = ChatControlTable.MAIL.getName();
 
-				} else {
-					final String alterSQL = "ALTER TABLE " + table.getName() + " "
-							+ "ADD COLUMN `Sender` varchar(64), "
-							+ "ADD COLUMN `Sender_Deleted` tinyint(1) DEFAULT 0, "
-							+ "ADD COLUMN `Recipients` longtext, "
-							+ "ADD COLUMN `Body` longtext, "
-							+ "ADD COLUMN `Send_Date` bigint(20) DEFAULT 0, "
-							+ "ADD COLUMN `Auto_Reply` tinyint(1) DEFAULT 0;";
+			if (this.isSQLite()) {
+				this.batchUpdateUnsafe(Arrays.asList(
+						"ALTER TABLE " + tableName + " ADD COLUMN `Sender` varchar(64);",
+						"ALTER TABLE " + tableName + " ADD COLUMN `Sender_Deleted` tinyint(1) DEFAULT 0;",
+						"ALTER TABLE " + tableName + " ADD COLUMN `Recipients` longtext;",
+						"ALTER TABLE " + tableName + " ADD COLUMN `Body` longtext;",
+						"ALTER TABLE " + tableName + " ADD COLUMN `Send_Date` bigint(20) DEFAULT 0;",
+						"ALTER TABLE " + tableName + " ADD COLUMN `Auto_Reply` tinyint(1) DEFAULT 0;"));
 
-					try (PreparedStatement statement = this.prepareStatement(alterSQL)) {
-						statement.executeUpdate();
-					}
+			} else
+				this.updateUnsafe("ALTER TABLE " + tableName + " "
+						+ "ADD COLUMN `Sender` varchar(64), "
+						+ "ADD COLUMN `Sender_Deleted` tinyint(1) DEFAULT 0, "
+						+ "ADD COLUMN `Recipients` longtext, "
+						+ "ADD COLUMN `Body` longtext, "
+						+ "ADD COLUMN `Send_Date` bigint(20) DEFAULT 0, "
+						+ "ADD COLUMN `Auto_Reply` tinyint(1) DEFAULT 0");
+
+			final String selectSQL = "SELECT UUID, Data FROM " + tableName + " WHERE Sender IS NULL";
+			final String updateSQL = "UPDATE " + tableName + " SET Sender = ?, Sender_Deleted = ?, Recipients = ?, Body = ?, Send_Date = ?, Auto_Reply = ? WHERE UUID = ?";
+
+			try (PreparedStatement selectStatement = this.prepareStatement(selectSQL);
+					PreparedStatement updateStatement = this.prepareStatement(updateSQL);
+					ResultSet resultSet = selectStatement.executeQuery()) {
+
+				while (resultSet.next()) {
+					final String uuid = resultSet.getString("UUID");
+					final String rawData = resultSet.getString("Data");
+
+					final SerializedMap map = SerializedMap.fromObject(Language.JSON, rawData);
+					final UUID sender = map.getUniqueId("Sender");
+					final boolean senderDeleted = map.getBoolean("Sender_Deleted", false);
+					final List<Recipient> recipients = map.getList("Recipients", Recipient.class);
+					final SimpleBook body = map.get("Body", SimpleBook.class);
+					final long sendDate = map.getLong("Send_Date", 0L);
+					final boolean autoReply = map.getBoolean("Auto_Reply", false);
+
+					updateStatement.setString(1, sender != null ? sender.toString() : null);
+					updateStatement.setBoolean(2, senderDeleted);
+					updateStatement.setString(3, SerializeUtilCore.serialize(Language.JSON, recipients).toString());
+					updateStatement.setString(4, body.serialize().toJson());
+					updateStatement.setLong(5, sendDate);
+					updateStatement.setBoolean(6, autoReply);
+					updateStatement.setString(7, uuid);
+
+					updateStatement.executeUpdate();
 				}
-
-				final String selectSQL = "SELECT UUID, Data FROM " + table.getName() + " WHERE Sender IS NULL"; // Only process old rows
-				final String updateSQL = "UPDATE " + table.getName() + " SET Sender = ?, Sender_Deleted = ?, Recipients = ?, Body = ?, Send_Date = ?, Auto_Reply = ? WHERE UUID = ?";
-
-				try (PreparedStatement selectStatement = this.prepareStatement(selectSQL);
-						PreparedStatement updateStatement = this.prepareStatement(updateSQL);
-						ResultSet resultSet = selectStatement.executeQuery()) {
-
-					while (resultSet.next()) {
-						final String uuid = resultSet.getString("UUID");
-						final String rawData = resultSet.getString("Data");
-
-						final SerializedMap map = SerializedMap.fromObject(Language.JSON, rawData);
-						final UUID sender = map.getUniqueId("Sender");
-						final boolean senderDeleted = map.getBoolean("Sender_Deleted", false);
-						final List<Recipient> recipients = map.getList("Recipients", Recipient.class);
-						final SimpleBook body = map.get("Body", SimpleBook.class);
-						final long sendDate = map.getLong("Send_Date", 0L);
-						final boolean autoReply = map.getBoolean("Auto_Reply", false);
-
-						updateStatement.setString(1, sender != null ? sender.toString() : null);
-						updateStatement.setBoolean(2, senderDeleted);
-						updateStatement.setString(3, SerializeUtilCore.serialize(Language.JSON, recipients).toString());
-						updateStatement.setString(4, body.serialize().toJson());
-						updateStatement.setLong(5, sendDate);
-						updateStatement.setBoolean(6, autoReply);
-						updateStatement.setString(7, uuid);
-
-						updateStatement.executeUpdate();
-					}
-				}
-
-				try (PreparedStatement dropStatement = this.prepareStatement("ALTER TABLE " + table.getName() + " DROP COLUMN Data")) {
-					dropStatement.executeUpdate();
-				}
-
-				CommonCore.log("Migrated mail table to the new format.");
 			}
 
-		} catch (final SQLException ex) {
-			CommonCore.error(ex, "Error updating " + table.getName() + " table.");
+			this.updateUnsafe("ALTER TABLE " + tableName + " DROP COLUMN Data");
+
+			CommonCore.log("Migrated mail table to the new format.");
+
+		} catch (final Throwable ex) {
+			CommonCore.error(ex, "Error migrating mail table. If you get errors related to the 'Sender' column, delete the mail table and let it be recreated.");
+		}
+	}
+
+	private void migrateLogsTable() {
+		try {
+			if (this.doesColumnExist(ChatControlTable.LOGS, "Id"))
+				return;
+
+			CommonCore.log("", "Migrating logs table to add Id column...");
+
+			final String tableName = ChatControlTable.LOGS.getName();
+
+			if (this.isSQLite()) {
+				this.batchUpdateUnsafe(Arrays.asList(
+						"CREATE TABLE " + tableName + "_new (Id INTEGER PRIMARY KEY AUTOINCREMENT, Server TEXT, Date DATETIME DEFAULT NULL, Type TEXT, Sender TEXT, Receiver TEXT, Content TEXT, ChannelName TEXT, RuleName TEXT, RuleGroupName TEXT)",
+						"INSERT INTO " + tableName + "_new (Server, Date, Type, Sender, Receiver, Content, ChannelName, RuleName, RuleGroupName) SELECT Server, Date, Type, Sender, Receiver, Content, ChannelName, RuleName, RuleGroupName FROM " + tableName,
+						"DROP TABLE " + tableName,
+						"ALTER TABLE " + tableName + "_new RENAME TO " + tableName));
+
+			} else
+				this.updateUnsafe("ALTER TABLE " + tableName + " ADD COLUMN `Id` int AUTO_INCREMENT PRIMARY KEY FIRST");
+
+			CommonCore.log("Migrated logs table.");
+
+		} catch (final Throwable ex) {
+			CommonCore.error(ex, "Error migrating logs table. If you get errors related to the 'Id' column, delete the logs table and let it be recreated.");
 		}
 	}
 

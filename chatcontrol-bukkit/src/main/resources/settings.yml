@@ -456,6 +456,9 @@ Rules:
   Case_Insensitive: true
   
   # Evaluate the "match" operator using the unicode flag? Enable for non-English servers.
+  # This makes \b word boundaries and \w character classes recognize accented letters
+  # (e.g. č, š, á, ñ, ø) as word characters, which is required for rules that match
+  # words with diacritics. Without this, \b only treats [a-zA-Z0-9_] as word characters.
   # [TIP] When testing on regex101.com make sure you toggle the "unicode" flag on.
   Unicode: false
   

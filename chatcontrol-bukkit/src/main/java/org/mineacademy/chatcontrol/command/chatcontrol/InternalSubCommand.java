@@ -12,6 +12,7 @@ import org.mineacademy.chatcontrol.model.db.Database;
 import org.mineacademy.chatcontrol.model.db.Log;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.CommonCore;
+import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.ProxyUtil;
 import org.mineacademy.fo.SerializeUtilCore.Language;
 import org.mineacademy.fo.collection.SerializedMap;
@@ -48,6 +49,10 @@ public final class InternalSubCommand extends MainSubCommand {
 	@Override
 	protected void onCommand() {
 		final String param = this.args[0];
+
+		if (!ValidCore.isUUID(this.args[1]))
+			this.returnInvalidArgs(this.args[1]);
+
 		final UUID uuid = UUID.fromString(this.args[1]);
 
 		if ("log-book".equals(param)) {

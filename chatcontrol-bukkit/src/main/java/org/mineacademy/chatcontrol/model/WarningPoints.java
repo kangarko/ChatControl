@@ -183,7 +183,14 @@ public final class WarningPoints {
 					}
 
 				} else
-					Platform.dispatchConsoleCommand(audience, commandLine);
+					try {
+						Platform.dispatchConsoleCommand(audience, commandLine);
+
+					} catch (final Throwable throwable) {
+						CommonCore.warning("Failed to execute warning point action command for " + audience.getName() + ", command: " + commandLine);
+
+						throwable.printStackTrace();
+					}
 			}
 
 			return warned;

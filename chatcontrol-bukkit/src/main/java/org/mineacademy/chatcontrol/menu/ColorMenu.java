@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.fo.ChatUtil;
+import org.mineacademy.fo.MinecraftVersion;
+import org.mineacademy.fo.MinecraftVersion.V;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.MenuPaged;
 import org.mineacademy.fo.menu.button.Button;
@@ -25,6 +27,7 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 
 	private final PlayerCache cache;
 	private final List<Button> decorationButtons = new ArrayList<>();
+	private final Button gradientButton;
 	private final Button resetColorButton;
 	private final Button resetDecorationButton;
 	private final Button emptyButton;
@@ -41,6 +44,7 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 		this.loadDecorations(player);
 
 		if (super.getPages().get(0).isEmpty() && this.decorationButtons.isEmpty()) {
+			this.gradientButton = Button.makeEmpty();
 			this.resetColorButton = Button.makeEmpty();
 			this.resetDecorationButton = Button.makeEmpty();
 
@@ -52,8 +56,17 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 			return;
 		}
 
+		if (MinecraftVersion.atLeast(V.v1_16))
+			this.gradientButton = Button.makeSimple(ItemCreator.from(CompMaterial.EXPERIENCE_BOTTLE,
+					Lang.legacy("menu-color-button-gradient-title"),
+					Lang.legacy("menu-color-button-gradient-lore")),
+					clicker -> GradientMenu.showTo(ColorMenu.this, clicker));
+		else
+			this.gradientButton = Button.makeEmpty();
+
 		this.resetColorButton = Button.makeSimple(ItemCreator.from(CompMaterial.GLASS, Lang.legacy("menu-color-button-reset-color-title")), clicker -> {
 			this.cache.setChatColorNoSave(null);
+			this.cache.setChatGradientNoSave(null);
 			this.cache.upsert();
 
 			this.restartMenu(Lang.legacy("menu-color-color-reset"));
@@ -131,6 +144,9 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 		if (slot >= 9 * 3 && slot - 9 * 3 < this.decorationButtons.size())
 			return this.decorationButtons.get(slot - 9 * 3).getItem();
 
+		if (slot == this.getSize() - 3)
+			return this.gradientButton.getItem();
+
 		if (slot == this.getSize() - 2)
 			return this.resetDecorationButton.getItem();
 
@@ -164,8 +180,17 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 	 */
 	@Override
 	protected String[] getInfo() {
+		final String colorDisplay;
+
+		if (this.cache.hasChatGradient())
+			colorDisplay = Colors.getGradientDisplayName(this.cache.getChatGradient());
+		else if (this.cache.hasChatColor())
+			colorDisplay = this.cache.getChatColor().toColorizedChatString();
+		else
+			colorDisplay = Lang.plain("part-none");
+
 		return Lang.legacy("menu-color-help",
-				"color", this.cache.hasChatColor() ? this.cache.getChatColor().toColorizedChatString() : Lang.plain("part-none"),
+				"color", colorDisplay,
 				"decoration", this.cache.hasChatDecoration() ? this.cache.getChatDecoration().toColorizedChatString() : Lang.plain("part-none"))
 				.split("\n");
 	}

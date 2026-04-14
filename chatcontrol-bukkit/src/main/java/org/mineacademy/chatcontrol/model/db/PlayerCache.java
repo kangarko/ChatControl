@@ -33,6 +33,7 @@ import org.mineacademy.chatcontrol.model.Spy;
 import org.mineacademy.chatcontrol.model.ToggleType;
 import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.chatcontrol.model.db.Mail.Recipient;
+import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.operator.PlayerMessage;
 import org.mineacademy.chatcontrol.operator.Tag;
 import org.mineacademy.chatcontrol.settings.Settings;
@@ -86,6 +87,11 @@ public final class PlayerCache extends Row {
 	 * The chat color
 	 */
 	private CompChatColor chatColor;
+
+	/**
+	 * The chat gradient (from-to color pair), mutually exclusive with chatColor
+	 */
+	private Tuple<CompChatColor, CompChatColor> chatGradient;
 
 	/**
 	 * The chat decoration
@@ -211,6 +217,7 @@ public final class PlayerCache extends Row {
 		// Load from the JSON data map
 		this.chatColor = map.get("Chat_Color", CompChatColor.class);
 		this.chatDecoration = map.get("Chat_Decoration", CompChatColor.class);
+		this.chatGradient = map.containsKey("Chat_Gradient") ? Tuple.deserialize(map.getString("Chat_Gradient"), CompChatColor.class, CompChatColor.class) : null;
 		this.leftChannels = map.getSet("Left_Channels", String.class);
 		this.ignoredPlayers = map.getSet("Ignored_Players", UUID.class);
 		this.toggledOffParts = map.getSet("Ignored_Parts", ToggleType.class);
@@ -271,6 +278,9 @@ public final class PlayerCache extends Row {
 
 		data.putIfExists("Chat_Color", this.chatColor);
 		data.putIfExists("Chat_Decoration", this.chatDecoration);
+
+		if (this.chatGradient != null)
+			data.put("Chat_Gradient", this.chatGradient.getKey().toSaveableString() + " - " + this.chatGradient.getValue().toSaveableString());
 		data.putIfNotEmpty("Left_Channels", this.leftChannels);
 		data.putIfNotEmpty("Ignored_Players", this.ignoredPlayers);
 		data.putIfNotEmpty("Ignored_Parts", this.toggledOffParts);
@@ -300,6 +310,7 @@ public final class PlayerCache extends Row {
 
 		this.chatColor = map.get("Chat_Color", CompChatColor.class);
 		this.chatDecoration = map.get("Chat_Decoration", CompChatColor.class);
+		this.chatGradient = map.containsKey("Chat_Gradient") ? Tuple.deserialize(map.getString("Chat_Gradient"), CompChatColor.class, CompChatColor.class) : null;
 		this.leftChannels = map.getSet("Left_Channels", String.class);
 		this.ignoredPlayers = map.getSet("Ignored_Players", UUID.class);
 		this.toggledOffParts = map.getSet("Ignored_Parts", ToggleType.class);
@@ -434,6 +445,20 @@ public final class PlayerCache extends Row {
 			save = true;
 		}
 
+		if (this.hasChatGradient()) {
+			if (!player.hasPermission(Colors.getReadableGuiColorPermission(player, this.chatGradient.getKey()))
+					|| !player.hasPermission(Colors.getReadableGuiColorPermission(player, this.chatGradient.getValue()))) {
+
+				// Also accept preconfigured gradient permission
+				if (!Colors.hasPermissionForGradient(player, this.chatGradient)) {
+					LogUtil.logTip("TIP Alert: Removing chat gradient due to lost permission");
+
+					this.setChatGradientNoSave(null);
+					save = true;
+				}
+			}
+		}
+
 		if (this.hasChatDecoration() && !player.hasPermission(Colors.getReadableGuiColorPermission(player, this.chatDecoration))) {
 			LogUtil.logTip("TIP Alert: Removing chat decoration due to lost permission");
 
@@ -547,6 +572,15 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
+	 * Return if a chat gradient has been set
+	 *
+	 * @return
+	 */
+	public boolean hasChatGradient() {
+		return this.chatGradient != null;
+	}
+
+	/**
 	 * Return if the chat decoration has been set
 	 *
 	 * @return
@@ -556,12 +590,27 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
-	 * Set a new chat color
+	 * Set a new chat color, clears gradient if non-null
 	 *
 	 * @param chatColor
 	 */
 	public void setChatColorNoSave(final CompChatColor chatColor) {
 		this.chatColor = chatColor;
+
+		if (chatColor != null)
+			this.chatGradient = null;
+	}
+
+	/**
+	 * Set a new chat gradient (two-color transition), clears single color if non-null
+	 *
+	 * @param chatGradient
+	 */
+	public void setChatGradientNoSave(final Tuple<CompChatColor, CompChatColor> chatGradient) {
+		this.chatGradient = chatGradient;
+
+		if (chatGradient != null)
+			this.chatColor = null;
 	}
 
 	/**

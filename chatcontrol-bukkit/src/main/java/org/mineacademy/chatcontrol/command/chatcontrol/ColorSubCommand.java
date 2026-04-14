@@ -13,6 +13,7 @@ import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.MinecraftVersion.V;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
+import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.settings.Lang;
 
 public final class ColorSubCommand extends MainSubCommand {
@@ -81,15 +82,20 @@ public final class ColorSubCommand extends MainSubCommand {
 				return;
 
 			} else if ("status".equals(colorName)) {
-				this.checkBoolean(cache.hasChatColor() || cache.hasChatDecoration(), Lang.component("command-color-not-saved", "player", cache.getPlayerName()));
+				this.checkBoolean(cache.hasChatColor() || cache.hasChatGradient() || cache.hasChatDecoration(), Lang.component("command-color-not-saved", "player", cache.getPlayerName()));
 
 				String message = cache.getPlayerName() + " " + Lang.plain("part-has") + " ";
 
-				if (cache.hasChatColor())
+				if (cache.hasChatGradient()) {
+					final Tuple<CompChatColor, CompChatColor> gradient = cache.getChatGradient();
+
+					message += gradient.getKey().toColorizedChatString() + " - " + gradient.getValue().toColorizedChatString() + " gradient " + Lang.legacy("command-color-chat-color");
+
+				} else if (cache.hasChatColor())
 					message += cache.getChatColor().toColorizedChatString() + " " + Lang.legacy("command-color-chat-color");
 
 				if (cache.hasChatDecoration())
-					message += (cache.hasChatColor() ? " " + Lang.plain("part-and") + " " : "") + cache.getChatDecoration().getName() + " " + Lang.legacy("command-color-decoration");
+					message += ((cache.hasChatColor() || cache.hasChatGradient()) ? " " + Lang.plain("part-and") + " " : "") + cache.getChatDecoration().getName() + " " + Lang.legacy("command-color-decoration");
 
 				this.tellInfo(message + ".");
 				return;
@@ -97,27 +103,54 @@ public final class ColorSubCommand extends MainSubCommand {
 			} else if ("reset".equals(colorName) || "default".equals(colorName)) {
 				if ("reset".equals(colorName)) {
 					cache.setChatColorNoSave(null);
+					cache.setChatGradientNoSave(null);
 
 					colorReset = true;
 				}
 
 			} else {
-				CompChatColor color;
+				final int dashIndex = colorName.indexOf('-');
 
-				try {
-					color = CompChatColor.fromString(colorName);
+				if (dashIndex > 0 && dashIndex < colorName.length() - 1) {
+					final String fromStr = colorName.substring(0, dashIndex);
+					final String toStr = colorName.substring(dashIndex + 1);
 
-				} catch (final IllegalArgumentException ex) {
-					this.tellError(Lang.component("command-color-invalid-color-" + (hasHex ? "hex" : "legacy"), "available", Colors.getGuiColorsForPermission(this.getSender())));
+					try {
+						final CompChatColor from = CompChatColor.fromString(fromStr);
+						final CompChatColor to = CompChatColor.fromString(toStr);
 
-					return;
+						this.checkBoolean(from.getColor() != null && to.getColor() != null, Lang.component("command-color-decoration-not-allowed"));
+						this.checkBoolean(hasHex, Lang.component("command-color-invalid-color-legacy", "available", Colors.getGuiColorsForPermission(this.getSender())));
+						this.checkPerm(Colors.getReadableGuiColorPermission(this.getSender(), from));
+						this.checkPerm(Colors.getReadableGuiColorPermission(this.getSender(), to));
+
+						cache.setChatGradientNoSave(new Tuple<>(from, to));
+						colorSet = true;
+
+					} catch (final IllegalArgumentException ex) {
+						this.tellError(Lang.component("command-color-invalid-color-" + (hasHex ? "hex" : "legacy"), "available", Colors.getGuiColorsForPermission(this.getSender())));
+
+						return;
+					}
+
+				} else {
+					CompChatColor color;
+
+					try {
+						color = CompChatColor.fromString(colorName);
+
+					} catch (final IllegalArgumentException ex) {
+						this.tellError(Lang.component("command-color-invalid-color-" + (hasHex ? "hex" : "legacy"), "available", Colors.getGuiColorsForPermission(this.getSender())));
+
+						return;
+					}
+
+					this.checkBoolean(color.getColor() != null, Lang.component("command-color-decoration-not-allowed"));
+					this.checkPerm(Colors.getReadableGuiColorPermission(this.getSender(), color));
+
+					cache.setChatColorNoSave(color);
+					colorSet = true;
 				}
-
-				this.checkBoolean(color.getColor() != null, Lang.component("command-color-decoration-not-allowed"));
-				this.checkPerm(Colors.getReadableGuiColorPermission(this.getSender(), color));
-
-				cache.setChatColorNoSave(color);
-				colorSet = true;
 			}
 
 			if ("reset".equals(decorationName)) {
@@ -160,9 +193,25 @@ public final class ColorSubCommand extends MainSubCommand {
 				modeLangPrefix = "no-change";
 
 			if (modeLangPrefix != null) {
+				final String colorDisplay;
+
+				if (colorSet && cache.hasChatGradient()) {
+					final Tuple<CompChatColor, CompChatColor> gradient = cache.getChatGradient();
+
+					colorDisplay = gradient.getKey().toColorizedChatString() + " - " + gradient.getValue().toColorizedChatString();
+
+				} else if (colorSet && cache.hasChatColor())
+					colorDisplay = cache.getChatColor().toColorizedChatString();
+
+				else if (decorationSet)
+					colorDisplay = cache.getChatDecoration().toColorizedChatString();
+
+				else
+					colorDisplay = "";
+
 				this.tellSuccess(Lang.component("command-color-" + modeLangPrefix,
 						"player", playerName,
-						"color", (colorSet ? cache.getChatColor().toColorizedChatString() : decorationSet ? cache.getChatDecoration().toColorizedChatString() : ""),
+						"color", colorDisplay,
 						"decoration", (decorationSet ? cache.getChatDecoration().toColorizedChatString() : "")));
 			}
 

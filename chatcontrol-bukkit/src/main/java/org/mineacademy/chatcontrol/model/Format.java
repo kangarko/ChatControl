@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.chatcontrol.model.Packets.RemoveMode;
+import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.CommonCore;
@@ -148,6 +149,26 @@ public final class Format extends YamlConfig {
 		if (sender != null && sender.isPlayer())
 			for (final Map.Entry<String, Object> data : sender.getPlayerCache().getRuleData().entrySet())
 				placeholdersCopy.put("data_" + data.getKey(), SerializeUtilCore.serialize(Language.YAML, data.getValue()).toString());
+
+		if (sender != null && sender.isPlayer() && placeholdersCopy.containsKey("message")) {
+			final PlayerCache cache = sender.getPlayerCache();
+
+			if (cache.hasChatGradient()) {
+				final Tuple<CompChatColor, CompChatColor> gradient = cache.getChatGradient();
+				final String gradientFrom = gradient.getKey().asHexString().substring(3);
+				final String gradientTo = gradient.getValue().asHexString().substring(3);
+
+				final Object messageObj = placeholdersCopy.get("message");
+				final String messageStr;
+
+				if (messageObj instanceof SimpleComponent)
+					messageStr = ((SimpleComponent) messageObj).toMini(sender.getAudience());
+				else
+					messageStr = messageObj.toString();
+
+				placeholdersCopy.put("message", "<gradient:#" + gradientFrom + ":#" + gradientTo + ">" + messageStr + "</gradient>");
+			}
+		}
 
 		if (!placeholdersCopy.containsKey("message_uuid")) {
 			messageId = UUID.randomUUID();

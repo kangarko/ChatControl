@@ -170,6 +170,9 @@ public final class Permissions {
 		@Permission("Allow players use hex colors in /{label_main} color command and menu. Append color at the end with code such as ccffdd without #.")
 		public static final String HEXGUICOLOR = "chatcontrol.hexguicolor.";
 
+		@Permission("Allow players use gradients in /{label_main} color menu. Append gradient name at the end such as sunset.")
+		public static final String GUIGRADIENT = "chatcontrol.guigradient.";
+
 		@Permission(value = "Allow players use & and hex colors. Append Colors.Apply_On sections from settings.yml at the end (by default players can use colors everywhere)", def = true)
 		public static final String USE = "chatcontrol.use.color.";
 	}

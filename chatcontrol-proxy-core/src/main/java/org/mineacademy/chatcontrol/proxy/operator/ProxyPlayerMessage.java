@@ -487,6 +487,22 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 				message.setLastExecuted(now);
 			}
 
+			// Player Delay
+			if (message.getPlayerDelay() != null && this.audience != null) {
+				final SimpleTime time = message.getPlayerDelay().getKey();
+				final long now = System.currentTimeMillis();
+
+				final long delay = Math.round((now - message.getLastExecutedForPlayer(this.audience.getName())) / 1000D);
+
+				if (delay < time.getTimeSeconds()) {
+					Debugger.debug("operator", "\tbefore player delay: " + delay + " threshold: " + time.getTimeSeconds());
+
+					return;
+				}
+
+				message.setLastExecutedForPlayer(this.audience.getName());
+			}
+
 			boolean pickedMessage = false;
 
 			for (final FoundationPlayer online : Platform.getOnlinePlayers()) {

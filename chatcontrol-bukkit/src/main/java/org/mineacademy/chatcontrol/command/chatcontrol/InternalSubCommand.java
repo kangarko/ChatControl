@@ -1,6 +1,7 @@
 package org.mineacademy.chatcontrol.command.chatcontrol;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.mineacademy.chatcontrol.command.chatcontrol.ChatControlCommands.MainSubCommand;
 import org.mineacademy.chatcontrol.model.ChatControlProxyMessage;
@@ -14,6 +15,7 @@ import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.ProxyUtil;
 import org.mineacademy.fo.SerializeUtilCore.Language;
 import org.mineacademy.fo.collection.SerializedMap;
+import org.mineacademy.fo.exception.HandledException;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.model.SimpleBook;
 import org.mineacademy.fo.settings.Lang;
@@ -47,7 +49,17 @@ public final class InternalSubCommand extends MainSubCommand {
 	@Override
 	protected void onCommand() {
 		final String param = this.args[0];
-		final java.util.UUID uuid = this.findUUID(1);
+
+		final UUID uuid;
+
+		try {
+			uuid = UUID.fromString(this.args[1]);
+
+		} catch (final IllegalArgumentException ex) {
+			CommonCore.warning("Invalid internal command usage: /" + this.getLabel() + " internal " + String.join(" ", this.args));
+
+			throw new HandledException(ex);
+		}
 
 		if ("log-book".equals(param)) {
 			this.checkConsole();

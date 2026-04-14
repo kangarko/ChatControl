@@ -1,7 +1,6 @@
 package org.mineacademy.chatcontrol.command.chatcontrol;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.mineacademy.chatcontrol.command.chatcontrol.ChatControlCommands.MainSubCommand;
 import org.mineacademy.chatcontrol.model.ChatControlProxyMessage;
@@ -48,7 +47,7 @@ public final class InternalSubCommand extends MainSubCommand {
 	@Override
 	protected void onCommand() {
 		final String param = this.args[0];
-		final UUID uuid = UUID.fromString(this.args[1]);
+		final java.util.UUID uuid = this.findUUID(1);
 
 		if ("log-book".equals(param)) {
 			this.checkConsole();

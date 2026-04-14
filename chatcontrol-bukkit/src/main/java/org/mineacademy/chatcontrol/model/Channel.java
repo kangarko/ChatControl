@@ -59,7 +59,9 @@ import org.mineacademy.fo.settings.YamlConfig;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 /**
  * Represents a chat channel
@@ -820,9 +822,6 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 	 * @param logBypass
 	 */
 	public void processProxyMessage(final String senderName, final UUID senderUid, SimpleComponent formattedMessage, final String consoleLog, final boolean muteBypass, final boolean ignoreBypass, final boolean logBypass) {
-		if (formattedMessage.toPlain(null).trim().isEmpty())
-			return;
-
 		final Tuple<Set<Player>, Set<Player>> tuple = this.compileReceivers(null);
 
 		final Set<Player> receivers = tuple.getKey();
@@ -871,8 +870,24 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 
 		receivers.addAll(hiddenReceivers);
 
-		for (final Player receiver : receivers)
-			Common.tell(receiver, formattedMessage);
+		if (!formattedMessage.hasReceiverConditions()) {
+			final Component builtComponent = formattedMessage.toAdventure(null);
+			final String plainText = PlainTextComponentSerializer.plainText().serialize(builtComponent).trim();
+
+			if (plainText.isEmpty() || plainText.equals("none"))
+				return;
+
+			if (plainText.startsWith("<actionbar>") || plainText.startsWith("<toast>") || plainText.startsWith("<title>") || plainText.startsWith("<bossbar>") || plainText.startsWith("<center>"))
+				for (final Player receiver : receivers)
+					Common.tell(receiver, formattedMessage);
+			else
+				for (final Player receiver : receivers)
+					Platform.toPlayer(receiver).sendMessage(builtComponent);
+		} else {
+			for (final Player receiver : receivers)
+				if (!formattedMessage.isEmpty(Platform.toPlayer(receiver)))
+					Common.tell(receiver, formattedMessage);
+		}
 
 		if (this.sound != null)
 			for (final Player receiver : receivers)

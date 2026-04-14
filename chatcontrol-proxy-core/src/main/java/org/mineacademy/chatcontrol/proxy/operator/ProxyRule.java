@@ -20,7 +20,6 @@ import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.JavaScriptExecutor;
 import org.mineacademy.fo.model.SimpleComponent;
-import org.mineacademy.fo.model.SimpleTime;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.platform.FoundationPlayer;
 
@@ -205,33 +204,8 @@ public final class ProxyRule extends ProxyOperator {
 			if (!this.canFilterRule(rule))
 				return;
 
-			if (rule.getDelay() != null) {
-				final SimpleTime time = rule.getDelay().getKey();
-				final long now = System.currentTimeMillis();
-				final long delay = Math.round((now - rule.getLastExecuted()) / 1000D);
-
-				if (delay < time.getTimeSeconds()) {
-					Debugger.debug("operator", "\tbefore delay: " + delay + " threshold: " + time.getTimeSeconds());
-
-					return;
-				}
-
-				rule.setLastExecuted(now);
-			}
-
-			if (rule.getPlayerDelay() != null && this.audience != null) {
-				final SimpleTime time = rule.getPlayerDelay().getKey();
-				final long now = System.currentTimeMillis();
-				final long delay = Math.round((now - rule.getLastExecutedForPlayer(this.audience.getName())) / 1000D);
-
-				if (delay < time.getTimeSeconds()) {
-					Debugger.debug("operator", "\tbefore player delay: " + delay + " threshold: " + time.getTimeSeconds());
-
-					return;
-				}
-
-				rule.setLastExecutedForPlayer(this.audience.getName());
-			}
+			if (!this.isAfterDelay(rule))
+				return;
 
 			this.executeOperators(rule);
 

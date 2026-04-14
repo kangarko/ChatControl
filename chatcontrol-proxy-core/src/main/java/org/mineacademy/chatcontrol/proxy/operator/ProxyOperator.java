@@ -22,6 +22,7 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.RandomUtil;
 import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.collection.SerializedMap;
+import org.mineacademy.fo.debug.Debugger;
 import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.Rule;
@@ -520,6 +521,43 @@ public abstract class ProxyOperator implements Rule {
 
 			if (operator.isIgnorePlayedBefore() && this.audience.isPlayer() && cache.isPlayerRegistered(this.audience.getUniqueId()))
 				return false;
+
+			return true;
+		}
+
+		/**
+		 * Return true if this operator's global and per-player delays have elapsed.
+		 * Updates the last-executed timestamps as a side effect.
+		 */
+		protected final boolean isAfterDelay(final T operator) {
+
+			if (operator.getDelay() != null) {
+				final SimpleTime time = operator.getDelay().getKey();
+				final long now = System.currentTimeMillis();
+				final long delay = Math.round((now - operator.getLastExecuted()) / 1000D);
+
+				if (delay < time.getTimeSeconds()) {
+					Debugger.debug("operator", "\tbefore delay: " + delay + " threshold: " + time.getTimeSeconds());
+
+					return false;
+				}
+
+				operator.setLastExecuted(now);
+			}
+
+			if (operator.getPlayerDelay() != null && this.audience != null) {
+				final SimpleTime time = operator.getPlayerDelay().getKey();
+				final long now = System.currentTimeMillis();
+				final long delay = Math.round((now - operator.getLastExecutedForPlayer(this.audience.getName())) / 1000D);
+
+				if (delay < time.getTimeSeconds()) {
+					Debugger.debug("operator", "\tbefore player delay: " + delay + " threshold: " + time.getTimeSeconds());
+
+					return false;
+				}
+
+				operator.setLastExecutedForPlayer(this.audience.getName());
+			}
 
 			return true;
 		}

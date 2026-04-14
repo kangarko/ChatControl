@@ -470,38 +470,8 @@ public abstract class ProxyPlayerMessage extends ProxyOperator {
 
 			Debugger.debug("operator", "FILTERING " + message.getUniqueName());
 
-			// Delay
-			if (message.getDelay() != null) {
-				final SimpleTime time = message.getDelay().getKey();
-				final long now = System.currentTimeMillis();
-
-				// Round the number due to Bukkit scheduler lags
-				final long delay = Math.round((now - message.getLastExecuted()) / 1000D);
-
-				if (delay < time.getTimeSeconds()) {
-					Debugger.debug("operator", "\tbefore delay: " + delay + " threshold: " + time.getTimeSeconds());
-
-					return;
-				}
-
-				message.setLastExecuted(now);
-			}
-
-			// Player Delay
-			if (message.getPlayerDelay() != null && this.audience != null) {
-				final SimpleTime time = message.getPlayerDelay().getKey();
-				final long now = System.currentTimeMillis();
-
-				final long delay = Math.round((now - message.getLastExecutedForPlayer(this.audience.getName())) / 1000D);
-
-				if (delay < time.getTimeSeconds()) {
-					Debugger.debug("operator", "\tbefore player delay: " + delay + " threshold: " + time.getTimeSeconds());
-
-					return;
-				}
-
-				message.setLastExecutedForPlayer(this.audience.getName());
-			}
+			if (!this.isAfterDelay(message))
+				return;
 
 			boolean pickedMessage = false;
 

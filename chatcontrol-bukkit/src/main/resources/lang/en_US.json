@@ -248,7 +248,8 @@
   "command-color-usages-1": [
     "/{label} {sublabel} status [player] <gray>- Print your color and decoration.",
     "/{label} {sublabel} menu <gray>- Open color and decoration menu.",
-    "/{label} {sublabel} yellow <gray>- Set chat color to yellow."
+    "/{label} {sublabel} yellow <gray>- Set chat color to yellow.",
+    "/{label} {sublabel} red-blue <gray>- Set gradient from red to blue."
   ],
   "command-color-usages-2": [
     "/{label} {sublabel} default bold [player] <gray>- Only set decoration.",
@@ -257,7 +258,8 @@
     "/{label} {sublabel} reset reset [player] <gray>- Reset color and decoration."
   ],
   "command-color-usages-hex-1": [
-    "/{label} {sublabel} #<hexcode> <gray>- Set chat color to HEX."
+    "/{label} {sublabel} #<hexcode> <gray>- Set chat color to HEX.",
+    "/{label} {sublabel} #<from>-#<to> <gray>- Set gradient from two HEX colors."
   ],
   "command-color-usages-hex-2": [
     "",
@@ -890,6 +892,12 @@
   "menu-color-button-reset-decoration": "Reset chat decoration",
   "menu-color-color-reset": "<dark_blue>Chat color reset!",
   "menu-color-color-set": "Set color to {color}",
+  "menu-color-button-gradient-title": "&d&lGradients",
+  "menu-color-button-gradient-lore": [
+    "",
+    "Click to browse preconfigured",
+    "chat color gradients."
+  ],
   "menu-color-decoration-reset": "<dark_blue>Chat decoration reset!",
   "menu-color-decoration-set": "Set decoration to {decoration}",
   "menu-color-header": "Chat Color",
@@ -903,6 +911,25 @@
     "",
     "Current color: {color}",
     "Current decoration: {decoration}"
+  ],
+  "menu-gradient-button-gradient-lore": [
+    "",
+    "Click to use this gradient",
+    "while you're chatting.",
+    "",
+    "From: {from}",
+    "To: {to}",
+    "",
+    "Preview: {preview}"
+  ],
+  "menu-gradient-button-reset-title": "Reset gradient",
+  "menu-gradient-gradient-set": "Set gradient to {gradient}",
+  "menu-gradient-header": "Gradients",
+  "menu-gradient-help": [
+    "Select a preconfigured gradient",
+    "to apply to your chat messages.",
+    "",
+    "Current gradient: {gradient}"
   ],
   "menu-spy-button-lore-1": [
     "",

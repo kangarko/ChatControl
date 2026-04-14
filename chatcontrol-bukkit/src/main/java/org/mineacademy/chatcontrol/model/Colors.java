@@ -1,16 +1,19 @@
 package org.mineacademy.chatcontrol.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.mineacademy.chatcontrol.settings.Settings;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.CommonCore;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.HookManager;
+import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.platform.Platform;
 
 import lombok.Getter;
@@ -283,6 +286,135 @@ public final class Colors {
 				selected.add(color);
 
 		return selected;
+	}
+
+	// ----------------------------------------------------------------------------------------------------
+	// Gradients
+	// ----------------------------------------------------------------------------------------------------
+
+	/**
+	 * All preconfigured gradients available in the GUI.
+	 */
+	private static final List<Gradient> PRECONFIGURED_GRADIENTS = Arrays.asList(
+			// Warm
+			new Gradient("Sunset", "#FF512F", "#F09819"),
+			new Gradient("Fire", "#F12711", "#F5AF19"),
+			new Gradient("Lava", "#FF0844", "#FFB199"),
+			new Gradient("Honey", "#F7971E", "#FFD200"),
+			new Gradient("Coral", "#FF9966", "#FF5E62"),
+			new Gradient("Rose", "#EC008C", "#FC6767"),
+			// Cool
+			new Gradient("Ocean", "#00C6FF", "#0072FF"),
+			new Gradient("Ice", "#74EBD5", "#9FACE6"),
+			new Gradient("Sky", "#56CCF2", "#2F80ED"),
+			new Gradient("Mint", "#00B09B", "#96C93D"),
+			new Gradient("Forest", "#11998E", "#38EF7D"),
+			new Gradient("Aurora", "#00D2FF", "#928DAB"),
+			// Mystical
+			new Gradient("Twilight", "#654EA3", "#EAAFC8"),
+			new Gradient("Berry", "#8E2DE2", "#4A00E0"),
+			new Gradient("Sakura", "#FF6B6B", "#FFC3A0"));
+
+	/**
+	 * Return the preconfigured gradients.
+	 *
+	 * @return
+	 */
+	public static List<Gradient> getPreconfiguredGradients() {
+		return PRECONFIGURED_GRADIENTS;
+	}
+
+	/**
+	 * Return true if the player has permission for a preconfigured gradient
+	 * matching the given color tuple.
+	 *
+	 * @param player
+	 * @param gradient
+	 * @return
+	 */
+	public static boolean hasPermissionForGradient(final Player player, final Tuple<CompChatColor, CompChatColor> gradient) {
+		for (final Gradient preconfigured : PRECONFIGURED_GRADIENTS)
+			if (preconfigured.from.getName().equalsIgnoreCase(gradient.getKey().getName())
+					&& preconfigured.to.getName().equalsIgnoreCase(gradient.getValue().getName()))
+				if (player.hasPermission(Permissions.Color.GUIGRADIENT + preconfigured.permissionName))
+					return true;
+
+		return false;
+	}
+
+	/**
+	 * Return a display name for the given gradient tuple.
+	 * Uses the preconfigured name if matched, otherwise plain hex codes.
+	 *
+	 * @param gradient
+	 * @return
+	 */
+	public static String getGradientDisplayName(final Tuple<CompChatColor, CompChatColor> gradient) {
+		for (final Gradient preconfigured : PRECONFIGURED_GRADIENTS)
+			if (preconfigured.from.getName().equalsIgnoreCase(gradient.getKey().getName())
+					&& preconfigured.to.getName().equalsIgnoreCase(gradient.getValue().getName()))
+				return preconfigured.displayName;
+
+		return toLegacyGradient(gradient.getKey().getName(), gradient.getKey(), gradient.getKey())
+				+ " - "
+				+ toLegacyGradient(gradient.getValue().getName(), gradient.getValue(), gradient.getValue());
+	}
+
+	/**
+	 * Bake a gradient into per-character legacy hex color codes.
+	 * Produces \u00a7x\u00a7R\u00a7R\u00a7G\u00a7G\u00a7B\u00a7Bc for each character, interpolating
+	 * linearly between the two colors.
+	 *
+	 * @param text
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static String toLegacyGradient(final String text, final CompChatColor from, final CompChatColor to) {
+		final int r1 = from.getColor().getRed(), g1 = from.getColor().getGreen(), b1 = from.getColor().getBlue();
+		final int r2 = to.getColor().getRed(), g2 = to.getColor().getGreen(), b2 = to.getColor().getBlue();
+		final int len = text.length();
+		final StringBuilder result = new StringBuilder();
+
+		for (int i = 0; i < len; i++) {
+			final float ratio = len > 1 ? (float) i / (len - 1) : 0;
+			final int r = Math.round(r1 + (r2 - r1) * ratio);
+			final int g = Math.round(g1 + (g2 - g1) * ratio);
+			final int b = Math.round(b1 + (b2 - b1) * ratio);
+			final String hex = String.format("%02x%02x%02x", r, g, b);
+
+			result.append('\u00a7').append('x');
+
+			for (final char c : hex.toCharArray())
+				result.append('\u00a7').append(c);
+
+			result.append(text.charAt(i));
+		}
+
+		return result.toString();
+	}
+
+	// ----------------------------------------------------------------------------------------------------
+	// Inner
+	// ----------------------------------------------------------------------------------------------------
+
+	/**
+	 * Represents a preconfigured gradient with a display name and two colors.
+	 */
+	@Getter
+	public static final class Gradient {
+
+		private final String displayName;
+		private final CompChatColor from;
+		private final CompChatColor to;
+		private final String permissionName;
+
+		Gradient(final String displayName, final String fromHex, final String toHex) {
+			this.displayName = displayName;
+			this.from = CompChatColor.fromString(fromHex);
+			this.to = CompChatColor.fromString(toHex);
+			this.permissionName = displayName.toLowerCase().replace(" ", "_");
+		}
 	}
 
 	/**

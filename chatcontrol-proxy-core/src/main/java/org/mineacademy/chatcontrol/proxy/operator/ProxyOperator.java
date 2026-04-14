@@ -62,6 +62,11 @@ public abstract class ProxyOperator implements Rule {
 	private Tuple<SimpleTime, String> delay;
 
 	/**
+	 * The delay between the next time this rule can be fired up for the given sender, with optional warning message
+	 */
+	private Tuple<SimpleTime, String> playerDelay;
+
+	/**
 	 * List of commands to run as player when rule matches
 	 */
 	private final List<String> playerCommands = new ArrayList<>();
@@ -146,6 +151,11 @@ public abstract class ProxyOperator implements Rule {
 	private long lastExecuted = -1;
 
 	/**
+	 * The time the operator was last executed for the given player name(s)
+	 */
+	private final Map<String, Long> lastExecutedForPlayers = new HashMap<>();
+
+	/**
 	 * @see Rule#onOperatorParse(java.lang.String[])
 	 */
 	@Override
@@ -175,14 +185,25 @@ public abstract class ProxyOperator implements Rule {
 			}
 		}
 
-		else if ("delay".equals(args[0])) {
-			this.checkNotSet(this.delay, "delay");
+		else if ("delay".equals(args[0]) || "player delay".equals(param)) {
+			final int offset = "player delay".equals(param) ? 1 : 0;
 
 			try {
-				final SimpleTime time = SimpleTime.fromString(CommonCore.joinRange(1, 3, args));
-				final String message = args.length > 2 ? CommonCore.joinRange(3, args) : null;
+				final SimpleTime time = SimpleTime.fromString(CommonCore.joinRange(1 + offset, 3 + offset, args));
+				final String message = args.length > 2 ? CommonCore.joinRange(3 + offset, args) : null;
 
-				this.delay = new Tuple<>(time, message);
+				final Tuple<SimpleTime, String> tuple = new Tuple<>(time, message);
+
+				if ("delay".equals(args[0])) {
+					this.checkNotSet(this.delay, args[0]);
+
+					this.delay = tuple;
+
+				} else {
+					this.checkNotSet(this.playerDelay, param);
+
+					this.playerDelay = tuple;
+				}
 
 			} catch (final Throwable ex) {
 				CommonCore.throwError(ex, "Syntax error in 'delay' operator. Valid: <amount> <unit> (1 second, 2 minutes). Got: " + String.join(" ", args));
@@ -336,6 +357,7 @@ public abstract class ProxyOperator implements Rule {
 				//"Save Keys", this.saveData,
 				"Expires", this.expires != -1 ? this.expires : null,
 				"Delay", this.delay,
+				"Player Delay", this.playerDelay != null ? this.playerDelay.getKey() + (this.playerDelay.getValue() != null && !this.playerDelay.getValue().isEmpty() ? ", warnmessage=" + this.playerDelay.getValue() : "") : "",
 				"Player Commands", this.playerCommands,
 				//"Console Commands", this.consoleCommands,
 				"Proxy Commands", this.proxyCommands,
@@ -374,6 +396,21 @@ public abstract class ProxyOperator implements Rule {
 	 */
 	public final String toDisplayableString() {
 		return CompChatColor.stripColorCodes(this.toString().replace("\t", "    "));
+	}
+
+	/**
+	 * @param playerName
+	 * @return
+	 */
+	protected final long getLastExecutedForPlayer(final String playerName) {
+		return this.lastExecutedForPlayers.getOrDefault(playerName, -1L);
+	}
+
+	/**
+	 * @param playerName
+	 */
+	protected final void setLastExecutedForPlayer(final String playerName) {
+		this.lastExecutedForPlayers.put(playerName, System.currentTimeMillis());
 	}
 
 	/**

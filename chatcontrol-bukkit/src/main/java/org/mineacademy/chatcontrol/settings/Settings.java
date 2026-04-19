@@ -432,7 +432,15 @@ public final class Settings extends SimpleSettings {
 			}
 
 			APPLY_ON = getSet("Apply_On", RuleType.class);
-			ValidCore.checkBoolean(!APPLY_ON.contains(RuleType.GLOBAL), "To enable global rules, remove @import global from files in the rules/ folder.");
+
+			if (APPLY_ON.contains(RuleType.GLOBAL)) {
+				CommonCore.warning("Found 'global' in Rules.Apply_On in settings.yml. That's not how global rules work - removing it. To enable global rules, remove '@import global' from files in the rules/ folder instead.");
+
+				APPLY_ON.remove(RuleType.GLOBAL);
+				applyOn.removeIf(s -> "global".equalsIgnoreCase(s));
+
+				set("Apply_On", applyOn);
+			}
 
 			VERBOSE = getBoolean("Verbose");
 

@@ -701,12 +701,12 @@
   "command-say-usages": [
     "/{label} Hello everyone! <gray>- Broadcast a message."
   ],
-  "command-spy-auto-enable-1": "{prefix_warn} Your spy mode has been activated automatically. Type '/spy off' to disable. ",
+  "command-spy-auto-enable-1": "{prefix_warn} Your spy mode has been activated automatically. Type '/spy off' to disable or '/spy menu' to customize. ",
   "command-spy-auto-enable-2": "<dark_gray>[<gold>?<dark_gray>]",
   "command-spy-auto-enable-tooltip": [
-    "<gold>TIP: <gray>To stop spying automatically on join, ask the",
-    "<gray>admin to take away <italic>{permission}<reset><gray>",
-    "<gray>permission from you explicitly."
+    "<gold>TIP: <gray>This runs only on your first login.",
+    "<gray>Use <italic>/spy menu<reset><gray> to choose which features to spy on",
+    "<gray>\u2014 your selection will persist across logins."
   ],
   "command-spy-book-untitled": "Untitled",
   "command-spy-cannot-toggle-anything-no-perms": "Cannot toggle spying anything because you lack any {permission} permission.",

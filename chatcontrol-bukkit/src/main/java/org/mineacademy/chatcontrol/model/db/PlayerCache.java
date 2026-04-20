@@ -163,6 +163,15 @@ public final class PlayerCache extends Row {
 	private Set<String> spyingChannels = new HashSet<>();
 
 	/**
+	 * Whether the one-time spy auto-enable (for players with the
+	 * {@link Permissions.Spy#AUTO_ENABLE} permission) has already run.
+	 *
+	 * Once true, subsequent logins never overwrite the player's
+	 * per-feature selection made via /spy menu, /spy toggle or /spy off.
+	 */
+	private boolean spyAutoEnableInitialized;
+
+	/**
 	 * Represents the email that is being sent to receiver
 	 * when the sender has autoresponder on
 	 */
@@ -233,6 +242,7 @@ public final class PlayerCache extends Row {
 		this.unmuteTime = map.getLong("Unmute_Time");
 		this.spyingSectors = map.getSet("Spying_Sectors", Spy.Type.class);
 		this.spyingChannels = map.getSet("Spying_Channels", String.class);
+		this.spyAutoEnableInitialized = map.getBoolean("Spy_Auto_Enable_Initialized", false);
 		this.autoResponder = map.containsKey("Auto_Responder") ? Tuple.deserialize(map.getMap("Auto_Responder"), SimpleBook.class, Long.class) : null;
 		this.conversingPlayerName = map.getString("Conversing_Player_Name");
 		this.replyPlayerName = map.getString("Reply_Player_Name");
@@ -293,6 +303,7 @@ public final class PlayerCache extends Row {
 		data.putIfExists("Unmute_Time", this.unmuteTime);
 		data.putIfNotEmpty("Spying_Sectors", this.spyingSectors);
 		data.putIfNotEmpty("Spying_Channels", this.spyingChannels);
+		data.putIfTrue("Spy_Auto_Enable_Initialized", this.spyAutoEnableInitialized);
 		data.putIfExists("Auto_Responder", this.autoResponder);
 		data.putIfExists("Conversing_Player_Name", this.conversingPlayerName);
 		data.putIfExists("Reply_Player_Name", this.replyPlayerName);
@@ -323,6 +334,7 @@ public final class PlayerCache extends Row {
 		this.unmuteTime = map.getLong("Unmute_Time");
 		this.spyingSectors = map.getSet("Spying_Sectors", Spy.Type.class);
 		this.spyingChannels = map.getSet("Spying_Channels", String.class);
+		this.spyAutoEnableInitialized = map.getBoolean("Spy_Auto_Enable_Initialized", false);
 		this.autoResponder = map.containsKey("Auto_Responder") ? Tuple.deserialize(map.getMap("Auto_Responder"), SimpleBook.class, Long.class) : null;
 		this.conversingPlayerName = map.getString("Conversing_Player_Name");
 		this.replyPlayerName = map.getString("Reply_Player_Name");
@@ -392,19 +404,28 @@ public final class PlayerCache extends Row {
 			LogUtil.logTip("TIP: " + player.getName() + " did not manually toggle on private messages. He will not be able to send/receive them until he toggles them back on.");
 		}
 
-		// Spying
-		if (player.hasPermission(Permissions.Spy.AUTO_ENABLE) && !Settings.Spy.APPLY_ON.isEmpty()) {
-			this.setSpyingOn(player);
+		// Spying – auto-enable everything only once, then honor whatever the
+		// player later configured via /spy menu, /spy toggle or /spy off.
+		if (player.hasPermission(Permissions.Spy.AUTO_ENABLE) && !Settings.Spy.APPLY_ON.isEmpty() && !this.spyAutoEnableInitialized) {
 
-			if (!Lang.plain("command-spy-auto-enable-1").equals("none"))
-				wrapped.getAudience().sendMessage(Lang
-						.component("command-spy-auto-enable-1")
-						.append(Lang.component("command-spy-auto-enable-2"))
-						.onHover(Lang.component("command-spy-auto-enable-tooltip", "permission", Permissions.Spy.AUTO_ENABLE)));
+			// Migration: players who already had spy state before this flag
+			// existed should keep their selection instead of getting wiped.
+			if (this.isSpyingSomething()) {
+				this.spyAutoEnableInitialized = true;
+				this.upsert();
 
-			LogUtil.logOnce("spy-autojoin", "TIP: Automatically enabling spy mode for " + player.getName() + " because he has '" + Permissions.Spy.AUTO_ENABLE + "'"
-					+ " permission. To stop automatically enabling spy mode for players, give them negative '" + Permissions.Spy.AUTO_ENABLE + "' permission"
-					+ " (a value of false when using LuckPerms).");
+			} else {
+				this.setSpyingOn(player);
+
+				if (!Lang.plain("command-spy-auto-enable-1").equals("none"))
+					wrapped.getAudience().sendMessage(Lang
+							.component("command-spy-auto-enable-1")
+							.append(Lang.component("command-spy-auto-enable-2"))
+							.onHover(Lang.component("command-spy-auto-enable-tooltip")));
+
+				LogUtil.logOnce("spy-autojoin", "TIP: Automatically enabling spy mode for " + player.getName() + " because he has '" + Permissions.Spy.AUTO_ENABLE + "'"
+						+ " permission. This runs only once; the player can then customize which features to spy via /spy menu and the selection will persist across logins.");
+			}
 		}
 
 		// Unread mail notification
@@ -1090,6 +1111,7 @@ public final class PlayerCache extends Row {
 	public void setSpyingOff() {
 		this.spyingChannels.clear();
 		this.spyingSectors.clear();
+		this.spyAutoEnableInitialized = true;
 
 		this.upsert();
 	}
@@ -1118,6 +1140,8 @@ public final class PlayerCache extends Row {
 			atLeastOne = true;
 		} else
 			this.spyingChannels.clear();
+
+		this.spyAutoEnableInitialized = true;
 
 		this.upsert();
 		return atLeastOne;
@@ -1148,6 +1172,8 @@ public final class PlayerCache extends Row {
 			this.spyingSectors.add(type);
 		else
 			this.spyingSectors.remove(type);
+
+		this.spyAutoEnableInitialized = true;
 
 		this.upsert();
 	}
@@ -1187,6 +1213,8 @@ public final class PlayerCache extends Row {
 			this.spyingSectors.remove(Spy.Type.CHAT);
 			this.spyingChannels.remove(channel.getName());
 		}
+
+		this.spyAutoEnableInitialized = true;
 
 		this.upsert();
 	}

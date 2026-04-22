@@ -25,6 +25,7 @@ import org.mineacademy.fo.ValidCore;
 import org.mineacademy.fo.exception.EventHandledException;
 import org.mineacademy.fo.model.CompChatColor;
 import org.mineacademy.fo.model.SimpleComponent;
+import org.mineacademy.fo.platform.FoundationPlayer;
 import org.mineacademy.fo.platform.Platform;
 
 import lombok.Getter;
@@ -304,10 +305,6 @@ public class Rule extends RuleOperator {
 		@Override
 		protected void filter(final RuleOperator rule) throws EventHandledException {
 
-			// Ignore if the message matches any player's online name and the rule is ignoring them
-			if (rule.isIgnorePlayers() && Platform.getOnlinePlayers().stream().anyMatch(player -> player.getName().equalsIgnoreCase(this.message)))
-				return;
-
 			// Set this to use later in variables
 			this.ruleOrGroupEvaluated = rule;
 
@@ -321,6 +318,24 @@ public class Rule extends RuleOperator {
 
 			final String originalMessage = this.message;
 			String messageMatched = this.message;
+
+			// Strip online player names from the text the regex runs against so that
+			// mentions of online players cannot trigger a match (e.g. "Lexiiiiiik"
+			// must not trigger a repeated-character flood rule). Replace with spaces
+			// of equal length to preserve word boundaries.
+			if (rule.isIgnorePlayers()) {
+				for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
+					final String name = online.getName();
+
+					if (name.isEmpty())
+						continue;
+
+					final char[] spaces = new char[name.length()];
+					Arrays.fill(spaces, ' ');
+
+					messageMatched = Pattern.compile(Pattern.quote(name), Pattern.CASE_INSENSITIVE).matcher(messageMatched).replaceAll(new String(spaces));
+				}
+			}
 
 			// Prepare the message before checking, avoid calling compileMatcher in loop to save performance
 			{

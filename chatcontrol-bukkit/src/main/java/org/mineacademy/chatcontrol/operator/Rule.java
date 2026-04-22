@@ -321,19 +321,36 @@ public class Rule extends RuleOperator {
 
 			// Strip online player names from the text the regex runs against so that
 			// mentions of online players cannot trigger a match (e.g. "Lexiiiiiik"
-			// must not trigger a repeated-character flood rule). Replace with spaces
-			// of equal length to preserve word boundaries.
+			// must not trigger a repeated-character flood rule). Replace each hit
+			// with spaces of equal length to preserve surrounding word boundaries.
 			if (rule.isIgnorePlayers()) {
+				final StringBuilder alternation = new StringBuilder();
+
 				for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
 					final String name = online.getName();
 
 					if (name.isEmpty())
 						continue;
 
-					final char[] spaces = new char[name.length()];
-					Arrays.fill(spaces, ' ');
+					if (alternation.length() > 0)
+						alternation.append('|');
 
-					messageMatched = Pattern.compile(Pattern.quote(name), Pattern.CASE_INSENSITIVE).matcher(messageMatched).replaceAll(new String(spaces));
+					alternation.append(Pattern.quote(name));
+				}
+
+				if (alternation.length() > 0) {
+					final Matcher nameMatcher = Pattern.compile(alternation.toString(), Pattern.CASE_INSENSITIVE).matcher(messageMatched);
+					final StringBuffer out = new StringBuffer(messageMatched.length());
+
+					while (nameMatcher.find()) {
+						final char[] spaces = new char[nameMatcher.end() - nameMatcher.start()];
+						Arrays.fill(spaces, ' ');
+
+						nameMatcher.appendReplacement(out, Matcher.quoteReplacement(new String(spaces)));
+					}
+
+					nameMatcher.appendTail(out);
+					messageMatched = out.toString();
 				}
 			}
 

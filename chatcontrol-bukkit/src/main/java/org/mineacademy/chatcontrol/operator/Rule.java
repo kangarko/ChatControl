@@ -324,14 +324,22 @@ public class Rule extends RuleOperator {
 			// must not trigger a repeated-character flood rule). Replace each hit
 			// with spaces of equal length to preserve surrounding word boundaries.
 			if (rule.isIgnorePlayers()) {
-				final StringBuilder alternation = new StringBuilder();
+				final List<String> names = new ArrayList<>();
 
 				for (final FoundationPlayer online : Platform.getOnlinePlayers()) {
 					final String name = online.getName();
 
-					if (name.isEmpty())
-						continue;
+					if (!name.isEmpty())
+						names.add(name);
+				}
 
+				// Longest names first so overlapping nicknames (e.g. "Ab" and "Abc")
+				// don't leave stray characters after the shorter match consumes a prefix.
+				names.sort((a, b) -> b.length() - a.length());
+
+				final StringBuilder alternation = new StringBuilder();
+
+				for (final String name : names) {
 					if (alternation.length() > 0)
 						alternation.append('|');
 

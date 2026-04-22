@@ -611,27 +611,24 @@ public final class PlayerCache extends Row {
 	}
 
 	/**
-	 * Set a new chat color, clears gradient if non-null
+	 * Set a new chat color. The gradient (if any) remains independently set so
+	 * the {player_chat_color} placeholder keeps working for things like name
+	 * colors while a gradient paints the chat message itself.
 	 *
 	 * @param chatColor
 	 */
 	public void setChatColorNoSave(final CompChatColor chatColor) {
 		this.chatColor = chatColor;
-
-		if (chatColor != null)
-			this.chatGradient = null;
 	}
 
 	/**
-	 * Set a new chat gradient (two-color transition), clears single color if non-null
+	 * Set a new chat gradient (two-color transition). The single chat color (if
+	 * any) remains independently set for use by color placeholders.
 	 *
 	 * @param chatGradient
 	 */
 	public void setChatGradientNoSave(final Tuple<CompChatColor, CompChatColor> chatGradient) {
 		this.chatGradient = chatGradient;
-
-		if (chatGradient != null)
-			this.chatColor = null;
 	}
 
 	/**

@@ -297,15 +297,24 @@ public final class Placeholders extends SimpleExpansion {
 			}
 
 			else if ("player_chat_color".equals(identifier) || "chat_color".equals(identifier))
-				return playerCache.hasChatGradient() ? "" : (playerCache.getChatColor() != null ? playerCache.getChatColor().toString() : "");
+				return playerCache.getChatColor() != null ? playerCache.getChatColor().toString() : "";
 
 			else if ("player_chat_color_name".equals(identifier) || "chat_color_name".equals(identifier))
-				return playerCache.hasChatGradient()
-						? Colors.getGradientDisplayName(playerCache.getChatGradient())
-						: (playerCache.getChatColor() != null ? playerCache.getChatColor().toChatString() : Lang.plain("part-none").toLowerCase());
+				return playerCache.getChatColor() != null
+						? playerCache.getChatColor().toChatString()
+						: (playerCache.hasChatGradient() ? Colors.getGradientDisplayName(playerCache.getChatGradient()) : Lang.plain("part-none").toLowerCase());
 
 			else if ("player_chat_color_letter".equals(identifier) || "chat_color_letter".equals(identifier))
-				return playerCache.hasChatGradient() ? "" : (playerCache.getChatColor() != null ? playerCache.getChatColor().isHex() ? playerCache.getChatColor().getName() : "&" + playerCache.getChatColor().getCode() : "");
+				return playerCache.getChatColor() != null ? playerCache.getChatColor().isHex() ? playerCache.getChatColor().getName() : "&" + playerCache.getChatColor().getCode() : "";
+
+			else if ("player_chat_gradient_from".equals(identifier) || "chat_gradient_from".equals(identifier))
+				return playerCache.hasChatGradient() ? Colors.toHexString(playerCache.getChatGradient().getKey()) : "";
+
+			else if ("player_chat_gradient_to".equals(identifier) || "chat_gradient_to".equals(identifier))
+				return playerCache.hasChatGradient() ? Colors.toHexString(playerCache.getChatGradient().getValue()) : "";
+
+			else if ("player_chat_gradient_name".equals(identifier) || "chat_gradient_name".equals(identifier))
+				return playerCache.hasChatGradient() ? Colors.getGradientDisplayName(playerCache.getChatGradient()) : Lang.plain("part-none").toLowerCase();
 
 			else if ("player_chat_decoration".equals(identifier) || "chat_decoration".equals(identifier))
 				return playerCache.getChatDecoration() != null ? playerCache.getChatDecoration().toString() : "";
@@ -344,6 +353,9 @@ public final class Placeholders extends SimpleExpansion {
 				"player_last_active_elapsed_seconds".equals(identifier) ||
 				"player_chat_color_name".equals(identifier) ||
 				"player_chat_color".equals(identifier) ||
+				"player_chat_gradient_from".equals(identifier) ||
+				"player_chat_gradient_to".equals(identifier) ||
+				"player_chat_gradient_name".equals(identifier) ||
 				"player_chat_decoration_name".equals(identifier) ||
 				"player_chat_decoration".equals(identifier) ||
 				identifier.startsWith("player_data_"))

@@ -66,7 +66,6 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 
 		this.resetColorButton = Button.makeSimple(ItemCreator.from(CompMaterial.GLASS, Lang.legacy("menu-color-button-reset-color-title")), clicker -> {
 			this.cache.setChatColorNoSave(null);
-			this.cache.setChatGradientNoSave(null);
 			this.cache.upsert();
 
 			this.restartMenu(Lang.legacy("menu-color-color-reset"));
@@ -182,7 +181,9 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 	protected String[] getInfo() {
 		final String colorDisplay;
 
-		if (this.cache.hasChatGradient())
+		if (this.cache.hasChatColor() && this.cache.hasChatGradient())
+			colorDisplay = this.cache.getChatColor().toColorizedChatString() + " + " + Colors.getGradientDisplayName(this.cache.getChatGradient());
+		else if (this.cache.hasChatGradient())
 			colorDisplay = Colors.getGradientDisplayName(this.cache.getChatGradient());
 		else if (this.cache.hasChatColor())
 			colorDisplay = this.cache.getChatColor().toColorizedChatString();

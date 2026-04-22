@@ -68,6 +68,7 @@ public final class ColorSubCommand extends MainSubCommand {
 
 			boolean colorReset = false;
 			boolean colorSet = false;
+			boolean gradientSet = false;
 
 			boolean decorationReset = false;
 			boolean decorationSet = false;
@@ -85,17 +86,23 @@ public final class ColorSubCommand extends MainSubCommand {
 				this.checkBoolean(cache.hasChatColor() || cache.hasChatGradient() || cache.hasChatDecoration(), Lang.component("command-color-not-saved", "player", cache.getPlayerName()));
 
 				String message = cache.getPlayerName() + " " + Lang.plain("part-has") + " ";
+				boolean hasPrev = false;
+
+				if (cache.hasChatColor()) {
+					message += cache.getChatColor().toColorizedChatString() + " " + Lang.legacy("command-color-chat-color");
+					hasPrev = true;
+				}
 
 				if (cache.hasChatGradient()) {
 					final Tuple<CompChatColor, CompChatColor> gradient = cache.getChatGradient();
 
-					message += gradient.getKey().toColorizedChatString() + " - " + gradient.getValue().toColorizedChatString() + " gradient " + Lang.legacy("command-color-chat-color");
-
-				} else if (cache.hasChatColor())
-					message += cache.getChatColor().toColorizedChatString() + " " + Lang.legacy("command-color-chat-color");
+					message += (hasPrev ? " " + Lang.plain("part-and") + " " : "")
+							+ gradient.getKey().toColorizedChatString() + " - " + gradient.getValue().toColorizedChatString() + " gradient " + Lang.legacy("command-color-chat-color");
+					hasPrev = true;
+				}
 
 				if (cache.hasChatDecoration())
-					message += ((cache.hasChatColor() || cache.hasChatGradient()) ? " " + Lang.plain("part-and") + " " : "") + cache.getChatDecoration().getName() + " " + Lang.legacy("command-color-decoration");
+					message += (hasPrev ? " " + Lang.plain("part-and") + " " : "") + cache.getChatDecoration().getName() + " " + Lang.legacy("command-color-decoration");
 
 				this.tellInfo(message + ".");
 				return;
@@ -125,7 +132,7 @@ public final class ColorSubCommand extends MainSubCommand {
 						this.checkPerm(Colors.getReadableGuiColorPermission(this.getSender(), to));
 
 						cache.setChatGradientNoSave(new Tuple<>(from, to));
-						colorSet = true;
+						gradientSet = true;
 
 					} catch (final IllegalArgumentException ex) {
 						this.tellError(Lang.component("command-color-invalid-color-" + (hasHex ? "hex" : "legacy"), "available", Colors.getGuiColorsForPermission(this.getSender())));
@@ -181,7 +188,7 @@ public final class ColorSubCommand extends MainSubCommand {
 
 			String modeLangPrefix = null;
 
-			if (colorSet) {
+			if (colorSet || gradientSet) {
 				modeLangPrefix = decorationSet ? "set-color-set-decoration" : decorationReset ? "set-color-reset-decoration" : "set-color";
 
 			} else if (colorReset)
@@ -195,12 +202,12 @@ public final class ColorSubCommand extends MainSubCommand {
 			if (modeLangPrefix != null) {
 				final String colorDisplay;
 
-				if (colorSet && cache.hasChatGradient()) {
+				if (gradientSet) {
 					final Tuple<CompChatColor, CompChatColor> gradient = cache.getChatGradient();
 
 					colorDisplay = gradient.getKey().toColorizedChatString() + " - " + gradient.getValue().toColorizedChatString();
 
-				} else if (colorSet && cache.hasChatColor())
+				} else if (colorSet)
 					colorDisplay = cache.getChatColor().toColorizedChatString();
 
 				else if (decorationSet)

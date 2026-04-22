@@ -361,6 +361,18 @@ public final class Colors {
 	}
 
 	/**
+	 * Format the given chat color as a #RRGGBB hex string, regardless of whether
+	 * it was created from a legacy name or hex input. Useful for the
+	 * {player_chat_gradient_from} / {player_chat_gradient_to} placeholders.
+	 *
+	 * @param color
+	 * @return
+	 */
+	public static String toHexString(final CompChatColor color) {
+		return String.format("#%06X", color.getColor().getRGB() & 0xFFFFFF);
+	}
+
+	/**
 	 * Bake a gradient into per-character legacy hex color codes.
 	 * Produces \u00a7x\u00a7R\u00a7R\u00a7G\u00a7G\u00a7B\u00a7Bc for each character, interpolating
 	 * linearly between the two colors.

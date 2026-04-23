@@ -12,4 +12,4 @@ Parts:
   
   # See the chat.yml format file for a tutorial on how this works.
   everything: 
-    Message: "<dark_gray>[<dark_aqua>{player_channel}<dark_gray>] <white>{player_name}<gray>: <white>{player_chat_color}{player_chat_decoration}{message}"
+    Message: "<dark_gray>[<dark_aqua>{player_channel}<dark_gray>] <white>{player_name}<gray>: <white>{player_chat_color}{player_chat_decoration}{player_chat_gradient_open}{message}{player_chat_gradient_close}"

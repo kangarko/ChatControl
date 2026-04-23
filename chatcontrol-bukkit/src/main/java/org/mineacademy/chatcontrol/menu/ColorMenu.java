@@ -56,7 +56,7 @@ public final class ColorMenu extends MenuPaged<CompChatColor> {
 			return;
 		}
 
-		if (MinecraftVersion.atLeast(V.v1_16))
+		if (MinecraftVersion.atLeast(V.v1_16) && !Colors.getPreconfiguredGradientsForPermission(player).isEmpty())
 			this.gradientButton = Button.makeSimple(ItemCreator.from(CompMaterial.EXPERIENCE_BOTTLE,
 					Lang.legacy("menu-color-button-gradient-title"),
 					Lang.legacy("menu-color-button-gradient-lore")),

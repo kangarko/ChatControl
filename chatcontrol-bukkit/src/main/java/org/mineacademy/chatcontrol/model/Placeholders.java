@@ -316,6 +316,14 @@ public final class Placeholders extends SimpleExpansion {
 			else if ("player_chat_gradient_name".equals(identifier) || "chat_gradient_name".equals(identifier))
 				return playerCache.hasChatGradient() ? Colors.getGradientDisplayName(playerCache.getChatGradient()) : Lang.plain("part-none").toLowerCase();
 
+			else if ("player_chat_gradient_open".equals(identifier) || "chat_gradient_open".equals(identifier))
+				return playerCache.hasChatGradient()
+						? "<gradient:" + Colors.toHexString(playerCache.getChatGradient().getKey()) + ":" + Colors.toHexString(playerCache.getChatGradient().getValue()) + ">"
+						: "";
+
+			else if ("player_chat_gradient_close".equals(identifier) || "chat_gradient_close".equals(identifier))
+				return playerCache.hasChatGradient() ? "</gradient>" : "";
+
 			else if ("player_chat_decoration".equals(identifier) || "chat_decoration".equals(identifier))
 				return playerCache.getChatDecoration() != null ? playerCache.getChatDecoration().toString() : "";
 
@@ -356,6 +364,8 @@ public final class Placeholders extends SimpleExpansion {
 				"player_chat_gradient_from".equals(identifier) ||
 				"player_chat_gradient_to".equals(identifier) ||
 				"player_chat_gradient_name".equals(identifier) ||
+				"player_chat_gradient_open".equals(identifier) ||
+				"player_chat_gradient_close".equals(identifier) ||
 				"player_chat_decoration_name".equals(identifier) ||
 				"player_chat_decoration".equals(identifier) ||
 				identifier.startsWith("player_data_"))

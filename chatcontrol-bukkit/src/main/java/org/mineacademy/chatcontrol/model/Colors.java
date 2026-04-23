@@ -325,6 +325,23 @@ public final class Colors {
 	}
 
 	/**
+	 * Return the preconfigured gradients the player has permission to use
+	 * via the gradient GUI (chatcontrol.guigradient.{name}).
+	 *
+	 * @param player
+	 * @return
+	 */
+	public static List<Gradient> getPreconfiguredGradientsForPermission(final Player player) {
+		final List<Gradient> list = new ArrayList<>();
+
+		for (final Gradient gradient : PRECONFIGURED_GRADIENTS)
+			if (player.hasPermission(Permissions.Color.GUIGRADIENT + gradient.permissionName))
+				list.add(gradient);
+
+		return list;
+	}
+
+	/**
 	 * Return true if the player has permission for a preconfigured gradient
 	 * matching the given color tuple.
 	 *

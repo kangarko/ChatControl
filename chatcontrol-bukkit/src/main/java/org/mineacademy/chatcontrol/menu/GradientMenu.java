@@ -1,6 +1,5 @@
 package org.mineacademy.chatcontrol.menu;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.model.Colors.Gradient;
-import org.mineacademy.chatcontrol.model.Permissions;
 import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.MenuPaged;
@@ -32,7 +30,7 @@ public final class GradientMenu extends MenuPaged<Gradient> {
 	 * Create a new gradient menu
 	 */
 	private GradientMenu(final Menu parent, final Player player) {
-		super(9 * 3, parent, getGradientsForPermission(player));
+		super(9 * 3, parent, Colors.getPreconfiguredGradientsForPermission(player));
 
 		this.setTitle(Lang.legacy("menu-gradient-header"));
 
@@ -49,19 +47,6 @@ public final class GradientMenu extends MenuPaged<Gradient> {
 
 			this.restartMenu(Lang.legacy("menu-color-color-reset"));
 		});
-	}
-
-	/*
-	 * Return gradients the player has permission for
-	 */
-	private static List<Gradient> getGradientsForPermission(final Player player) {
-		final List<Gradient> list = new ArrayList<>();
-
-		for (final Gradient gradient : Colors.getPreconfiguredGradients())
-			if (player.hasPermission(Permissions.Color.GUIGRADIENT + gradient.getPermissionName()))
-				list.add(gradient);
-
-		return list;
 	}
 
 	/**

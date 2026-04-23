@@ -147,7 +147,10 @@ Parts:
     Suggest_Command: "/tell {player_name} "
 
   # And finally, show the message the player has typed out, prepending it with player's
-  # suffix from your permission plugin. We replace {player_chat_color} and {player_chat_decoration} with the 
-  # color and decoration set in '/chc color'.
+  # suffix from your permission plugin. We replace {player_chat_color} and {player_chat_decoration}
+  # with the color and decoration set in '/chc color'. {player_chat_gradient_open} and
+  # {player_chat_gradient_close} wrap {message} in a <gradient> tag when the player selected a
+  # gradient in /chc color menu, and expand to empty strings otherwise. Color and decoration sit
+  # OUTSIDE the gradient so that when both are set, the gradient (innermost) wins.
   message: 
-    Message: "<gray>: {player_suffix}{player_chat_color}{player_chat_decoration}{message}"
+    Message: "<gray>: {player_suffix}{player_chat_color}{player_chat_decoration}{player_chat_gradient_open}{message}{player_chat_gradient_close}"

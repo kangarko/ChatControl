@@ -65,6 +65,23 @@ public final class ProxyPlayerMessages extends RuleSetReader<ProxyPlayerMessage>
 	}
 
 	/**
+	 * Skip groups with no messages: lines so a misconfigured .rs file cannot
+	 * crash the proxy on join/quit/kick. A warning is logged so operators notice.
+	 *
+	 * @see org.mineacademy.fo.model.RuleSetReader#canFinish(org.mineacademy.fo.model.Rule)
+	 */
+	@Override
+	protected boolean canFinish(final ProxyPlayerMessage rule) {
+		if (rule.getMessages().isEmpty()) {
+			CommonCore.warning("Skipping message group '" + rule.getUniqueName() + "' in messages/" + rule.getType().getKey() + ".rs because it has no messages. Add a 'messages:' section followed by at least one '- ...' line, or remove the group.");
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Attempt to find a rule by name
 	 *
 	 * @param type

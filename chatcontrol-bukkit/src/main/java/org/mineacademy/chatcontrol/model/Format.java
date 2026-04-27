@@ -12,7 +12,6 @@ import java.util.UUID;
 
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.chatcontrol.model.Packets.RemoveMode;
-import org.mineacademy.chatcontrol.model.db.PlayerCache;
 import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.CommonCore;

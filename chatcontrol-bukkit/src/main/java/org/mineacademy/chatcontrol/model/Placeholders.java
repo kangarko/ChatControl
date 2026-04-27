@@ -136,10 +136,10 @@ public final class Placeholders extends SimpleExpansion {
 				final Tuple<Boolean, Long> muteTuple = HookManager.getUnmuteTime(playerCache.getUniqueId());
 
 				if (muteTuple.getKey()) {
-					if (muteTuple.getValue() == 0)
+					if (muteTuple.getValue() <= 0)
 						return Lang.plain("part-unknown");
 
-					remaining = System.currentTimeMillis() - muteTuple.getValue();
+					remaining = muteTuple.getValue() - System.currentTimeMillis();
 				}
 			}
 

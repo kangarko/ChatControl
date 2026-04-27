@@ -133,7 +133,7 @@ final class ChatHandler {
 		if (!Settings.Channels.ENABLED || Settings.Channels.IGNORE_WORLDS.contains(player.getWorld().getName())) {
 
 			// Check if the player, his channel or the server are muted
-			Mute.checkMute(wrapped, null);
+			Mute.checkChatMute(wrapped, null);
 
 			// Add colors
 			state.setChatMessage(Colors.removeColorsNoPermission(player, state.getChatMessage(), Colors.Type.CHAT));

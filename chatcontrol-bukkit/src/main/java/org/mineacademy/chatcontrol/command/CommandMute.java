@@ -102,7 +102,7 @@ public final class CommandMute extends ChatControlCommand {
 
 							if (muteTuple.getKey()) {
 								muted = true;
-								remainingTimeLong = muteTuple.getValue() == 0 ? 0 : (muteTuple.getValue() - System.currentTimeMillis());
+								remainingTimeLong = muteTuple.getValue() > 0 ? muteTuple.getValue() - System.currentTimeMillis() : 0;
 
 								externalMute = true;
 							}

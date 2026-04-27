@@ -43,9 +43,18 @@ public final class Mute {
 	 * @throws EventHandledException
 	 */
 	public static void checkMute(final WrappedSender wrapped, final Channel channel) {
-		if (Settings.Mute.ENABLED && !wrapped.hasPermission(Permissions.Bypass.MUTE)) {
-			final Variables variables = Variables.builder(wrapped.getAudience());
+		checkMute(wrapped, channel, false);
+	}
 
+	public static void checkChatMute(final WrappedSender wrapped, final Channel channel) {
+		checkMute(wrapped, channel, true);
+	}
+
+	private static void checkMute(final WrappedSender wrapped, final Channel channel, final boolean checkExternalMute) {
+		final PlayerCache cache = wrapped.getPlayerCache();
+		final Variables variables = Variables.builder(wrapped.getAudience());
+
+		if (Settings.Mute.ENABLED && !wrapped.hasPermission(Permissions.Bypass.MUTE)) {
 			if (ServerSettings.getInstance().isMuted())
 				throw new EventHandledException(true, Lang.component(variables, "command-mute-cannot-chat-server-muted"));
 
@@ -56,11 +65,12 @@ public final class Mute {
 			if (channel != null && channel.isMuted())
 				throw new EventHandledException(true, Lang.component(variables, "command-mute-cannot-chat-channel-muted", "channel", channel.getName()));
 
-			final PlayerCache cache = wrapped.getPlayerCache();
-
 			if (cache != null)
-				if (cache.isMuted() || (wrapped.isPlayer() && HookManager.isMuted(wrapped.getPlayer().getUniqueId())))
+				if (cache.isMuted())
 					throw new EventHandledException(true, Lang.component(variables, "command-mute-cannot-chat-player-muted"));
 		}
+
+		if (checkExternalMute && wrapped.isPlayer() && HookManager.isMuted(wrapped.getPlayer().getUniqueId()))
+			throw new EventHandledException(true, Lang.component(variables, "command-mute-cannot-chat-player-muted"));
 	}
 }

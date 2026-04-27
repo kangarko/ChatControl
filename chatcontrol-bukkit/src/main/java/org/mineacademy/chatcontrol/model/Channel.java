@@ -514,7 +514,7 @@ public final class Channel extends YamlConfig implements ConfigStringSerializabl
 		}
 
 		// Throw exception is handled
-		Mute.checkMute(sender, this);
+		Mute.checkChatMute(sender, this);
 
 		// Remove colors early so filters can force colors
 		state.setMessage(Colors.removeColorsNoPermission(sender.getSender(), state.getMessage(), Colors.Type.CHAT));

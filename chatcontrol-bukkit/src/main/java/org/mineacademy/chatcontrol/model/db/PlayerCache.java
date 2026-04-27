@@ -16,7 +16,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
@@ -33,7 +32,6 @@ import org.mineacademy.chatcontrol.model.Spy;
 import org.mineacademy.chatcontrol.model.ToggleType;
 import org.mineacademy.chatcontrol.model.WrappedSender;
 import org.mineacademy.chatcontrol.model.db.Mail.Recipient;
-import org.mineacademy.chatcontrol.model.Colors;
 import org.mineacademy.chatcontrol.operator.PlayerMessage;
 import org.mineacademy.chatcontrol.operator.Tag;
 import org.mineacademy.chatcontrol.settings.Settings;

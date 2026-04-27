@@ -97,6 +97,14 @@ public final class Format extends YamlConfig {
 	protected void onLoad() {
 		this.newLinePerPart = this.getBoolean("New_Line_Per_Part", false);
 
+		final Object rawParts = this.getObject("Parts");
+
+		if (rawParts instanceof List && !((List<?>) rawParts).isEmpty()) {
+			CommonCore.warning(this.getFileName() + " has invalid 'Parts:' section - it must be a YAML map of named parts (e.g. 'my-part:' on its own line, then indented options below), not a YAML list. Skipping format. See https://docs.mineacademy.org/chatcontrol/formats for the correct syntax.");
+
+			return;
+		}
+
 		for (final Entry<String, Object> entry : this.getMap("Parts", String.class, Object.class).entrySet()) {
 			if (entry.getValue() instanceof String) {
 				new IllegalArgumentException(this.getFileName() + " has invalid format part in Parts." + entry.getKey() + " - it cannot be a string! See https://docs.mineacademy.org/chatcontrol/formats for configuration.").printStackTrace();

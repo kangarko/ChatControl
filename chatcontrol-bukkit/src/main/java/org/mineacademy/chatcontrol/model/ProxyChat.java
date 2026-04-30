@@ -153,7 +153,7 @@ public final class ProxyChat {
 	public static void loadAllSyncedData(WrappedSender wrapped) {
 		final SyncedCache syncedCache = SyncedCache.getOrCreate(wrapped.getName(), wrapped.getUniqueId());
 
-		for (final SyncType syncType : SyncType.values())
+		for (final SyncType syncType : SyncType.VALUES)
 			syncedCache.loadData(syncType, compileValue(syncType, wrapped));
 	}
 
@@ -166,7 +166,7 @@ public final class ProxyChat {
 	private static SerializedMap collect(final WrappedSender wrapped) {
 		final SerializedMap map = new SerializedMap();
 
-		for (final SyncType syncType : SyncType.values())
+		for (final SyncType syncType : SyncType.VALUES)
 			map.put(syncType.name(), compileValue(syncType, wrapped));
 
 		return map;

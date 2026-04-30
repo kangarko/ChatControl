@@ -107,7 +107,7 @@ public final class ProxyChat {
 					if (senderCache.isDatabaseLoaded()) {
 						final WrappedSender wrapped = WrappedSender.fromPlayerCaches(online, PlayerCache.fromCached(online), senderCache);
 
-						for (final SyncType syncType : SyncType.values()) {
+						for (final SyncType syncType : SyncType.VALUES) {
 							final String value = compileValue(syncType, wrapped);
 
 							if (value.length() > Short.MAX_VALUE - 3000 /* safety margin */) {

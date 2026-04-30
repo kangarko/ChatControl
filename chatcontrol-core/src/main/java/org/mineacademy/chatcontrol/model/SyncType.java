@@ -17,4 +17,12 @@ public enum SyncType {
 	SUFFIX,
 	VANISH,
 	MUTE_BYPASS;
+
+	/**
+	 * Cached enum values. {@link #values()} clones the backing array on every call,
+	 * which shows up on timings in hot proxy-sync loops.
+	 * 
+	 * See https://dzone.com/articles/memory-hogging-enumvalues-method
+	 */
+	public static final SyncType[] VALUES = values();
 }

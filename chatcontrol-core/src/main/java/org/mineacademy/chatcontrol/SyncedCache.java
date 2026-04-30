@@ -230,7 +230,7 @@ public final class SyncedCache {
 	public SerializedMap toMap() {
 		final SerializedMap map = new SerializedMap();
 
-		for (final SyncType type : SyncType.values()) {
+		for (final SyncType type : SyncType.VALUES) {
 			Object value = null;
 
 			if (type == SyncType.SERVER)

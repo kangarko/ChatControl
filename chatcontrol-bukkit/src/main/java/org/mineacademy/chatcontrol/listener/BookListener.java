@@ -145,7 +145,10 @@ public final class BookListener extends SimpleListener<PlayerEditBookEvent> {
 		if (wrapped.getSenderCache().getPendingMailReply() != null) {
 			final String mailTitle = wrapped.getSenderCache().getPendingMailReply().getSubject();
 
-			bookMeta.setTitle((mailTitle.startsWith("Re: ") ? "" : "Re: ") + mailTitle);
+			if (mailTitle == null)
+				bookMeta.setTitle("Re:");
+			else
+				bookMeta.setTitle((mailTitle.startsWith("Re: ") ? "" : "Re: ") + mailTitle);
 		}
 
 		// Update the book

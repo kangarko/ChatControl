@@ -529,26 +529,28 @@ public final class Format extends YamlConfig {
 			// This is about 2x faster but click/hover are lost
 			//SimpleComponent component = SimpleComponent.fromSection(CompChatColor.convertMiniToLegacy(message));
 
+			final String senderName = sender == null ? "" : sender.getName();
+
 			if (this.receiverCondition != null && !this.receiverCondition.isEmpty())
 				component = component.viewCondition(this.receiverCondition
 						.replace("{channel}", channelName)
 						.replace("{channel_name}", channelName)
-						.replace("{sender}", sender == null ? "" : sender.getName())
-						.replace("{sender_name}", sender == null ? "" : sender.getName()));
+						.replace("{sender}", senderName)
+						.replace("{sender_name}", senderName));
 
 			if (!ValidCore.isNullOrEmpty(this.receiverPermission))
 				component = component.viewPermission(this.receiverPermission
 						.replace("{channel}", channelName)
 						.replace("{channel_name}", channelName)
-						.replace("{sender}", sender == null ? "" : sender.getName())
-						.replace("{sender_name}", sender == null ? "" : sender.getName()));
+						.replace("{sender}", senderName)
+						.replace("{sender_name}", senderName));
 
 			if (this.receiverRequireVariable != null)
 				component = component.viewRequireVariable(RequireVariable.fromLine(this.receiverRequireVariable
 						.replace("{channel}", channelName)
 						.replace("{channel_name}", channelName)
-						.replace("{sender}", sender == null ? "" : sender.getName())
-						.replace("{sender_name}", sender == null ? "" : sender.getName())));
+						.replace("{sender}", senderName)
+						.replace("{sender_name}", senderName)));
 
 			variables.toLegacyMode(ToLegacyMode.MINI);
 

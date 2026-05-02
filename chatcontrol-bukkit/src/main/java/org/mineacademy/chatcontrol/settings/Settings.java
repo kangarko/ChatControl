@@ -677,6 +677,7 @@ public final class Settings extends SimpleSettings {
 		public static Boolean HIDE_ME;
 		public static Boolean HIDE_SAY;
 		public static Boolean STOP_PRIVATE_MESSAGES;
+		public static Boolean SOFT_STOP_PRIVATE_MESSAGES;
 
 		private static void init() {
 			setPathPrefix("Ignore");
@@ -688,6 +689,7 @@ public final class Settings extends SimpleSettings {
 			HIDE_ME = getBoolean("Hide_Me");
 			HIDE_SAY = getBoolean("Hide_Say");
 			STOP_PRIVATE_MESSAGES = getBoolean("Stop_Private_Messages");
+			SOFT_STOP_PRIVATE_MESSAGES = getBoolean("Soft_Stop_Private_Messages");
 		}
 	}
 

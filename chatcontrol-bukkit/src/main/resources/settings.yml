@@ -739,6 +739,12 @@ Ignore:
   # Prevent players you ignore from private messaging you?
   Stop_Private_Messages: true
 
+  # If Stop_Private_Messages is true, silently drop the message instead of telling
+  # the sender it was blocked? Sender sees their message as if it was delivered normally,
+  # but the receiver gets nothing (no message, no sound, no toast). Staff spy and console
+  # logs still record the attempt. Useful to reduce drama and bypass attempts.
+  Soft_Stop_Private_Messages: false
+
 # -------------------------------------------------------------------------------------------------
 # Mute a player, a channel, a server or your entire proxy network.
 # -------------------------------------------------------------------------------------------------

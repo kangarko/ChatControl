@@ -77,13 +77,25 @@ public final class PrivateMessage {
 		if (!sender.hasPermission(Permissions.Bypass.VANISH) && receiverCache.isVanished())
 			throw new EventHandledException(true, Lang.component("command-tell-receiver-offline", placeholders));
 
+		// When true, the sender's flow proceeds normally (they see their own message, reply target updates,
+		// staff spy and console logs still fire) but the receiver gets nothing — no message, no sound, no toast.
+		boolean softHide = false;
+
 		if (!sender.hasPermission(Permissions.Bypass.REACH) && sender.isPlayer()) {
 			if (Settings.Ignore.ENABLED && Settings.Ignore.STOP_PRIVATE_MESSAGES) {
-				if (Settings.Ignore.BIDIRECTIONAL && sender.getPlayerCache().isIgnoringPlayer(receiverCache.getUniqueId()))
-					throw new EventHandledException(true, Lang.component("command-ignore-cannot-pm-ignored", placeholders));
+				final boolean senderIgnoresReceiver = Settings.Ignore.BIDIRECTIONAL && sender.getPlayerCache().isIgnoringPlayer(receiverCache.getUniqueId());
+				final boolean receiverIgnoresSender = receiverCache.isIgnoringPlayer(sender.getPlayerCache().getUniqueId());
 
-				if (receiverCache.isIgnoringPlayer(sender.getPlayerCache().getUniqueId()))
-					throw new EventHandledException(true, Lang.component("command-ignore-cannot-pm", placeholders));
+				if (senderIgnoresReceiver || receiverIgnoresSender) {
+					if (Settings.Ignore.SOFT_STOP_PRIVATE_MESSAGES)
+						softHide = true;
+
+					else if (senderIgnoresReceiver)
+						throw new EventHandledException(true, Lang.component("command-ignore-cannot-pm-ignored", placeholders));
+
+					else
+						throw new EventHandledException(true, Lang.component("command-ignore-cannot-pm", placeholders));
+				}
 			}
 
 			if (Settings.Toggle.APPLY_ON.contains(ToggleType.PRIVATE_MESSAGE) && !sender.getName().equals(receiverCache.getPlayerName()) && receiverCache.hasToggledPartOff(ToggleType.PRIVATE_MESSAGE))
@@ -96,7 +108,8 @@ public final class PrivateMessage {
 		if (sender.isPlayer())
 			sender.getPlayerCache().setReplyPlayerName(receiverCache.getPlayerName());
 
-		if (receiverCache.isAfk())
+		// Suppress the AFK warning when soft hiding to avoid leaking receiver state to the sender
+		if (!softHide && receiverCache.isAfk())
 			Common.tellLater(1, sender.getSender(), variables.replaceComponent(Lang.component("command-tell-afk-warning", "player", receiverCache.getPlayerName())));
 
 		final SimpleComponent receiverMessage = Format.parse(Settings.PrivateMessages.FORMAT_RECEIVER).build(sender, placeholders);
@@ -106,14 +119,16 @@ public final class PrivateMessage {
 		// Fire
 		sender.sendMessage(senderMessage);
 
-		if (receiver != null)
-			Common.tell(receiver, receiverMessage);
+		if (!softHide) {
+			if (receiver != null)
+				Common.tell(receiver, receiverMessage);
 
-		else if (Proxy.ENABLED && Settings.PrivateMessages.PROXY)
-			ProxyUtil.sendPluginMessage(ChatControlProxyMessage.MESSAGE, receiverCache.getUniqueId(), receiverMessage);
+			else if (Proxy.ENABLED && Settings.PrivateMessages.PROXY)
+				ProxyUtil.sendPluginMessage(ChatControlProxyMessage.MESSAGE, receiverCache.getUniqueId(), receiverMessage);
+		}
 
 		// Play sound, if null then send via proxy
-		if (playSound && Settings.PrivateMessages.SOUND.isEnabled()) {
+		if (!softHide && playSound && Settings.PrivateMessages.SOUND.isEnabled()) {
 			if (receiver != null)
 				Settings.PrivateMessages.SOUND.play(receiver);
 
@@ -124,7 +139,7 @@ public final class PrivateMessage {
 		CommonCore.log(consoleMessage.toLegacySection(null));
 
 		// Toasts
-		if (Settings.PrivateMessages.TOASTS) {
+		if (!softHide && Settings.PrivateMessages.TOASTS) {
 			final String toastLine = Variables.builder()
 					.placeholders(placeholders)
 					.placeholderArray("sender_name", CommonCore.limit(sender.getName(), 21), "message", CommonCore.limit(message, 41))
@@ -142,7 +157,7 @@ public final class PrivateMessage {
 				ProxyUtil.sendPluginMessage(ChatControlProxyMessage.TOAST, receiverCache.getUniqueId(), ToggleType.PRIVATE_MESSAGE.getKey(), String.join("\n", toast), CompMaterial.WRITABLE_BOOK.name(), CompToastStyle.GOAL.name());
 		}
 
-		if (Settings.PrivateMessages.SENDER_OVERRIDES_RECEIVER_REPLY) {
+		if (!softHide && Settings.PrivateMessages.SENDER_OVERRIDES_RECEIVER_REPLY) {
 			final Player receiverPlayer = Remain.getPlayerByUUID(receiverCache.getUniqueId());
 
 			if (receiverPlayer == null) {

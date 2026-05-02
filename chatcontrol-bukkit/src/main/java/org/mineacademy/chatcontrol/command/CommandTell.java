@@ -82,7 +82,7 @@ public final class CommandTell extends ChatControlCommand {
 				placeholders.putAll(syncedSenderCache.getPlaceholders(PlaceholderPrefix.SENDER));
 
 				if (this.isPlayer() && !this.hasPerm(Permissions.Bypass.REACH)) {
-					if (Settings.Ignore.ENABLED && Settings.Ignore.STOP_PRIVATE_MESSAGES && syncedReceiverCache.isIgnoringPlayer(this.getPlayer().getUniqueId()))
+					if (Settings.Ignore.ENABLED && Settings.Ignore.STOP_PRIVATE_MESSAGES && !Settings.Ignore.SOFT_STOP_PRIVATE_MESSAGES && syncedReceiverCache.isIgnoringPlayer(this.getPlayer().getUniqueId()))
 						this.returnTell(Lang.component("command-ignore-cannot-pm", placeholders));
 
 					if (Settings.Toggle.APPLY_ON.contains(ToggleType.PRIVATE_MESSAGE) && !this.audience.getName().equals(receiverName) && syncedReceiverCache.hasToggledPartOff(ToggleType.PRIVATE_MESSAGE))

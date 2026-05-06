@@ -1,0 +1,69 @@
+name: Bug Report
+description: Report a problem, issue or a bug.
+title: "Version: Title"
+labels: []
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      ### IMPORTANT: We will close and ignore tickets which are improperly filled, please read below and fill carefully.
+      #### In your Title, replace "Version" with your server version (i.e. Paper 1.21), and Title with question summary in your title. 
+
+- type: dropdown
+  attributes:
+    label: Are you using MySQL?
+    options:
+      - 'No'
+      - 'Yes'
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Are you using a proxy?
+    options:
+      - 'No'
+      - 'Yes - Velocity'
+      - 'Yes - BungeeCord'
+  validations:
+    required: true
+
+- type: input
+  id: plugin-version
+  attributes:
+    label: '"/version ChatControlRed" - plugin version'
+    description: Only the latest version of the plugin is supported.
+    placeholder: "11.x.x"
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: 'Optional: Error log'
+    description: If you are reporting a console error, upload any relevant log excerpts to https://pastebin.com and the paste the link here.
+    placeholder: "Enter pastebin.com link here"
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: 'ZIP of "/chc debug"'
+    description: |
+      Run `/chc debug` in the console and drop the ZIP file generated in ChatControl folder here.
+      
+      **If you want to keep your settings private** Upload this ZIP file to [ufile.io](https://ufile.io) then email the link to support@mineacademy.org
+      **The proxy.yml password will automatically be excluded for privacy.**
+      **We reserve the right to close tickets when this file is not provided since we can't properly trace your issue and waste time.**
+    placeholder: |
+      Click here then drag the "/chc debug" zip file here to upload it.
+  validations:
+    required: false
+
+
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    description: What is your expected behavior and what happened instead? How can we reproduce the issue? 
+  validations:
+    required: true

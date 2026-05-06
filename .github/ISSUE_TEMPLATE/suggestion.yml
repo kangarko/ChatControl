@@ -1,0 +1,18 @@
+name: Improvement
+description: Suggest a new idea or a feature.
+title: "Your Suggestion Title"
+labels: []
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      ### See our [Roadmap](https://github.com/kangarko/ChatControl/issues/1) to check if your feature is not already planned first.
+
+- type: textarea
+  attributes:
+    label: "Summary"
+    description: |
+      What would happen if we didn't implement this feature? Why not having this feature is a problem? Enter a clear description of your suggestion.
+  validations:
+    required: true

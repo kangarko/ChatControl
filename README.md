@@ -25,22 +25,12 @@ ChatControl is the most advanced chat filtering and management plugin. It builds
 
 Visit [MineAcademy.org/ChatControl](https://mineacademy.org/chatcontrol) to purchase the plugin.
 
-## Compiling
-Please note that NO support is provided for the compilation process and for non-buyers. Consider purchasing the plugin to support its development, get our insider rank on our [Discord](https://mineacademy.org/discord) and get support.
-
-1. Download and compile [Foundation v7](https://github.com/kangarko/Foundation/tree/v7).
-2. Run Maven "clean install" in your IDE.
-
-If you encounter any missing dependencies error, download the plugins manually and add them to `/library`.
-
 ## Addons
 
 * [BungeeControl](https://builtbybit.com/resources/24248/)
 * [VelocityControl](https://builtbybit.com/resources/43226/)
 
 ## Support
-
-You have to purchase ChatControl to be eligible for customer support.
 
 1. Please read our **[Wiki](https://docs.mineacademy.org/chatcontrol)** first before opening a ticket.
 2. See [Common Issues](https://docs.mineacademy.org/chatcontrol/common-issues) whether your question or bug has already been answered.

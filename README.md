@@ -32,6 +32,6 @@ Visit [MineAcademy.org/ChatControl](https://mineacademy.org/chatcontrol) to purc
 
 ## Support
 
-1. Please read our **[Wiki](https://docs.mineacademy.org/chatcontrol)** first before opening a ticket.
-2. See [Common Issues](https://docs.mineacademy.org/chatcontrol/common-issues) whether your question or bug has already been answered.
-3. To open a ticket, please read the [Getting Help the Best Way](https://docs.mineacademy.org/general/getting-help).
+1. Please read our **[Wiki](https://mineacademy.org/docs/chatcontrol)** first before opening a ticket.
+2. See [Common Issues](https://mineacademy.org/docs/chatcontrol/common-issues) whether your question or bug has already been answered.
+3. To open a ticket, please read the [Getting Help the Best Way](https://mineacademy.org/docs/general/getting-help).
